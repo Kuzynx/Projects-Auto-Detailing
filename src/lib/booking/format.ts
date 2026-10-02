@@ -32,7 +32,7 @@ export const DEFAULT_ESTIMATE_NOTE =
 export const EXOTIC_ESTIMATE_NOTE =
   "Exotic pricing starts at the amount shown; final quote confirmed on site.";
 
-/** "$15–$30" from the catalog's price factor for extremely dirty work vehicles, if any. */
+/** "$15–$30" from the catalog's price factor for extremely dirty trucks, SUVs and work vehicles, if any. */
 function workVehicleSurcharge(): string | null {
   const factor = priceFactors.find((f) => f.amount && /work vehicle/i.test(f.title));
   return factor?.amount ? factor.amount.replace(/^\+/, "") : null;
@@ -40,14 +40,15 @@ function workVehicleSurcharge(): string | null {
 
 /**
  * Note shown under the estimate in the summary, confirmation and emails.
- * Exotic sizes and work vehicles get their own wording; everything else the default.
+ * Exotic sizes, work vehicles, trucks and SUVs get their own wording; everything else the default.
  */
 export function getEstimateNote(serviceSlug: string, size: VehicleSize): string {
   const service = getService(serviceSlug);
   if (isExotic(size) || (service && service.priceNote?.[size])) return EXOTIC_ESTIMATE_NOTE;
   const surcharge = workVehicleSurcharge();
-  if (service?.category === "work" && surcharge) {
-    return `Starting price; extremely dirty construction, farm or work vehicles may add ${surcharge}, quoted on site.`;
+  const heavySoilSize = size === "truck" || size === "suv";
+  if ((service?.category === "work" || heavySoilSize) && surcharge) {
+    return `Starting price; extremely dirty trucks, SUVs and work vehicles may add ${surcharge}, quoted on site.`;
   }
   return DEFAULT_ESTIMATE_NOTE;
 }

@@ -126,7 +126,7 @@ describe("add-ons and price notes", () => {
       makeInput({ service: "fx-work", size: "truck", garageConfirmed: false, time: "09:00" }),
     );
     expect(work.text).toContain(
-      "extremely dirty construction, farm or work vehicles may add $15–$30",
+      "extremely dirty trucks, SUVs and work vehicles may add $15–$30",
     );
     const exotic = renderCustomerConfirmationEmail(
       makeInput({ service: "fx-wash", size: "exotic", garageConfirmed: false, time: "09:00" }),

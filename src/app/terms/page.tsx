@@ -88,8 +88,8 @@ const sections: LegalSection[] = [
         <ul>
           <li>Heavy pet hair, sand, mud, staining, smoke odor or spills.</li>
           <li>
-            Extremely dirty construction, farm or work vehicles: a {surcharge} surcharge, quoted on
-            site before work starts.
+            Extremely dirty vehicles (construction, farm or work vehicles, and any truck or SUV with
+            caked mud or heavy grime): a {surcharge} surcharge, quoted on site before work starts.
           </li>
           <li>Oversized, lifted or modified vehicles beyond our standard size categories.</li>
         </ul>

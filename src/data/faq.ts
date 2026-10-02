@@ -46,12 +46,12 @@ export const faqs: FaqItem[] = [
     category: "services",
     question: "Is there an extra charge for really dirty work trucks?",
     answer:
-      "Sometimes. The Working Truck package covers normal work grime. Extremely dirty construction, farm or work vehicles (thick mud, caked dust, heavy grime) can add $15 to $30. That is quoted on site, before any work starts, so you always know the price first.",
+      "Sometimes. The Working Truck package covers normal work grime. Extremely dirty vehicles (construction, farm or work vehicles, and any truck or SUV with thick mud, caked dust or heavy grime) can add $15 to $30. That is quoted on site, before any work starts, so you always know the price first.",
   },
   {
     category: "general",
     question: "How is pricing decided?",
-    answer: `By package and vehicle class: car, SUV, truck, sports car, exotic or motorcycle. A Basic Package starts at ${priceFor("basic-wash", "car", 50)} for a car, and every price is listed on the pricing page. Exotics start at the listed price and are confirmed once we see the car. Working vehicles start at ${priceFor("working-truck", "truck", 75)}, plus $15 to $30 if a construction, farm or work vehicle is extremely dirty. Any extra is quoted on site before work starts, never after.`,
+    answer: `By package and vehicle class: car, SUV, truck, sports car, exotic or motorcycle. A Basic Package starts at ${priceFor("basic-wash", "car", 50)} for a car, and every price is listed on the pricing page. Exotics start at the listed price and are confirmed once we see the car. Working vehicles start at ${priceFor("working-truck", "truck", 75)}, plus $15 to $30 if a construction, farm or work vehicle, or any truck or SUV, is extremely dirty. Any extra is quoted on site before work starts, never after.`,
   },
   {
     category: "services",

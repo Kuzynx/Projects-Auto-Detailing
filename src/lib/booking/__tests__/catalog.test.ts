@@ -43,7 +43,7 @@ describe("live catalog", () => {
   it("notes the work-vehicle surcharge and exotic starting prices", () => {
     expect(getService("working-truck")).toBeDefined();
     expect(getEstimateNote("working-truck", "truck")).toBe(
-      "Starting price; extremely dirty construction, farm or work vehicles may add $15–$30, quoted on site.",
+      "Starting price; extremely dirty trucks, SUVs and work vehicles may add $15–$30, quoted on site.",
     );
     expect(getEstimateNote("full-deluxe", "exotic")).toBe(EXOTIC_ESTIMATE_NOTE);
     expect(getEstimateNote("basic-wash", "car")).toBe(DEFAULT_ESTIMATE_NOTE);

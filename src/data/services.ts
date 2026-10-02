@@ -534,8 +534,9 @@ export interface PriceFactor {
 /** Things that can change a quote. Always quoted before work starts. */
 export const priceFactors: PriceFactor[] = [
   {
-    title: "Extremely dirty work vehicles",
-    description: "Construction, farm or work vehicles with caked mud or heavy job-site grime.",
+    title: "Extremely dirty trucks, SUVs and work vehicles",
+    description:
+      "Construction, farm or work vehicles, and any truck or SUV, with caked mud, heavy job-site grime or off-road build-up.",
     amount: "+$15–$30",
   },
   {

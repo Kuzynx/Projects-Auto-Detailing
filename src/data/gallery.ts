@@ -64,7 +64,7 @@ export const galleryItems: GalleryItem[] = [
     id: "g00e",
     src: "/images/work/shelby-gt350-finish.jpg",
     alt: "Side profile of a red Shelby GT350 reflecting the sky after its wash, with the wet driveway still drying",
-    title: "GT350, wet-look gloss",
+    title: "GT350, hand wax finish",
     category: "exterior",
     vehicle: "Ford Mustang Shelby GT350",
     service: "Premium Package",

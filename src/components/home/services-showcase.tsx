@@ -11,7 +11,7 @@ const FEATURED_SLUG = "full-deluxe";
 const TRUCK_SLUG = "working-truck";
 /** Client-supplied price factor for the Working Truck service (docs/SERVICES-SPEC.md). */
 const TRUCK_NOTE =
-  "Extremely dirty construction, farm or work vehicles add $15–$30, quoted on site before we start.";
+  "Extremely dirty trucks, SUVs and work vehicles add $15–$30, quoted on site before we start.";
 
 const NUMBER_WORDS = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"];
 

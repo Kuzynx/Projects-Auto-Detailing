@@ -74,7 +74,7 @@ export const siteConfig = {
       name: "Nal",
       role: "Manager",
       bio: "Nal manages the business side of Project's Auto Detailing: the website, payments and booking. She is here to make your time and the whole process easier.",
-      photo: null as string | null,
+      photo: "/images/team/nal.jpg" as string | null,
     },
   ],
   /** Facts the site may state. Flip these only when they are true and documented. */
