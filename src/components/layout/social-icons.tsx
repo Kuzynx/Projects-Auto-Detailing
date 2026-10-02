@@ -77,7 +77,7 @@ export const socialLinks = [
   { label: "Facebook", href: siteConfig.social.facebook, Icon: FacebookIcon },
   { label: "TikTok", href: siteConfig.social.tiktok, Icon: TikTokIcon },
   { label: "Google", href: siteConfig.social.google, Icon: GoogleIcon },
-] as const;
+].filter((link): link is typeof link & { href: string } => Boolean(link.href));
 
 /** Row of circular social links. Works in server and client trees. */
 export function SocialLinks({

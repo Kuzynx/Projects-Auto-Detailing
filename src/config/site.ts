@@ -43,11 +43,17 @@ export const siteConfig = {
     { days: "Saturday", open: "7:00 AM", close: "4:00 PM" },
     { days: "Sunday", open: "Closed", close: "" },
   ],
+  /**
+   * Only profiles that exist. Instagram is the only one today; add the others back when
+   * they are real (a Google Business Profile re-enables the "write a review" links).
+   */
   social: {
     instagram: "https://instagram.com/projectsautodetailing",
-    facebook: "https://facebook.com/projectsautodetailing",
-    tiktok: "https://tiktok.com/@projectsautodetailing",
-    google: "https://g.page/projectsautodetailing",
+  } as {
+    instagram: string;
+    facebook?: string;
+    tiktok?: string;
+    google?: string;
   },
   /**
    * Honest, verifiable facts only. There are no review counts or ratings here on purpose:

@@ -167,7 +167,7 @@ export function localBusinessJsonLd(services: readonly Service[] = []): JsonLdNo
     geo: { "@type": "GeoCoordinates", latitude: siteConfig.geo.lat, longitude: siteConfig.geo.lng },
     areaServed: areaServed(),
     openingHoursSpecification: openingHoursSpecification(),
-    sameAs: Object.values(social),
+    sameAs: Object.values(social).filter((url): url is string => Boolean(url)),
   };
 
   // A map pin only makes sense when customers can visit a location.

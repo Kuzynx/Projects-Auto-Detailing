@@ -52,7 +52,7 @@ export const socialLinks = [
   { label: "Facebook", href: siteConfig.social.facebook, Icon: FacebookIcon },
   { label: "TikTok", href: siteConfig.social.tiktok, Icon: TikTokIcon },
   { label: "Google", href: siteConfig.social.google, Icon: Store },
-] as const;
+].filter((link): link is typeof link & { href: string } => Boolean(link.href));
 
 /** "@handle" derived from a profile URL. */
 export function socialHandle(url: string) {

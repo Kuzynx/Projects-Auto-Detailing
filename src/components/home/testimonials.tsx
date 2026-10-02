@@ -54,21 +54,26 @@ function FirstReviewsCta() {
                 className="mt-4 text-2xl font-semibold text-balance sm:text-3xl"
               >
                 Had your car detailed by {siteConfig.founder.name}?{" "}
-                <span className="text-gradient-brand">Leave one of our first reviews.</span>
+                <span className="text-gradient-brand">
+                  {siteConfig.social.google
+                    ? "Leave one of our first reviews."
+                    : "Follow the work."}
+                </span>
               </h2>
               <p className="mt-3 text-sm text-pretty text-ink-muted sm:text-base">
-                {siteConfig.name} is a young business, and every honest review helps the next
-                customer decide. It takes a minute and means a lot.
+                {siteConfig.social.google
+                  ? `${siteConfig.name} is a young business, and every honest review helps the next customer decide. It takes a minute and means a lot.`
+                  : `${siteConfig.name} is a young business. Every job gets posted, so you can see exactly what you are booking.`}
               </p>
             </div>
             <ButtonLink
-              href={siteConfig.social.google}
+              href={siteConfig.social.google ?? siteConfig.social.instagram}
               target="_blank"
               rel="noopener noreferrer"
               variant="outline"
               className="group shrink-0 self-start md:self-auto"
             >
-              Write a Google review
+              {siteConfig.social.google ? "Write a Google review" : "See the work on Instagram"}
               <ArrowUpRight
                 className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                 aria-hidden="true"
@@ -83,6 +88,7 @@ function FirstReviewsCta() {
 }
 
 function GoogleLink({ children, className }: { children: React.ReactNode; className?: string }) {
+  if (!siteConfig.social.google) return null;
   return (
     <a
       href={siteConfig.social.google}
