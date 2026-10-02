@@ -99,7 +99,6 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
   const headingRef = useRef<HTMLHeadingElement>(null);
   const reduceMotion = useReducedMotion();
   const [copied, setCopied] = useState(false);
-  const [copiedRequest, setCopiedRequest] = useState(false);
   const calendar = useCalendarEvent(result);
   const service = getService(booking.service);
   const when = formatAppointment(booking);
@@ -121,28 +120,17 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
     }
   }
 
-  async function copyRequest() {
-    if (!result.smsBody) return;
-    try {
-      await navigator.clipboard.writeText(result.smsBody);
-      setCopiedRequest(true);
-      window.setTimeout(() => setCopiedRequest(false), 2000);
-    } catch {
-      // Clipboard can be blocked; the "Open text message" link and phone number still work.
-    }
-  }
-
   const founder = detailerName;
   const contactMethod = booking.smsConsent ? `text ${booking.phone}` : `call ${booking.phone}`;
   // How the request travelled decides what we can promise. Only the server action
-  // ("email", the default) sends the customer a confirmation email; with "sms" the
-  // request has not reached us until the visitor presses Send in their messaging app.
+  // ("email", the default) sends the customer a confirmation email; with "mailto" the
+  // request has not reached us until the visitor presses Send in their mail app.
   const delivery = result.delivery ?? "email";
-  const awaitingSend = delivery === "sms";
+  const awaitingSend = delivery === "mailto";
   const confirmStep = awaitingSend
     ? {
-        title: "Send the text",
-        body: `Your request reaches us only after you press Send in your messaging app. Then ${bookingContactName} will ${contactMethod} within the hour during business hours to confirm.`,
+        title: "Send the email",
+        body: `Your request reaches us only after you press Send in your email app. Then ${bookingContactName} will ${contactMethod} within the hour during business hours to confirm.`,
       }
     : {
         title: `${bookingContactName} confirms your time`,
@@ -200,10 +188,9 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
           <p className="relative mx-auto mt-3 max-w-xl text-pretty text-ink-muted">
             {awaitingSend ? (
               <>
-                Your messaging app opened with this request filled in, addressed to{" "}
-                {siteConfig.phone}. It isn&apos;t sent until you press Send. Once it arrives,{" "}
-                {bookingContactName} will {contactMethod} to confirm {when ?? "your time"} for your{" "}
-                {service?.name ?? "detail"}.
+                Your email app opened with this request filled in. It isn&apos;t sent until you
+                press Send. Once it arrives, {bookingContactName} will {contactMethod} to confirm{" "}
+                {when ?? "your time"} for your {service?.name ?? "detail"}.
               </>
             ) : (
               <>
@@ -293,44 +280,24 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
             </dl>
           </section>
 
-          {awaitingSend && result.smsHref && (
+          {result.delivery === "mailto" && result.mailtoHref && (
             <section
-              aria-labelledby="bk-done-text"
+              aria-labelledby="bk-done-mail"
               className="rounded-lg border border-brand-500/40 bg-brand-500/10 p-5"
             >
-              <h3 id="bk-done-text" className="font-display text-base font-semibold text-ink">
-                One more step: send the text
+              <h3 id="bk-done-mail" className="font-display text-base font-semibold text-ink">
+                One more step: send the email
               </h3>
               <p className="mt-2 text-sm text-ink-muted">
-                Your request isn&apos;t sent until you press Send in your messaging app. If nothing
-                opened (on a computer, for example), copy the request and text it to{" "}
-                <a href={siteConfig.phoneHref} className="text-ink underline underline-offset-4">
-                  {siteConfig.phone}
-                </a>{" "}
-                from your phone.
+                Your request isn&apos;t sent until you press Send in your email app. If nothing
+                opened, use the button below.
               </p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <a href={result.smsHref} className={buttonClasses("primary", "md")}>
-                  Open text message
-                </a>
-                {result.smsBody && (
-                  <button
-                    type="button"
-                    onClick={copyRequest}
-                    className={buttonClasses("outline", "md")}
-                  >
-                    {copiedRequest ? (
-                      <Check aria-hidden className="size-4" />
-                    ) : (
-                      <Copy aria-hidden className="size-4" />
-                    )}
-                    {copiedRequest ? "Copied" : "Copy request"}
-                  </button>
-                )}
-              </div>
-              <p aria-live="polite" className="sr-only">
-                {copiedRequest ? "Booking request copied to clipboard." : ""}
-              </p>
+              <a
+                href={result.mailtoHref}
+                className="mt-4 inline-flex h-11 items-center justify-center rounded-full bg-brand-500 px-6 font-display text-sm font-semibold text-bg transition hover:bg-brand-400"
+              >
+                Open booking email
+              </a>
             </section>
           )}
 

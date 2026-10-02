@@ -45,7 +45,6 @@ export function ContactForm() {
   const [syncedState, setSyncedState] = useState(state);
   const [dismissedAt, setDismissedAt] = useState<number | undefined>(undefined);
   const [messageLength, setMessageLength] = useState(0);
-  const [copiedMessage, setCopiedMessage] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const successRef = useRef<HTMLHeadingElement>(null);
   const uid = useId();
@@ -58,17 +57,6 @@ export function ContactForm() {
   }
 
   const showSuccess = state.status === "success" && state.submittedAt !== dismissedAt;
-
-  async function copyMessage() {
-    if (!state.smsBody) return;
-    try {
-      await navigator.clipboard.writeText(state.smsBody);
-      setCopiedMessage(true);
-      window.setTimeout(() => setCopiedMessage(false), 2000);
-    } catch {
-      // Clipboard can be blocked; the "open the text here" link and phone number still work.
-    }
-  }
 
   useEffect(() => {
     if (state.status === "success") {
@@ -120,9 +108,7 @@ export function ContactForm() {
     };
   };
 
-  const awaitingSend = state.delivery === "sms";
-  // A texted message reaches us from the visitor's own number, so we reply the same way.
-  const replyBy = awaitingSend ? "text you back" : "reply by email";
+  const awaitingSend = state.delivery === "mailto";
 
   if (showSuccess) {
     return (
@@ -142,32 +128,18 @@ export function ContactForm() {
         </h3>
         {awaitingSend && (
           <p className="mt-3 text-pretty text-ink-muted">
-            Your messaging app opened with this message filled in, addressed to {siteConfig.phone}.
-            It isn&apos;t sent until you press Send there.
-            {state.smsHref && (
+            Your email app opened with this message filled in. It isn&apos;t sent until you press
+            Send there.
+            {state.mailtoHref && (
               <>
                 {" "}
                 If nothing opened,{" "}
                 <a
-                  href={state.smsHref}
+                  href={state.mailtoHref}
                   className="font-semibold text-brand-300 underline-offset-4 hover:underline"
                 >
-                  open the text here
+                  open the email here
                 </a>
-                {state.smsBody && (
-                  <>
-                    {" "}
-                    or{" "}
-                    <button
-                      type="button"
-                      onClick={copyMessage}
-                      className="font-semibold text-brand-300 underline-offset-4 hover:underline"
-                    >
-                      {copiedMessage ? "copied" : "copy it"}
-                    </button>{" "}
-                    and text it from your phone
-                  </>
-                )}
                 .
               </>
             )}
@@ -176,8 +148,8 @@ export function ContactForm() {
         <p className="mt-3 text-pretty text-ink-muted">
           {awaitingSend ? "Once it arrives, " : ""}
           {siteConfig.team[0]
-            ? `${siteConfig.team[0].name}, who handles booking and messages, will ${replyBy}, and anything about your car goes straight to ${siteConfig.founder.name}.`
-            : `${siteConfig.founder.name} will read it and ${replyBy}.`}{" "}
+            ? `${siteConfig.team[0].name}, who handles booking and messages, will reply by email, and anything about your car goes straight to ${siteConfig.founder.name}.`
+            : `${siteConfig.founder.name} will read it and reply by email.`}{" "}
           We reply fast, usually the same day. Anything sent after hours is answered the next
           business day.
         </p>

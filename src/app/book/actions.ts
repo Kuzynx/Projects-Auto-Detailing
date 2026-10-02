@@ -94,8 +94,7 @@ export async function submitBooking(
 
   const [shop, customer] = await Promise.all([
     sendEmail({
-      // `||` (not `??`) so an empty BOOKING_NOTIFY_EMAIL in the host's env still falls back.
-      to: process.env.BOOKING_NOTIFY_EMAIL || siteConfig.email,
+      to: process.env.BOOKING_NOTIFY_EMAIL ?? siteConfig.email,
       subject: notification.subject,
       html: notification.html,
       text: notification.text,
@@ -106,7 +105,7 @@ export async function submitBooking(
       subject: confirmation.subject,
       html: confirmation.html,
       text: confirmation.text,
-      replyTo: siteConfig.email ?? undefined,
+      replyTo: siteConfig.email,
     }),
   ]);
 

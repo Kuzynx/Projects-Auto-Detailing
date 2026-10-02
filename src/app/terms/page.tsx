@@ -301,15 +301,8 @@ const sections: LegalSection[] = [
     content: (
       <p>
         {legalName}, {address.street ? <>{address.street}, </> : null}
-        {address.city}, {address.state} {address.zip}.{" "}
-        {email ? (
-          <>
-            Email <a href={`mailto:${email}`}>{email}</a> or call
-          </>
-        ) : (
-          <>Call or text</>
-        )}{" "}
-        <a href={siteConfig.phoneHref}>{phone}</a>.
+        {address.city}, {address.state} {address.zip}. Email <a href={`mailto:${email}`}>{email}</a>{" "}
+        or call <a href={siteConfig.phoneHref}>{phone}</a>.
       </p>
     ),
   },

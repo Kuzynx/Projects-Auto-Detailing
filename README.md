@@ -59,7 +59,7 @@ Copy `.env.example` to `.env.local` for local work and set the same keys in Verc
 | `NEXT_PUBLIC_SITE_URL` | Production     | Canonical origin for metadata, sitemap, robots and JSON-LD, e.g. `https://projectsautodetailing.com`                                 |
 | `NEXT_PUBLIC_GA_ID`    | No             | Google Analytics 4 ID (`G-XXXXXXX`). Blank disables analytics. Must be set at build time; it also opens the CSP for Google's domains |
 | `RESEND_API_KEY`       | For live email | Sends booking and contact emails. Blank logs submissions to the server console instead                                               |
-| `BOOKING_NOTIFY_EMAIL` | For live email | Inbox that receives new bookings and messages. Required: the business has no public inbox (`siteConfig.email` is `null`)             |
+| `BOOKING_NOTIFY_EMAIL` | For live email | Inbox that receives new bookings and messages                                                                                        |
 | `BOOKING_FROM_EMAIL`   | For live email | Verified Resend sender, e.g. `"Project's Auto Detailing <bookings@projectsautodetailing.com>"`                                       |
 
 ## Project structure
@@ -218,10 +218,8 @@ every push to `main` and publishes it to GitHub Pages.
 2. Push to `main`. The site appears at `https://<user>.github.io/<repo>/` within a couple of minutes.
 3. Optional repository variables (**Settings → Secrets and variables → Actions → Variables**):
    - `FORM_ENDPOINT`: a [Formspree](https://formspree.io)-style JSON endpoint. Booking and contact
-     submissions are POSTed there. Without it, submitting a form opens the visitor's messaging app with
-     a text to `siteConfig.phone` pre-filled; it reaches the shop when the visitor presses Send. To get a
-     text automatically instead, point this at a webhook that sends an SMS (for example a Zapier
-     "Catch Hook" followed by "SMS by Zapier" to the shop's number).
+     submissions are POSTed there. Without it, submitting a form opens the visitor's email app with the
+     request pre-filled, addressed to `siteConfig.email`.
    - `GA_ID`: Google Analytics 4 measurement ID.
 4. Custom domain: add it under **Settings → Pages → Custom domain** and commit a `public/CNAME` file
    containing the domain. The workflow derives the base path and site URL automatically, so nothing else
@@ -231,7 +229,7 @@ What differs from the Node deploy:
 
 |                  | Node host (Vercel)                      | GitHub Pages                              |
 | ---------------- | --------------------------------------- | ----------------------------------------- |
-| Forms            | Server Actions send email via Resend    | Form endpoint, or a text from the visitor |
+| Forms            | Server Actions send email via Resend    | Form endpoint, or the visitor's email app |
 | Images           | Optimized AVIF/WebP, resized per device | Original JPEGs served as-is               |
 | Security headers | Set by `next.config.ts`                 | Not available on a static host            |
 | URLs             | `/services`                             | `/services/` (trailing slash)             |

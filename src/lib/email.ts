@@ -1,8 +1,7 @@
 import "server-only";
 
 export interface EmailMessage {
-  /** null when no inbox is configured; fails when a provider is set, logs otherwise. */
-  to: string | string[] | null;
+  to: string | string[];
   subject: string;
   html: string;
   text: string;
@@ -29,9 +28,6 @@ export async function sendEmail(message: EmailMessage): Promise<EmailResult> {
     console.info("[email:simulated]", { from, to: message.to, subject: message.subject });
     console.info(message.text);
     return { ok: true, simulated: true };
-  }
-  if (!message.to || message.to.length === 0) {
-    return { ok: false, error: "No recipient configured (set BOOKING_NOTIFY_EMAIL)" };
   }
 
   try {

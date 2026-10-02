@@ -60,24 +60,17 @@ describe("static booking delivery", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  // The business has no email inbox, so without a form endpoint the request goes out as a
-  // text to the shop's phone number, with the whole booking (notes included) in the body.
-  it("texts the full booking to the shop's number when no endpoint is configured", async () => {
+  // Regression: static-submit.ts says "Bodies are kept short because some mail clients cap
+  // URL length", but nothing caps them: a booking with the allowed 1000-character note
+  // produces a mailto: URL far beyond the ~2000-character limit of Outlook/IE-era handlers,
+  // so the mail app opens truncated or not at all.
+  it("keeps the mailto: link within a safe length for the longest allowed booking", async () => {
     vi.stubEnv("NEXT_PUBLIC_FORM_ENDPOINT", "");
     const { submitBooking } = await import("../booking-static");
-    const notes = "Gate code 4521, side yard; ".repeat(30).trim();
     const fd = new FormData();
-    fd.set("payload", JSON.stringify({ ...payload, notes }));
+    fd.set("payload", JSON.stringify({ ...payload, notes: "Gate code, side yard; ".repeat(45) }));
     const result = await submitBooking(null, fd);
-    expect(result?.ok).toBe(true);
-    if (!result?.ok) return;
-    expect(result.delivery).toBe("sms");
-    expect(result.smsHref).toMatch(/^sms:\+18402044176\?&body=/);
-    const body = decodeURIComponent(result.smsHref!.split("&body=")[1]!);
-    expect(body).toBe(result.smsBody);
-    expect(body.startsWith(`Booking request ${result.reference}`)).toBe(true);
-    expect(body).toContain("Phone: (760) 555-0123");
-    expect(body.endsWith(`Notes: ${notes}`)).toBe(true);
-    expect(fetchMock).not.toHaveBeenCalled();
+    expect(result?.ok && result.mailtoHref).toBeTruthy();
+    if (result?.ok) expect(result.mailtoHref!.length).toBeLessThanOrEqual(2000);
   });
 });

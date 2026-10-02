@@ -124,23 +124,16 @@ export function LegalDocument({ lastUpdated, summary, sections, related }: Legal
               </Link>
               .
             </p>
-            <ul
-              className={cn(
-                "mt-6 grid gap-4 text-sm",
-                siteConfig.email ? "sm:grid-cols-3" : "sm:grid-cols-2",
-              )}
-            >
-              {siteConfig.email && (
-                <li className="flex items-start gap-3">
-                  <Mail className="mt-0.5 size-4 shrink-0 text-brand-400" aria-hidden="true" />
-                  <a
-                    href={`mailto:${siteConfig.email}`}
-                    className="break-all text-ink hover:text-brand-300"
-                  >
-                    {siteConfig.email}
-                  </a>
-                </li>
-              )}
+            <ul className="mt-6 grid gap-4 text-sm sm:grid-cols-3">
+              <li className="flex items-start gap-3">
+                <Mail className="mt-0.5 size-4 shrink-0 text-brand-400" aria-hidden="true" />
+                <a
+                  href={`mailto:${siteConfig.email}`}
+                  className="break-all text-ink hover:text-brand-300"
+                >
+                  {siteConfig.email}
+                </a>
+              </li>
               <li className="flex items-start gap-3">
                 <Phone className="mt-0.5 size-4 shrink-0 text-brand-400" aria-hidden="true" />
                 <a href={siteConfig.phoneHref} className="text-ink hover:text-brand-300">

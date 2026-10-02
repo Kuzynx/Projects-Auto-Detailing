@@ -45,8 +45,7 @@ function success(delivery: BookingActionSuccess["delivery"]): BookingActionSucce
     booking: result.data,
     estimate: calculateEstimate({ serviceSlug: "basic-wash", size: "car" }),
     delivery,
-    smsHref: delivery === "sms" ? "sms:+18402044176?&body=Booking" : undefined,
-    smsBody: delivery === "sms" ? "Booking" : undefined,
+    mailtoHref: delivery === "mailto" ? "mailto:x@example.com" : undefined,
   };
 }
 
@@ -57,19 +56,13 @@ describe("booking review regressions", () => {
   afterEach(() => vi.useRealTimers());
 
   // Regression: booking-confirmation.tsx always says "A confirmation email is on its way to
-  // <email>", but on static hosting (delivery "sms" or "endpoint") no email is sent to the
-  // customer, and with sms the request has not even reached the shop until they press Send.
-  it("does not promise a confirmation email when the request went out by text", () => {
+  // <email>", but on static hosting (delivery "mailto" or "endpoint") no email is sent to the
+  // customer, and with mailto the request has not even reached the shop until they press Send.
+  it("does not promise a confirmation email when the request went out by mailto", () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(NOW);
-    render(<BookingConfirmation result={success("sms")} />);
+    render(<BookingConfirmation result={success("mailto")} />);
     expect(screen.queryByText(/confirmation email is on its way/)).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(/press Send/);
-    expect(screen.getByRole("link", { name: "Open text message" })).toHaveAttribute(
-      "href",
-      "sms:+18402044176?&body=Booking",
-    );
-    expect(screen.getByRole("button", { name: "Copy request" })).toBeInTheDocument();
   });
 
   it("does not promise a confirmation email when the request went to a form endpoint", () => {

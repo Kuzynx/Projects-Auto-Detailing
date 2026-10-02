@@ -90,11 +90,9 @@ export interface ContactFormState {
   values?: Partial<Record<ContactField, string>>;
   /** Changes on every successful send so the client can tell submissions apart. */
   submittedAt?: number;
-  /** How the message was delivered; "sms" means the visitor's messaging app was opened (static hosting). */
-  delivery?: "email" | "endpoint" | "sms";
-  smsHref?: string;
-  /** The pre-filled text, so it can be copied on a device without texting. */
-  smsBody?: string;
+  /** How the message was delivered; "mailto" means the visitor's mail app was opened (static hosting). */
+  delivery?: "email" | "endpoint" | "mailto";
+  mailtoHref?: string;
 }
 
 export const initialContactState: ContactFormState = { status: "idle" };

@@ -51,7 +51,7 @@ export async function submitContact(
     console.error("[contact] email failed", result.error);
     return {
       status: "error",
-      message: `We could not send your message just now. Please call or text us at ${siteConfig.phone}.`,
+      message: `We could not send your message just now. Please call us at ${siteConfig.phone} or email ${siteConfig.email}.`,
       values: raw,
     };
   }
