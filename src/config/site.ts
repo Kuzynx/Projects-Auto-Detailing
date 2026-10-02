@@ -48,7 +48,7 @@ export const siteConfig = {
    * they are real (a Google Business Profile re-enables the "write a review" links).
    */
   social: {
-    instagram: "https://instagram.com/projectsautodetailing",
+    instagram: "https://www.instagram.com/projectsautodetailing",
   } as {
     instagram: string;
     facebook?: string;
