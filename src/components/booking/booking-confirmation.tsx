@@ -17,6 +17,7 @@ import {
   getSizeLabel,
 } from "@/lib/booking/format";
 import { requiresGarage } from "@/lib/booking/schema";
+import { UTILITIES_CONFIRMED_LABEL } from "@/lib/booking/format";
 import { buildIcs, googleCalendarUrl, icsDataUrl, zonedDateTimeToUtc } from "@/lib/booking/ics";
 import {
   findTimeSlot,
@@ -119,8 +120,8 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
     {
       title: "Day-before reminder",
       body: requiresGarage(booking.service)
-        ? `You'll get ${founder}'s arrival time. Clear the garage or covered space so he can work all the way around the car; he brings water, power and lighting.`
-        : `You'll get ${founder}'s arrival window. Leave about three feet of clearance around the car; he arrives with everything, including water and power.`,
+        ? `You'll get ${founder}'s arrival time. Clear the garage or covered space so he can work all the way around the car. You provide the hose spigot and outlet; he brings the rest.`
+        : `You'll get ${founder}'s arrival window. You provide the hose spigot and outlet; he brings the rest.`,
     },
     {
       title: "Walkthrough, then the work",
@@ -221,6 +222,7 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
                   : []),
                 ["When", when ?? booking.date],
                 ["Where", formatServiceAddress(booking)],
+                ...(booking.utilitiesConfirmed ? [["Utilities", UTILITIES_CONFIRMED_LABEL]] : []),
               ].map(([label, value]) => (
                 <div key={label} className="flex gap-4">
                   <dt className="w-20 shrink-0 text-ink-subtle">{label}</dt>
@@ -282,6 +284,28 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
                 </li>
               ))}
             </ol>
+
+            {siteConfig.customerProvides.length > 0 && (
+              <>
+                <h3
+                  id="bk-done-ready"
+                  className="mt-8 font-display text-base font-semibold text-ink"
+                >
+                  What to have ready
+                </h3>
+                <ul
+                  aria-labelledby="bk-done-ready"
+                  className="mt-3 space-y-2 text-sm text-ink-muted"
+                >
+                  {siteConfig.customerProvides.map((item) => (
+                    <li key={item} className="flex gap-2.5">
+                      <Check aria-hidden className="mt-0.5 size-4 shrink-0 text-brand-400" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </section>
         </div>
 

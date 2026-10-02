@@ -193,6 +193,21 @@ export default async function ServiceDetailPage({ params }: PageProps<"/services
                   {location.description}
                 </span>
               </p>
+              {siteConfig.customerProvides.length > 0 && (
+                <div className="mt-6 rounded-lg border border-border bg-bg-elevated p-5">
+                  <h3 className="font-display text-sm font-semibold text-ink">
+                    What we need from you
+                  </h3>
+                  <ul className="mt-3 space-y-2 text-sm text-ink-muted">
+                    {siteConfig.customerProvides.map((item) => (
+                      <li key={item} className="flex gap-2.5">
+                        <Check aria-hidden className="mt-0.5 size-4 shrink-0 text-brand-400" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </section>
 
             <section aria-labelledby="included">

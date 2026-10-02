@@ -27,6 +27,7 @@ function makeInput(overrides: Partial<typeof emptyDraft> = {}) {
       street: "123 Main St",
       city: siteConfig.serviceArea[0],
       zip: siteConfig.address.zip,
+      utilitiesConfirmed: true,
       garageConfirmed: true,
       date: "2026-10-12",
       time: "07:00",
@@ -77,6 +78,9 @@ describe("customer confirmation email", () => {
       expect(body).toContain("Garage or covered space confirmed");
       expect(body).toContain(siteConfig.region);
       expect(body).not.toMatch(/drop-off/i);
+      expect(body).toContain("Utilities confirmed: water spigot and power outlet");
+      expect(body).toContain("You provide the hose spigot and outlet; he brings the rest.");
+      expect(body).not.toMatch(/arrives with everything|own water|water, power and lighting/);
     }
   });
 
@@ -99,6 +103,18 @@ describe("customer confirmation email", () => {
     const shop = renderBusinessNotificationEmail(makeInput());
     expect(shop.html).not.toContain("<script>");
     expect(shop.html).toContain("&lt;script&gt;");
+  });
+});
+
+describe("what to have ready", () => {
+  it("lists siteConfig.customerProvides in both formats", () => {
+    const email = renderCustomerConfirmationEmail(makeInput());
+    expect(email.text).toContain("WHAT TO HAVE READY");
+    expect(email.html).toContain("What to have ready");
+    for (const item of siteConfig.customerProvides) {
+      expect(email.text).toContain(`- ${item}`);
+      expect(email.html).toContain(item);
+    }
   });
 });
 
@@ -125,9 +141,7 @@ describe("add-ons and price notes", () => {
     const work = renderCustomerConfirmationEmail(
       makeInput({ service: "fx-work", size: "truck", garageConfirmed: false, time: "09:00" }),
     );
-    expect(work.text).toContain(
-      "extremely dirty trucks, SUVs and work vehicles may add $15–$30",
-    );
+    expect(work.text).toContain("extremely dirty trucks, SUVs and work vehicles may add $15–$30");
     const exotic = renderCustomerConfirmationEmail(
       makeInput({ service: "fx-wash", size: "exotic", garageConfirmed: false, time: "09:00" }),
     );

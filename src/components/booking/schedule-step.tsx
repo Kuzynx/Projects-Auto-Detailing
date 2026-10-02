@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 import { Info, Truck } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { getService } from "@/data/services";
-import { serviceAreaLabel } from "@/lib/booking/format";
-import { OTHER_CITY, requiresGarage } from "@/lib/booking/schema";
+import { detailerName, serviceAreaLabel } from "@/lib/booking/format";
+import { OTHER_CITY, REQUIRES_CUSTOMER_UTILITIES, requiresGarage } from "@/lib/booking/schema";
 import {
   formatClock,
   formatDateLong,
@@ -69,7 +69,8 @@ export function ScheduleStep({ draft, errors, update }: StepProps) {
         <Truck aria-hidden className="mt-0.5 size-5 shrink-0 text-brand-400" />
         <span>
           <span className="font-medium text-ink">We come to you.</span> Home, office or apartment
-          lot anywhere in {serviceAreaLabel}. We bring our own water, power and lighting.
+          lot anywhere in {serviceAreaLabel}. You provide a hose spigot and an outlet;{" "}
+          {detailerName} brings the rest.
         </span>
       </p>
 
@@ -123,6 +124,18 @@ export function ScheduleStep({ draft, errors, update }: StepProps) {
             />
           )}
         </div>
+
+        {REQUIRES_CUSTOMER_UTILITIES && (
+          <CheckboxField
+            className="mt-6"
+            name="utilitiesConfirmed"
+            checked={draft.utilitiesConfirmed}
+            onCheckedChange={(utilitiesConfirmed) => update({ utilitiesConfirmed })}
+            error={errors.utilitiesConfirmed}
+            label="There's an outdoor water spigot and a power outlet within reach of where the car will be parked"
+            description={`${detailerName} connects his hose and tools to them.`}
+          />
+        )}
 
         {needsGarage && service && (
           <div className="mt-6 space-y-3">

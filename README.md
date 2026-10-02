@@ -125,7 +125,13 @@ step when anything changes.
 - `siteConfig.claims` lists statements the site may make only when they are true and documented:
   - `insured` (`false` today): set to `true` only once a current liability policy is in place. While
     it is `false`, no page may say the business is insured.
+  - `bringsWater` / `bringsPower` (`false` today): the business has no water tank or generator.
+    Leave them `false` until that changes; no page may say "we bring our own water/power" or
+    "self-contained" while they are.
   - Any other flag in `claims` stays off (`false` / `null`) unless the client can document it.
+- `siteConfig.customerProvides` lists what the customer must have ready at the service location
+  (parking clearance, an outdoor water spigot, a standard outdoor power outlet). The terms page and any
+  booking or FAQ copy should read this list rather than restating it.
 
 **Never fabricate ratings, reviews, review counts, vehicle counts or certifications.** Fake reviews
 break FTC rules and Google's policies and can get the business listing suspended. `src/data/testimonials.ts`

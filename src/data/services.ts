@@ -159,7 +159,7 @@ export const services: Service[] = [
       {
         question: "Do I need to be home?",
         answer:
-          "We need access to the car and enough room to walk around it. Let us know when you book how to reach the car and we will text you when we arrive and when we are done.",
+          "We need access to the car, room to walk around it, an outdoor spigot and a power outlet. Let us know when you book how to reach the car and we will text you when we arrive and when we are done.",
       },
     ],
   },
@@ -392,13 +392,13 @@ export const serviceLocations: Record<
     label: "Mobile",
     shortLabel: "Mobile",
     description:
-      "We come to your home or office with our own water, power and lighting. Early starts are available to beat the afternoon heat.",
+      "We come to your home or office. You provide an outdoor spigot and a power outlet; we bring the rest. Early starts are available to beat the afternoon heat.",
   },
   garage: {
     label: "Mobile, garage required",
     shortLabel: "Garage required",
     description:
-      "Done at your location in a garage or covered, enclosed space: shade and still air keep desert dust and sun off fresh paint. We bring the lighting, power and water.",
+      "Done at your location in a garage or covered, enclosed space: shade and still air keep desert dust and sun off fresh paint. You provide the space, a spigot and an outlet; we bring the rest.",
   },
 };
 
@@ -413,7 +413,7 @@ export const serviceProcess: Record<ServiceCategory, ServiceProcessStep[]> = {
     {
       title: "Set up at your place",
       description:
-        "We park, set up our own water and power, and take a quick walk around the car with you.",
+        "We park, connect to your outdoor spigot and outlet, and take a quick walk around the car with you.",
     },
     {
       title: "Wheels and tires first",

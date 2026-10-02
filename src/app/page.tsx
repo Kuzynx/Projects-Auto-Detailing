@@ -16,7 +16,7 @@ import { Testimonials } from "@/components/home/testimonials";
 import { siteConfig } from "@/config/site";
 
 const title = `${siteConfig.name} | Mobile Car Washes & Detailing in ${siteConfig.address.city}, ${siteConfig.address.state}`;
-const description = `${siteConfig.tagline} Owner-operated mobile detailing across ${siteConfig.address.city} and the ${siteConfig.region} since ${siteConfig.founded}: hand washes, exterior details and full inside-and-out details at your home or office, plus a package for working trucks. Published prices, before and after photos on every job.`;
+const description = `${siteConfig.tagline} Owner-operated mobile detailing across ${siteConfig.address.city} and the ${siteConfig.region} since ${siteConfig.founder.since}: hand washes, exterior details and full inside-and-out details at your home or office, plus a package for working trucks. Published prices, before and after photos on every job.`;
 
 export const metadata: Metadata = {
   title: { absolute: title },

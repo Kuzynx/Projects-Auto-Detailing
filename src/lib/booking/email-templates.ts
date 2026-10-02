@@ -7,6 +7,7 @@ import { siteConfig } from "@/config/site";
 import { getService } from "@/data/services";
 import { absoluteUrl, formatPrice } from "@/lib/utils";
 import {
+  UTILITIES_CONFIRMED_LABEL,
   bookingContactName,
   getEstimateNote,
   detailerName,
@@ -92,6 +93,7 @@ function bookingRows(input: BookingEmailInput, { internal }: { internal: boolean
     ["When", formatAppointment(booking) ?? booking.date],
     ["Where", formatServiceAddress(booking)],
   ];
+  if (booking.utilitiesConfirmed) rows.push(["Utilities", UTILITIES_CONFIRMED_LABEL]);
   if (requiresGarage(booking.service))
     rows.push(["Workspace", "Garage or covered space confirmed"]);
   if (estimate.durationLabel) rows.push(["Time on site", `About ${estimate.durationLabel}`]);
@@ -217,8 +219,8 @@ function nextSteps(booking: BookingData): [string, string][] {
     ? `${bookingContactName} will text ${booking.phone} within the hour (during business hours) to lock in your slot.`
     : `${bookingContactName} will call ${booking.phone} within the hour (during business hours) to lock in your slot.`;
   const dayBefore = requiresGarage(booking.service)
-    ? `The day before, you'll get ${founder}'s arrival time. Clear the garage or covered space so he can work all the way around the car; he arrives with his own water, power and lighting.`
-    : `The day before, you'll get ${founder}'s arrival window. Leave about three feet of clearance around the car; he arrives with everything, including water and power.`;
+    ? `The day before, you'll get ${founder}'s arrival time. Clear the garage or covered space so he can work all the way around the car. You provide the hose spigot and outlet; he brings the rest.`
+    : `The day before, you'll get ${founder}'s arrival window. You provide the hose spigot and outlet; he brings the rest.`;
   return [
     [`${bookingContactName} confirms your time`, contactLine],
     ["Day-before reminder", dayBefore],
@@ -253,6 +255,13 @@ export function renderCustomerConfirmationEmail(input: BookingEmailInput): Rende
     )
     .join("");
 
+  const readyHtml = siteConfig.customerProvides.length
+    ? `<h2 style="margin:8px 0 8px 0;font-size:17px;font-weight:700;color:${color.ink};">What to have ready</h2>
+<ul style="margin:0 0 16px 0;padding-left:20px;font-size:14px;line-height:21px;color:${color.muted};">${siteConfig.customerProvides
+        .map((item) => `<li style="margin:0 0 4px 0;">${escapeHtml(item)}</li>`)
+        .join("")}</ul>`
+    : "";
+
   const body = `${eyebrow("Request received")}
 ${heading(`Thanks, ${firstName(booking.name)}. Your slot is held.`)}
 ${paragraph(`We've reserved <strong style="color:${color.ink};">${escapeHtml(when)}</strong> for your ${escapeHtml(serviceName)}. Keep this email for your records.`)}
@@ -261,6 +270,7 @@ ${detailsTable(rows)}
 ${totalBlock(estimate, getEstimateNote(booking.service, booking.size))}
 <h2 style="margin:0 0 16px 0;font-size:17px;font-weight:700;color:${color.ink};">What happens next</h2>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${stepsHtml}</table>
+${readyHtml}
 ${deposit ? paragraph(escapeHtml(deposit), "font-size:13px;line-height:20px;") : ""}
 <h2 style="margin:8px 0 8px 0;font-size:17px;font-weight:700;color:${color.ink};">Need to reschedule?</h2>
 ${paragraph(`${escapeHtml(policy)} Call or text <a href="${siteConfig.phoneHref}" style="color:${color.brand};text-decoration:none;">${escapeHtml(siteConfig.phone)}</a> and quote ${escapeHtml(reference)}.`)}
@@ -280,6 +290,9 @@ ${button(siteConfig.phoneHref, `Call ${siteConfig.phone}`)}`;
     "",
     "WHAT HAPPENS NEXT",
     ...steps.map(([title, body], i) => `${i + 1}. ${title}: ${body}`),
+    ...(siteConfig.customerProvides.length
+      ? ["", "WHAT TO HAVE READY", ...siteConfig.customerProvides.map((item) => `- ${item}`)]
+      : []),
     ...(deposit ? ["", deposit] : []),
     "",
     "NEED TO RESCHEDULE?",

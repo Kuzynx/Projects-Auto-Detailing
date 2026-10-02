@@ -35,6 +35,8 @@ vi.mock("@/app/book/actions", () => ({
 // Wednesday 7 Oct 2026, 10:00 AM local (PDT).
 const NOW = new Date("2026-10-07T17:00:00Z");
 const blank = () => ({ ...emptyDraft, addOns: [] });
+const UTILITIES_LABEL =
+  "There's an outdoor water spigot and a power outlet within reach of where the car will be parked";
 const continueButton = () => screen.getByRole("button", { name: /continue/i });
 
 describe("BookingFlow", () => {
@@ -126,6 +128,7 @@ describe("BookingFlow", () => {
           street: "123 Main St",
           city: siteConfig.serviceArea[0],
           zip: siteConfig.address.zip,
+          utilitiesConfirmed: true,
           date: "2026-10-14",
         }}
         initialStep={stepIndexOf("schedule")}
@@ -185,6 +188,18 @@ describe("BookingFlow", () => {
     ).toHaveAttribute("aria-disabled", "true");
     fireEvent.click(screen.getByRole("button", { name: "Wednesday, October 14, 2026" }));
     fireEvent.click(await screen.findByRole("radio", { name: "9:00 AM" }));
+
+    // Utilities are required: Continue stops and focuses the checkbox until it is ticked.
+    fireEvent.click(continueButton());
+    const utilities = screen.getByRole("checkbox", { name: UTILITIES_LABEL });
+    expect(await screen.findByText(/doesn't carry a water tank or generator/)).toBeInTheDocument();
+    await waitFor(() => expect(document.activeElement).toBe(utilities));
+    fireEvent.click(utilities);
+    expect(
+      within(screen.getByRole("complementary", { name: "Booking summary" })).getByText(
+        "Utilities confirmed",
+      ),
+    ).toBeInTheDocument();
     fireEvent.click(continueButton());
 
     // Contact: the summary has no add-ons row.
@@ -202,6 +217,9 @@ describe("BookingFlow", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("PAD-7F3K2Q")).toBeInTheDocument();
     expect(screen.queryByText("Add-ons")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "What to have ready" })).toBeInTheDocument();
+    for (const item of siteConfig.customerProvides)
+      expect(screen.getByText(item)).toBeInTheDocument();
     const ics = screen.getByRole("link", { name: /Add to calendar/ });
     expect(ics).toHaveAttribute("download", "pad-7f3k2q.ics");
     expect(decodeURIComponent(ics.getAttribute("href")!)).toContain("DTSTART:20261014T160000Z");

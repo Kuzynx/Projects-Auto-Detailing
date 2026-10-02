@@ -14,7 +14,7 @@ export const processSteps: ProcessStep[] = [
     step: 2,
     title: "We come to you",
     description:
-      "A fully self-contained mobile setup arrives with water, power and lighting. All we need is the vehicle and a little room around it.",
+      "Driveway, garage or office lot anywhere in the High Desert. You provide a hose spigot and an outlet; we bring the rest.",
   },
   {
     step: 3,
@@ -46,7 +46,7 @@ export const differentiators = [
   {
     title: "Fully mobile",
     description:
-      "Driveway, garage or office lot anywhere in the High Desert. We bring the water, power and lighting.",
+      "Driveway, garage or office lot anywhere in the High Desert. Book online and Kevin comes to you.",
   },
   {
     title: "Two-bucket method",

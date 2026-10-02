@@ -107,6 +107,9 @@ export function BookingSummary({ draft, className }: { draft: BookingDraft; clas
           {requiresGarage(draft.service) && (
             <span className="mt-0.5 block text-ink-muted">In your garage or covered space</span>
           )}
+          {draft.utilitiesConfirmed && (
+            <span className="mt-0.5 block text-ink-muted">Utilities confirmed</span>
+          )}
         </Row>
       </dl>
 

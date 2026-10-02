@@ -6,7 +6,13 @@ import { describe, expect, it } from "vitest";
 import { addOns, getService, services, vehicleSizes } from "@/data/services";
 import { calculateEstimate } from "../pricing";
 import { getEstimateNote, DEFAULT_ESTIMATE_NOTE, EXOTIC_ESTIMATE_NOTE } from "../format";
-import { bookingSteps, DEFAULT_VEHICLE_SIZE, requiresGarage } from "../schema";
+import { siteConfig } from "@/config/site";
+import {
+  bookingSteps,
+  DEFAULT_VEHICLE_SIZE,
+  REQUIRES_CUSTOMER_UTILITIES,
+  requiresGarage,
+} from "../schema";
 import { getTimeSlots } from "../slots";
 
 const SPEC_SLUGS = ["basic-wash", "premium-detail", "full-deluxe", "working-truck"];
@@ -21,6 +27,12 @@ describe("live catalog", () => {
   it("uses the six spec vehicle types, defaulting to car", () => {
     expect(vehicleSizes.map((v) => v.id)).toEqual(SPEC_SIZES);
     expect(DEFAULT_VEHICLE_SIZE).toBe("car");
+  });
+
+  it("asks every customer to confirm water and power while Kevin brings neither", () => {
+    expect(siteConfig.claims.bringsWater).toBe(false);
+    expect(siteConfig.claims.bringsPower).toBe(false);
+    expect(REQUIRES_CUSTOMER_UTILITIES).toBe(true);
   });
 
   it("skips the add-ons step because none are offered", () => {

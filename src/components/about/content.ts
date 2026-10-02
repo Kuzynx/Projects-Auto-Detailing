@@ -54,8 +54,8 @@ export const standards: { title: string; description: string }[] = [
     description: "Brake dust and road grime never touch the mitt that washes your paint.",
   },
   {
-    title: "Self-contained rig",
+    title: "Light footprint",
     description:
-      "We bring our own water and power. Nothing needed from your house, and nothing left behind but a clean car.",
+      "We bring our own hose, buckets, products, towels and vacuum, and leave nothing behind but a clean car.",
   },
 ];

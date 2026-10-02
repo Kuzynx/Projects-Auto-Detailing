@@ -9,7 +9,7 @@ const { founder } = siteConfig;
 /** The founder, in his own (client-supplied) words. Every fact here comes from `siteConfig.founder`. */
 export function MeetKevin() {
   const facts = [
-    { label: "Founded", value: String(founder.since) },
+    { label: "Detailing since", value: String(founder.since) },
     { label: "Started at", value: String(founder.startedAtAge) },
     { label: "Detailer on your car", value: founder.name },
   ];

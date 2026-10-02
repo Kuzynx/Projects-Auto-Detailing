@@ -26,6 +26,6 @@ photo in uniform before using it.
 
 ## Package illustrations (`/images/services/`)
 
-AI-generated with Higgsfield (gpt_image_2_5, 2K) at the client's request to illustrate each package: basic
+AI-generated with Higgsfield (gpt_image_2_5, 2K) at the client's request, deliberately without people, to illustrate each package: basic
 exterior wash, premium exterior detail, full deluxe interior + exterior, working truck. They are illustrative
 product imagery, not photos of real jobs, and are never shown in the gallery or captioned as our work.

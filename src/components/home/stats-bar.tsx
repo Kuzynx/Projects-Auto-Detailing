@@ -8,8 +8,8 @@ const { founder } = siteConfig;
 /** Plain, verifiable facts about the business. No counters, ratings or invented numbers. */
 const facts = [
   {
-    value: String(siteConfig.founded),
-    label: "Founded",
+    value: String(founder.since),
+    label: "Detailing since",
     detail: `By ${founder.name}, "${founder.nickname}"`,
   },
   {

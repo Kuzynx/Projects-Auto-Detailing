@@ -58,8 +58,7 @@ export function ContactQuickCards() {
 }
 
 const visitChecklist = [
-  "A parking spot with about three feet of clearance",
-  "No water or power needed: we bring our own",
+  ...siteConfig.customerProvides,
   "You only need to be there at the start and the end",
 ];
 

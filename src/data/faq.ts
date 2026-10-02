@@ -61,13 +61,12 @@ export const faqs: FaqItem[] = [
   {
     category: "mobile",
     question: "Do you come to me or do I drop the car off?",
-    answer: `We come to you. ${siteConfig.name} is fully mobile, so there is nothing to drop off and no shop to visit. Every package is done in your driveway, at work or wherever the car is parked, anywhere in the ${siteConfig.region}.`,
+    answer: `We come to you. ${siteConfig.name} is fully mobile, so there is nothing to drop off and no shop to visit. Every package is done at your home or work, anywhere in the ${siteConfig.region}, as long as there is an outdoor water spigot and power outlet nearby.`,
   },
   {
     category: "mobile",
     question: "What do you need from me for a mobile appointment?",
-    answer:
-      "Just a parking spot with about three feet of clearance around the vehicle. Driveways, apartment lots and office parking all work. You do not need to provide water or power: we bring our own.",
+    answer: `Three things: ${siteConfig.customerProvides.map((item) => item.charAt(0).toLowerCase() + item.slice(1)).join("; ")}. We bring the hose, buckets, products, towels and vacuum. Not sure your spot works? Send a photo and we will tell you.`,
   },
   {
     category: "mobile",

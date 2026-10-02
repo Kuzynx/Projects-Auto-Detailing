@@ -205,7 +205,9 @@ export function BookingSidebar({ service, recommended, more }: BookingSidebarPro
         </li>
         <li className="flex items-center gap-2.5">
           <Zap aria-hidden className="size-4 shrink-0 text-brand-400" />
-          We bring water, power and lighting
+          {siteConfig.claims.bringsWater && siteConfig.claims.bringsPower
+            ? "We bring water and power"
+            : "You provide a spigot and an outlet; we bring the rest"}
         </li>
         <li className="flex items-center gap-2.5">
           <UserRound aria-hidden className="size-4 shrink-0 text-brand-400" />

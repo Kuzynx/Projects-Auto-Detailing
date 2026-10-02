@@ -10,6 +10,7 @@ import {
   getRecommendedAddOns,
   OTHER_CITY,
   requiresGarage,
+  UTILITIES_REQUIRED_MESSAGE,
   stepIndexOf,
   validateAllSteps,
   validateBooking,
@@ -41,6 +42,7 @@ const validDraft: BookingDraft = {
   city: siteConfig.serviceArea[0],
   cityOther: "",
   zip: siteConfig.address.zip,
+  utilitiesConfirmed: true,
   garageConfirmed: false,
   date: "2026-10-14",
   time: "09:00",
@@ -172,6 +174,17 @@ describe("cross-field rules", () => {
     expect(getCrossFieldErrors(coating, NOW).garageConfirmed).toMatch(/garage or covered space/i);
     expect(getCrossFieldErrors(coating, NOW).garageConfirmed).toMatch(/shade and still air/);
     expect(getCrossFieldErrors({ ...coating, garageConfirmed: true }, NOW)).toEqual({});
+  });
+
+  it("requires a water spigot and power outlet for every booking", () => {
+    const errors = getCrossFieldErrors({ ...validDraft, utilitiesConfirmed: false }, NOW);
+    expect(errors.utilitiesConfirmed).toBe(UTILITIES_REQUIRED_MESSAGE);
+    expect(errors.utilitiesConfirmed).toMatch(/doesn't carry a water tank or generator/);
+    expect(
+      validateStep("schedule", { ...validDraft, utilitiesConfirmed: false }, NOW)
+        .utilitiesConfirmed,
+    ).toBeDefined();
+    expect(firstStepWithErrors({ utilitiesConfirmed: "x" })).toBe(stepIndexOf("schedule"));
   });
 
   it("does not ask for a garage on regular mobile services", () => {

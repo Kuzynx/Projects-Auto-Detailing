@@ -24,6 +24,9 @@ export const detailerName: string = siteConfig.founder.name;
 export const bookingContactName: string =
   (siteConfig.team as readonly { name: string }[])[0]?.name ?? siteConfig.founder.name;
 
+/** Summary line once the customer confirms a spigot and outlet. */
+export const UTILITIES_CONFIRMED_LABEL = "Utilities confirmed: water spigot and power outlet";
+
 /** Default note under every estimate. */
 export const DEFAULT_ESTIMATE_NOTE =
   "Starting price. Your final quote is confirmed on site after a quick inspection, before any work begins.";

@@ -26,7 +26,7 @@ export function GalleryTeaser() {
                 Finishes worth <span className="text-gradient-brand">a second look.</span>
               </span>
             }
-            description="Real jobs, photographed on site. No studio lighting, no stock photos, just the vehicle where it lives."
+            description="Real jobs, photographed on site. No staged lighting, no stock photos, just the vehicle where it lives."
           />
           <ButtonLink
             href="/gallery"

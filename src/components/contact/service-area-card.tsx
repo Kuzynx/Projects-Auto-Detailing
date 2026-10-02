@@ -26,8 +26,10 @@ export function ServiceAreaCard() {
           Based in {siteConfig.address.city}, {siteConfig.address.state}
         </p>
         <p className="mt-3 text-pretty text-ink-muted">
-          Fully mobile across the {siteConfig.region}. Every package is done wherever your car is
-          parked, and we bring our own water and power.
+          Fully mobile across the {siteConfig.region}. Every package is done at your home or work.
+          {siteConfig.claims.bringsWater && siteConfig.claims.bringsPower
+            ? " We bring our own water and power."
+            : " We bring the hose, buckets, products, towels and vacuum; you provide an outdoor water spigot and power outlet."}
         </p>
 
         <ul className="mt-6 flex flex-wrap gap-2" aria-label="Towns we serve">

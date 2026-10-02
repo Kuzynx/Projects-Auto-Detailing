@@ -81,6 +81,15 @@ export function requiresGarage(serviceSlug: string): boolean {
   return Boolean(service) && service?.location !== "mobile";
 }
 
+/**
+ * Kevin works off the customer's water and power (see `siteConfig.claims`), so
+ * every booking confirms a spigot and outlet unless both are ever brought along.
+ */
+export const REQUIRES_CUSTOMER_UTILITIES =
+  !siteConfig.claims.bringsWater || !siteConfig.claims.bringsPower;
+
+export const UTILITIES_REQUIRED_MESSAGE = `Confirm there's an outdoor water spigot and a power outlet near the car. ${siteConfig.founder.name} connects to your hose spigot and outlet for the wash and his tools; he doesn't carry a water tank or generator.`;
+
 export const GARAGE_REQUIRED_MESSAGE =
   "Confirm you have a garage or covered space. This package needs shade and still air: direct sun flashes products before they level, and wind blows dust into the finish.";
 
@@ -112,6 +121,8 @@ export interface BookingDraft {
   city: string;
   cityOther: string;
   zip: string;
+  /** Outdoor water spigot and power outlet within reach. Required for every booking. */
+  utilitiesConfirmed: boolean;
   /** Required (true) only for services that need a garage or covered space. */
   garageConfirmed: boolean;
   date: string;
@@ -142,6 +153,7 @@ export const emptyDraft: BookingDraft = {
   city: "",
   cityOther: "",
   zip: "",
+  utilitiesConfirmed: false,
   garageConfirmed: false,
   date: "",
   time: "",
@@ -177,7 +189,16 @@ const allBookingSteps = [
   {
     id: "schedule",
     label: "Time & place",
-    fields: ["street", "city", "cityOther", "zip", "garageConfirmed", "date", "time"],
+    fields: [
+      "street",
+      "city",
+      "cityOther",
+      "zip",
+      "utilitiesConfirmed",
+      "garageConfirmed",
+      "date",
+      "time",
+    ],
   },
   { id: "contact", label: "Confirm", fields: ["name", "email", "phone", "notes", "smsConsent"] },
 ] as const satisfies readonly { id: string; label: string; fields: readonly BookingField[] }[];
@@ -290,6 +311,7 @@ export const scheduleStepSchema = z.object({
     .string()
     .trim()
     .regex(/^\d{5}(-\d{4})?$/, { error: "Enter a 5-digit ZIP code." }),
+  utilitiesConfirmed: z.boolean(),
   garageConfirmed: z.boolean(),
   date: z.string().min(1, { error: "Choose a date." }),
   time: z.string().min(1, { error: "Choose a time." }),
@@ -342,6 +364,7 @@ type CrossFieldInput = Pick<
   | "addOns"
   | "city"
   | "cityOther"
+  | "utilitiesConfirmed"
   | "garageConfirmed"
   | "date"
   | "time"
@@ -363,6 +386,10 @@ export function getCrossFieldErrors(data: CrossFieldInput, now: Date): FieldErro
 
   if (data.city.trim() === OTHER_CITY && !data.cityOther.trim()) {
     errors.cityOther = "Tell us which city the car is in.";
+  }
+
+  if (REQUIRES_CUSTOMER_UTILITIES && data.utilitiesConfirmed !== true) {
+    errors.utilitiesConfirmed = UTILITIES_REQUIRED_MESSAGE;
   }
 
   if (service && requiresGarage(service.slug) && data.garageConfirmed !== true) {

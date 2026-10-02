@@ -136,9 +136,22 @@ const sections: LegalSection[] = [
     content: (
       <ul>
         <li>
-          For mobile service, provide a safe, legal place to work with about three feet of clearance
-          around the vehicle, and make sure you have the property owner&rsquo;s, HOA&rsquo;s or
-          building&rsquo;s permission. We bring our own water and power.
+          We come to you
+          {!siteConfig.claims.bringsWater && !siteConfig.claims.bringsPower
+            ? ", but we do not carry our own water or power"
+            : ""}
+          . At the service location, please provide:
+          <ul>
+            {siteConfig.customerProvides.map((item) => (
+              <li key={item}>{item}.</li>
+            ))}
+          </ul>
+          If any of these are not available when we arrive, the appointment counts as a late
+          cancellation.
+        </li>
+        <li>
+          Make sure the location is safe and legal to work at, and that you have the property
+          owner&rsquo;s, HOA&rsquo;s or building&rsquo;s permission for us to use it.
         </li>
         <li>
           Remove valuables, cash, documents and child seats before the appointment. We are not

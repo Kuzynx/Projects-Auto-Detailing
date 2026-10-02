@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Clock, MapPin, Phone } from "lucide-react";
+import { Check, Clock, MapPin, Phone } from "lucide-react";
 import { Container, Section, SectionHeading } from "@/components/ui";
 import { siteConfig } from "@/config/site";
 import { Reveal } from "./reveal";
@@ -207,7 +207,7 @@ export function ServiceArea() {
                 Mobile detailing across <span className="text-gradient-brand">the {region}.</span>
               </span>
             }
-            description="We work in your driveway, your garage or your office lot. Our mobile setup carries its own water, power and lighting, so all we need is the vehicle and a little room to walk around it."
+            description="We work in your driveway, your garage or your office lot. All we need from you is an outdoor spigot, a standard outlet and a little room around the vehicle. We bring the rest."
           />
 
           <h3 className="mt-10 font-display text-xs font-semibold tracking-[0.2em] text-ink-subtle uppercase">
@@ -224,7 +224,22 @@ export function ServiceArea() {
               </li>
             ))}
           </ul>
-          <p className="mt-5 text-sm text-ink-muted">
+          {siteConfig.customerProvides.length > 0 && (
+            <>
+              <h3 className="mt-10 font-display text-xs font-semibold tracking-[0.2em] text-ink-subtle uppercase">
+                What you provide
+              </h3>
+              <ul className="mt-4 space-y-2.5">
+                {siteConfig.customerProvides.map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-sm text-ink-muted">
+                    <Check className="mt-0.5 size-4 shrink-0 text-brand-400" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          <p className="mt-6 text-sm text-ink-muted">
             Outside the list? Call{" "}
             <a
               href={siteConfig.phoneHref}
@@ -273,7 +288,7 @@ export function ServiceArea() {
                     Based in {address.city}, serving the {region}
                   </p>
                   <p className="mt-0.5 text-ink-muted">
-                    Fully mobile. We bring everything to your address.
+                    Fully mobile. Just a spigot, an outlet and a little room around the car.
                   </p>
                 </div>
               </div>

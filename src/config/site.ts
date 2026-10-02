@@ -62,8 +62,11 @@ export const siteConfig = {
     startedAtAge: 16,
     photo: "/images/team/kevin.jpg",
     photoSquare: "/images/team/kevin-square.jpg",
-    /** Client-supplied bio, lightly edited. */
-    bio: "Kevin, known to his customers as Project, founded Project's Auto Detailing in 2024 at sixteen years old. He has a passion for auto detailing and is here to make your vehicle look the best it can.",
+    /** Client-supplied story, edited for spelling and grammar only. */
+    bio: "Kevin, known to his customers as Project, got his start detailing in Ontario and Upland alongside his uncle, and found a love for it. After a little under a year he took a break for school, then picked it back up a year and a half later, remembering how much he enjoyed the work. He has been detailing for family and friends since, and is now ready to bring that same care to the rest of the High Desert.",
+    /** Where he learned the trade. */
+    origin: "Ontario and Upland, CA",
+    learnedFrom: "his uncle",
   },
   /**
    * Team beyond the founder. `photo` is null until a suitable photo exists; the UI shows an
@@ -80,7 +83,16 @@ export const siteConfig = {
   /** Facts the site may state. Flip these only when they are true and documented. */
   claims: {
     insured: false,
+    /** No water tank or generator: the customer provides a hose spigot and an outdoor outlet. */
+    bringsWater: false,
+    bringsPower: false,
   },
+  /** What a customer must provide at the service address. Shown on contact, FAQ, booking and terms. */
+  customerProvides: [
+    "A parking spot with about three feet of clearance around the vehicle",
+    "An outdoor water spigot we can connect a hose to",
+    "A standard outdoor power outlet within reach of the vehicle",
+  ],
   /** Square logo on black, 1254x1254. Use logo-transparent.png over imagery. */
   logo: "/images/logo.png",
   logoTransparent: "/images/logo-transparent.png",

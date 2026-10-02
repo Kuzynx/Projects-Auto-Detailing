@@ -23,7 +23,7 @@ import { bookingHref, siteConfig } from "@/config/site";
 const { founder } = siteConfig;
 
 const title = "About";
-const description = `${siteConfig.name} is owner-operated by ${founder.name}, known as ${founder.nickname}. Founded in ${siteConfig.address.city} in ${founder.since}, fully mobile across the ${siteConfig.region}, with every car detailed by ${founder.name} personally.`;
+const description = `${siteConfig.name} is owner-operated by ${founder.name}, known as ${founder.nickname}. Based in ${siteConfig.address.city}, detailing since ${founder.since} and fully mobile across the ${siteConfig.region}, with every car detailed by ${founder.name} personally.`;
 
 export const metadata: Metadata = buildMetadata({
   title,
@@ -32,7 +32,7 @@ export const metadata: Metadata = buildMetadata({
 });
 
 const facts = [
-  { value: `${founder.since}`, label: "Founded" },
+  { value: `${founder.since}`, label: "Detailing since" },
   { value: `${founder.startedAtAge}`, label: "Age he started" },
   { value: "100%", label: "Mobile" },
   { value: "1", label: "Owner on every job" },
@@ -92,14 +92,19 @@ export default function AboutPage() {
               id="story-heading"
               className="text-3xl font-semibold text-balance sm:text-4xl lg:text-5xl"
             >
-              It started with one driveway and a second bucket.
+              It started alongside {founder.learnedFrom}.
             </h2>
             <div className="mt-6 space-y-5 text-base text-pretty text-ink-muted sm:text-lg">
               <p>
-                In {founder.since}, at {founder.startedAtAge} years old, {founder.name} started
-                washing cars in {siteConfig.address.city} driveways. Neighbors noticed the
-                difference, told their friends, and the weekend washes turned into {siteConfig.name}
-                .
+                {founder.name} got his start in {founder.origin}, detailing alongside{" "}
+                {founder.learnedFrom}, and found a love for the work. After a little under a year he
+                stepped away for school, then picked it back up a year and a half later because he
+                missed it.
+              </p>
+              <p>
+                He has been detailing for family and friends ever since. Now {siteConfig.name} is
+                based in {siteConfig.address.city}, bringing the same care to customers across the{" "}
+                {siteConfig.region}.
               </p>
               <p>
                 It is still owner-operated, on purpose. Every car is detailed by {founder.name}{" "}
@@ -107,9 +112,9 @@ export default function AboutPage() {
                 person who looks at your car is the person who does the work.
               </p>
               <p>
-                The business is fully mobile: every package is done wherever your car is parked.
-                Days start early to beat the desert heat, every wash uses the two-bucket method and
-                pH-neutral soap, and every car is dried with clean microfiber only.
+                The business is fully mobile: every package is done at your home or work. Days start
+                early to beat the desert heat, every wash uses the two-bucket method and pH-neutral
+                soap, and every car is dried with clean microfiber only.
               </p>
             </div>
           </Reveal>
@@ -184,7 +189,7 @@ export default function AboutPage() {
             <p className="mt-6 text-lg text-pretty text-ink-muted">{founder.bio}</p>
             <ul className="mt-8 space-y-3">
               {[
-                `Started in ${founder.since} at ${founder.startedAtAge}`,
+                `Learned the trade from ${founder.learnedFrom} in ${founder.origin}`,
                 "Details every car himself, start to finish",
                 `Fully mobile across ${siteConfig.address.city} and the ${siteConfig.region}`,
                 "Walks every finished car with you before he leaves",

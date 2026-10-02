@@ -30,6 +30,7 @@ function summarize(reference: string, booking: BookingData, total: number) {
     `Pet hair: ${booking.petHair ? "yes" : "no"}; smoke: ${booking.smoke ? "yes" : "no"}`,
     `When: ${booking.date} at ${booking.time}`,
     `Where: ${where}`,
+    ...(booking.utilitiesConfirmed ? ["Utilities: water spigot and power outlet confirmed"] : []),
     ...(requiresGarage(booking.service) ? ["Garage or covered space: confirmed"] : []),
     `Estimate: ${formatPrice(total)} (starting price)`,
     "",
