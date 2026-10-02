@@ -103,6 +103,19 @@ export function ContactForm() {
         >
           Message received. Thank you.
         </h3>
+        {state.delivery === "mailto" && state.mailtoHref && (
+          <p className="mt-3 text-pretty text-ink-muted">
+            We opened your email app with the message filled in. Press send to finish. If nothing
+            opened,{" "}
+            <a
+              href={state.mailtoHref}
+              className="font-semibold text-brand-300 underline-offset-4 hover:underline"
+            >
+              open the email here
+            </a>
+            .
+          </p>
+        )}
         <p className="mt-3 text-pretty text-ink-muted">
           A detailer, not a call center, will read it and reply by email. Typical reply within 1
           business hour during studio hours. Anything after hours is answered first thing the next

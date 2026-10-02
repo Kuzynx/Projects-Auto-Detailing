@@ -1,6 +1,16 @@
 import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV === "development";
+
+/**
+ * Static export for hosts without a Node runtime (GitHub Pages). Set STATIC_EXPORT=true at
+ * build time. Server Actions are swapped for client-side form delivery (src/lib/forms), the
+ * image optimizer is replaced by a pass-through loader, and the site can live under a
+ * sub-path via NEXT_PUBLIC_BASE_PATH (e.g. /Projects-Auto-Detailing). Response headers
+ * cannot be set by a static host, so the security headers below only apply to Node deploys.
+ */
+const isStaticExport = process.env.STATIC_EXPORT === "true";
+const basePath = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/$/, "");
 /** GA4 is optional (see src/components/analytics.tsx); its domains are allowed only when configured. */
 const gaEnabled = Boolean(process.env.NEXT_PUBLIC_GA_ID);
 const ga = (...sources: string[]) => (gaEnabled ? sources : []);
@@ -76,14 +86,29 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  images: {
-    formats: ["image/avif", "image/webp"],
-    // Next 16 only serves listed quality values; 75 is the default `quality`.
-    qualities: [60, 75, 85, 90],
-  },
-  async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
-  },
+  ...(isStaticExport
+    ? {
+        output: "export",
+        trailingSlash: true,
+        basePath: basePath || undefined,
+        images: { loader: "custom", loaderFile: "./src/lib/image-loader.ts" },
+        turbopack: {
+          resolveAlias: {
+            "@/app/book/actions": "./src/lib/forms/booking-static.ts",
+            "@/app/contact/actions": "./src/lib/forms/contact-static.ts",
+          },
+        },
+      }
+    : {
+        images: {
+          formats: ["image/avif", "image/webp"],
+          // Next 16 only serves listed quality values; 75 is the default `quality`.
+          qualities: [60, 75, 85, 90],
+        },
+        async headers() {
+          return [{ source: "/:path*", headers: securityHeaders }];
+        },
+      }),
 };
 
 export default nextConfig;

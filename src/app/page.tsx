@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { defaultOgImage } from "@/lib/seo/metadata";
 import { CtaBanner } from "@/components/layout/cta-banner";
 import { BeforeAfter } from "@/components/home/before-after";
 import { Differentiators } from "@/components/home/differentiators";
@@ -27,6 +28,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     title,
     description,
+    images: [{ ...defaultOgImage, alt: `${siteConfig.name}: ${siteConfig.tagline}` }],
   },
   twitter: { card: "summary_large_image", title, description },
 };

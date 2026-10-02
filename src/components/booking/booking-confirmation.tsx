@@ -237,6 +237,27 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
             </dl>
           </section>
 
+          {result.delivery === "mailto" && result.mailtoHref && (
+            <section
+              aria-labelledby="bk-done-mail"
+              className="rounded-lg border border-brand-500/40 bg-brand-500/10 p-5"
+            >
+              <h3 id="bk-done-mail" className="font-display text-base font-semibold text-ink">
+                One more step: send the email
+              </h3>
+              <p className="mt-2 text-sm text-ink-muted">
+                We opened your email app with this request filled in. Press send and we&apos;ll
+                confirm by text. If nothing opened, use the button below.
+              </p>
+              <a
+                href={result.mailtoHref}
+                className="mt-4 inline-flex h-11 items-center justify-center rounded-full bg-brand-500 px-6 font-display text-sm font-semibold text-bg transition hover:bg-brand-400"
+              >
+                Open booking email
+              </a>
+            </section>
+          )}
+
           <section aria-labelledby="bk-done-next">
             <h3 id="bk-done-next" className="font-display text-base font-semibold text-ink">
               What happens next

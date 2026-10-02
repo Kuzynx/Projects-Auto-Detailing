@@ -1,3 +1,6 @@
+// Required for static export (output: "export"); harmless on Node hosts.
+export const dynamic = "force-static";
+
 import { renderLogoIcon } from "@/lib/seo/og-image";
 
 export const size = { width: 180, height: 180 };

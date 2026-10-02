@@ -1,4 +1,5 @@
 import { siteConfig } from "@/config/site";
+import { joinUrl } from "@/lib/utils";
 
 /**
  * Absolute URL on the canonical production origin (`siteConfig.url`, which reads
@@ -7,5 +8,5 @@ import { siteConfig } from "@/config/site";
  * `@/lib/utils`, it never falls back to localhost when the env var is missing.
  */
 export function siteUrl(path = "/") {
-  return new URL(path, siteConfig.url).toString();
+  return joinUrl(siteConfig.url, path);
 }

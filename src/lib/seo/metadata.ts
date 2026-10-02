@@ -17,7 +17,19 @@ export interface BuildMetadataOptions {
   openGraphType?: "website" | "article";
 }
 
-const DEFAULT_OG_IMAGE = { url: "/opengraph-image", width: 1200, height: 630 } as const;
+/**
+ * Site-wide social card. Node deploys use the generated `/opengraph-image` route. Static
+ * export (GitHub Pages) uses a committed PNG instead: the exported route is an extensionless
+ * file that static hosts serve with a generic content type, which link previews may reject.
+ * Regenerate the PNG after a brand change with `pnpm build && cp out/opengraph-image public/images/og-card.png`
+ * (from a STATIC_EXPORT=true build).
+ */
+export const defaultOgImage = {
+  url: process.env.STATIC_EXPORT === "true" ? "/images/og-card.png" : "/opengraph-image",
+  width: 1200,
+  height: 630,
+} as const;
+const DEFAULT_OG_IMAGE = defaultOgImage;
 
 /**
  * Consistent per-page metadata: title, description, canonical, Open Graph and Twitter.

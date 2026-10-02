@@ -1,3 +1,6 @@
+// Required for static export (output: "export"); harmless on Node hosts.
+export const dynamic = "force-static";
+
 import { renderSocialImage } from "@/lib/seo/og-image";
 import { socialImageAlt, socialImageSize } from "@/lib/seo/social";
 

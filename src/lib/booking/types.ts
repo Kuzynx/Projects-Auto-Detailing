@@ -7,6 +7,13 @@ export type BookingActionSuccess = {
   estimate: Estimate;
   /** Normalized booking as the server accepted it (trimmed, phone formatted). */
   booking: BookingData;
+  /**
+   * How the request reached the shop. "email" is the server action (default);
+   * "endpoint" and "mailto" are the static-export paths (see src/lib/forms).
+   */
+  delivery?: "email" | "endpoint" | "mailto";
+  /** Set with delivery "mailto": a link the visitor can click if their mail app did not open. */
+  mailtoHref?: string;
 };
 
 export type BookingActionFailure = {

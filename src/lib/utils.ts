@@ -16,8 +16,21 @@ export function formatPrice(amount: number) {
   }).format(amount);
 }
 
+/**
+ * Join a path onto a base URL, keeping any path the base already carries
+ * (e.g. https://user.github.io/repo + /images/x => https://user.github.io/repo/images/x).
+ * `new URL(path, base)` would drop the base path, which breaks sub-path hosting.
+ */
+export function joinUrl(base: string, path = "/") {
+  if (/^[a-z][a-z0-9+.-]*:/i.test(path)) return path;
+  const url = new URL(base);
+  const prefix = url.pathname.replace(/\/+$/, "");
+  const suffix = path.startsWith("/") ? path : `/${path}`;
+  return new URL(`${prefix}${suffix}`, url.origin).toString();
+}
+
 /** Build an absolute URL from the configured site origin. */
 export function absoluteUrl(path = "/") {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  return new URL(path, base).toString();
+  return joinUrl(base, path);
 }

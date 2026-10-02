@@ -162,3 +162,36 @@ on every pull request and push to `main`.
    the home page in the Rich Results Test.
 
 Preview deployments automatically serve a `Disallow: /` robots file so they never get indexed.
+
+## Deployment (GitHub Pages, static)
+
+The site can also run with no server at all. `.github/workflows/deploy-pages.yml` builds a static export on
+every push to `main` and publishes it to GitHub Pages.
+
+1. **Settings → Pages → Build and deployment → Source: GitHub Actions.** (The workflow also tries to enable
+   this itself on its first run.)
+2. Push to `main`. The site appears at `https://<user>.github.io/<repo>/` within a couple of minutes.
+3. Optional repository variables (**Settings → Secrets and variables → Actions → Variables**):
+   - `FORM_ENDPOINT`: a [Formspree](https://formspree.io)-style JSON endpoint. Booking and contact
+     submissions are POSTed there. Without it, submitting a form opens the visitor's email app with the
+     request pre-filled, addressed to `siteConfig.email`.
+   - `GA_ID`: Google Analytics 4 measurement ID.
+4. Custom domain: add it under **Settings → Pages → Custom domain** and commit a `public/CNAME` file
+   containing the domain. The workflow derives the base path and site URL automatically, so nothing else
+   changes.
+
+What differs from the Node deploy:
+
+|                  | Node host (Vercel)                      | GitHub Pages                              |
+| ---------------- | --------------------------------------- | ----------------------------------------- |
+| Forms            | Server Actions send email via Resend    | Form endpoint, or the visitor's email app |
+| Images           | Optimized AVIF/WebP, resized per device | Original JPEGs served as-is               |
+| Security headers | Set by `next.config.ts`                 | Not available on a static host            |
+| URLs             | `/services`                             | `/services/` (trailing slash)             |
+
+Build it locally with:
+
+```bash
+STATIC_EXPORT=true NEXT_PUBLIC_BASE_PATH=/<repo> NEXT_PUBLIC_SITE_URL=https://<user>.github.io/<repo> pnpm build
+# output in ./out
+```

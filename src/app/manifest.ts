@@ -1,3 +1,6 @@
+// Required for static export (output: "export"); harmless on Node hosts.
+export const dynamic = "force-static";
+
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/config/site";
 
