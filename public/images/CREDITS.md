@@ -16,3 +16,10 @@ Replace with the client's own photography before launch for best results. Each f
 | detail-interior-dash.jpg | https://unsplash.com/photos/1610647752706-3bb12232b3ab |
 | detail-paint-closeup-red.jpg | https://unsplash.com/photos/1550355291-bbee04a92027 |
 | car-*.jpg | See `photo-<id>` in the Unsplash URL pattern `https://images.unsplash.com/photo-<id>` |
+
+## Client photography (`/images/work/`)
+
+Owned by Project's Auto Detailing. Shelby GT350 mobile wash job. License plates blurred and EXIF metadata stripped
+before publishing. `*-wide.jpg` are 3:2 crops for hero/banner slots; the rest are portrait originals resized to 1600px.
+`shelby-gt350-team.jpg` shows team members (one shirtless) and is intentionally NOT used on the site; swap in a
+photo in uniform before using it.

@@ -19,7 +19,7 @@ export const testimonials: Testimonial[] = [
     service: "Ceramic Coating",
     rating: 5,
     quote:
-      "I had three shops quote me. Meridian was the only one that measured paint depth before touching the car. The coating has been on for 14 months and water still beads like day one.",
+      "I had three shops quote me. Project's was the only one that measured paint depth before touching the car. The coating has been on for 14 months and water still beads like day one.",
     date: "2026-08-14",
     source: "Google",
   },

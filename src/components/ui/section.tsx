@@ -31,12 +31,21 @@ interface SectionHeadingProps {
   as?: "h1" | "h2" | "h3";
 }
 
-export function SectionHeading({ eyebrow, title, description, align = "left", className, as: Tag = "h2" }: SectionHeadingProps) {
+export function SectionHeading({
+  eyebrow,
+  title,
+  description,
+  align = "left",
+  className,
+  as: Tag = "h2",
+}: SectionHeadingProps) {
   return (
     <div className={cn("max-w-2xl", align === "center" && "mx-auto text-center", className)}>
       {eyebrow && <Eyebrow className="mb-4">{eyebrow}</Eyebrow>}
       <Tag className="text-3xl font-semibold text-balance sm:text-4xl lg:text-5xl">{title}</Tag>
-      {description && <p className="mt-4 text-base text-pretty text-ink-muted sm:text-lg">{description}</p>}
+      {description && (
+        <p className="mt-4 text-base text-pretty text-ink-muted sm:text-lg">{description}</p>
+      )}
     </div>
   );
 }

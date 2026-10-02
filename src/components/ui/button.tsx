@@ -9,9 +9,10 @@ const base =
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-brand-500 text-bg hover:bg-brand-400 shadow-[0_0_0_1px_rgba(212,168,83,.4),0_10px_30px_-10px_rgba(212,168,83,.6)] hover:shadow-[0_0_0_1px_rgba(228,190,106,.6),0_14px_34px_-10px_rgba(212,168,83,.7)] hover:-translate-y-px",
+    "bg-brand-500 text-bg hover:bg-brand-400 shadow-[0_0_0_1px_rgba(199,150,240,.4),0_10px_30px_-10px_rgba(199,150,240,.6)] hover:shadow-[0_0_0_1px_rgba(214,168,248,.6),0_14px_34px_-10px_rgba(199,150,240,.7)] hover:-translate-y-px",
   secondary: "bg-ink text-bg hover:bg-white",
-  outline: "border border-border-strong bg-transparent text-ink hover:border-brand-500 hover:text-brand-300",
+  outline:
+    "border border-border-strong bg-transparent text-ink hover:border-brand-500 hover:text-brand-300",
   ghost: "bg-transparent text-ink-muted hover:text-ink hover:bg-white/5",
 };
 
@@ -25,12 +26,28 @@ export function buttonClasses(variant: Variant = "primary", size: Size = "md", c
   return cn(base, variants[variant], sizes[size], className);
 }
 
-type CommonProps = { variant?: Variant; size?: Size; className?: string; children: React.ReactNode };
+type CommonProps = {
+  variant?: Variant;
+  size?: Size;
+  className?: string;
+  children: React.ReactNode;
+};
 
-export function Button({ variant, size, className, ...props }: CommonProps & Omit<React.ComponentProps<"button">, "className" | "children">) {
+export function Button({
+  variant,
+  size,
+  className,
+  ...props
+}: CommonProps & Omit<React.ComponentProps<"button">, "className" | "children">) {
   return <button className={buttonClasses(variant, size, className)} {...props} />;
 }
 
-export function ButtonLink({ variant, size, className, href, ...props }: CommonProps & Omit<React.ComponentProps<typeof Link>, "className" | "children">) {
+export function ButtonLink({
+  variant,
+  size,
+  className,
+  href,
+  ...props
+}: CommonProps & Omit<React.ComponentProps<typeof Link>, "className" | "children">) {
   return <Link href={href} className={buttonClasses(variant, size, className)} {...props} />;
 }

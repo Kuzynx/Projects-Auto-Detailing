@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------ */
-/* Design tokens. Dark, premium, automotive. Change colors here only.  */
+/* Design tokens. Black, chrome and purple (from the logo). Edit here only. */
 /* ------------------------------------------------------------------ */
 :root {
   --color-bg: #09090b;
@@ -11,15 +11,17 @@
   --color-border: rgba(255, 255, 255, 0.08);
   --color-border-strong: rgba(255, 255, 255, 0.16);
 
-  --color-ink: #f4f2ee;
-  --color-ink-muted: #a8a7a3;
-  --color-ink-subtle: #6f6e6b;
+  /* Chrome / silver neutrals sampled from the logo. */
+  --color-ink: #f2f2f3;
+  --color-ink-muted: #b8b7ba;
+  --color-ink-subtle: #77767a;
 
-  --color-brand-300: #efd28a;
-  --color-brand-400: #e4be6a;
-  --color-brand-500: #d4a853;
-  --color-brand-600: #b88d3b;
-  --color-brand-700: #8f6b29;
+  /* Brand purple sampled from the Project's Auto Detailing logo. */
+  --color-brand-300: #e4c0fc;
+  --color-brand-400: #d6a8f8;
+  --color-brand-500: #c796f0;
+  --color-brand-600: #a86fdb;
+  --color-brand-700: #7f4db3;
 
   --color-success: #4ade80;
   --color-danger: #f87171;
@@ -29,7 +31,7 @@
   --radius-lg: 1.25rem;
   --radius-xl: 2rem;
 
-  --shadow-glow: 0 0 0 1px rgba(212, 168, 83, 0.25), 0 20px 60px -20px rgba(212, 168, 83, 0.35);
+  --shadow-glow: 0 0 0 1px rgba(199, 150, 240, 0.25), 0 20px 60px -20px rgba(199, 150, 240, 0.4);
   --shadow-card: 0 1px 0 0 rgba(255, 255, 255, 0.04) inset, 0 20px 50px -30px rgba(0, 0, 0, 0.8);
 }
 
@@ -53,7 +55,8 @@
   --color-danger: var(--color-danger);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-space-grotesk), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display:
+    var(--font-space-grotesk), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius);
@@ -69,21 +72,40 @@
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @keyframes shimmer {
-  from { background-position: -200% 0; }
-  to { background-position: 200% 0; }
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
 }
 @keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html { color-scheme: dark; scroll-behavior: smooth; }
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
   body {
     background: var(--color-bg);
     color: var(--color-ink);
@@ -91,11 +113,29 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
-  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.02em; }
-  ::selection { background: var(--color-brand-500); color: #09090b; }
-  :focus-visible { outline: 2px solid var(--color-brand-400); outline-offset: 2px; }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  ::selection {
+    background: var(--color-brand-500);
+    color: #09090b;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand-400);
+    outline-offset: 2px;
+  }
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
@@ -104,13 +144,22 @@
   width: 100%;
   max-width: 80rem;
   padding-inline: 1rem;
-  @media (min-width: 640px) { padding-inline: 1.5rem; }
-  @media (min-width: 1024px) { padding-inline: 2rem; }
+  @media (min-width: 640px) {
+    padding-inline: 1.5rem;
+  }
+  @media (min-width: 1024px) {
+    padding-inline: 2rem;
+  }
 }
 
-/* Gold gradient text for display headings. */
+/* Purple-chrome gradient text for display headings. */
 @utility text-gradient-brand {
-  background: linear-gradient(135deg, var(--color-brand-300) 0%, var(--color-brand-500) 50%, var(--color-brand-700) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-brand-300) 0%,
+    var(--color-brand-500) 50%,
+    var(--color-brand-700) 100%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -119,7 +168,7 @@
 /* Subtle grid/noise backdrop for sections. */
 @utility bg-grid {
   background-image:
-    linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
   background-size: 48px 48px;
 }

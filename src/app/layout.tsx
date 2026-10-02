@@ -3,10 +3,16 @@ import { Inter, Space_Grotesk } from "next/font/google";
 import { siteConfig } from "@/config/site";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { MobileCtaBar } from "@/components/layout/mobile-cta-bar";
+import { Analytics } from "@/components/analytics";
 import "./globals.css";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap" });
-const spaceGrotesk = Space_Grotesk({ variable: "--font-space-grotesk", subsets: ["latin"], display: "swap" });
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -34,14 +40,24 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} h-full`}>
+    <html
+      lang="en"
+      className={`${inter.variable} ${spaceGrotesk.variable} h-full scroll-pt-20 lg:scroll-pt-24`}
+    >
       <body className="flex min-h-full flex-col">
-        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded-full focus:bg-brand-500 focus:px-4 focus:py-2 focus:text-bg">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded-full focus:bg-brand-500 focus:px-4 focus:py-2 focus:text-bg"
+        >
           Skip to content
         </a>
         <Header />
-        <main id="main" className="flex-1">{children}</main>
+        <main id="main" tabIndex={-1} className="flex-1 outline-none">
+          {children}
+        </main>
         <Footer />
+        <MobileCtaBar />
+        <Analytics />
       </body>
     </html>
   );

@@ -1,9 +1,13 @@
-# Meridian Detail Co. — Build Brief
+# Project's Auto Detailing — Build Brief
 
 Premium auto detailing website. Target: the quality a $10k agency build delivers. Dark, cinematic,
-automotive. Every page must feel finished, fast and conversion-focused (the goal of every page is a booking).
+automotive. **Brand: black, chrome/silver and purple**, taken from the client logo at `public/images/logo.png`
+(1254x1254, black background) and `public/images/logo-transparent.png` (background keyed out, for use over imagery).
+Accent is PURPLE (`brand-*` tokens, #c796f0 core), never gold. Rating stars may use `text-amber-400` as the one
+conventional exception. Never hardcode brand hex values; use the tokens. Every page must feel finished, fast and conversion-focused (the goal of every page is a booking).
 
 ## Stack (do not change)
+
 - Next.js 16 App Router, React 19, TypeScript strict. **Read `AGENTS.md` and `node_modules/next/dist/docs/` before using any Next API you're unsure of. Next 16 differs from training data** (e.g. `PageProps<'/route'>` / `LayoutProps` global helpers, `proxy.ts` instead of middleware, `params` is a Promise).
 - Tailwind CSS v4 (CSS-first config in `src/app/globals.css`; **no `tailwind.config.js`**). Use the tokens: `bg-bg`, `bg-bg-elevated`, `bg-surface`, `border-border`, `text-ink`, `text-ink-muted`, `text-ink-subtle`, `text-brand-400`, `bg-brand-500`, `font-display`, `shadow-card`, `shadow-glow`, `rounded-lg`, utilities `container-x`, `text-gradient-brand`, `bg-grid`, animations `animate-fade-up`, `animate-marquee`.
 - `motion` (Framer Motion v13 successor: `import { motion, useInView } from "motion/react"`) for animation in client components only. Respect `prefers-reduced-motion`.
@@ -12,6 +16,7 @@ automotive. Every page must feel finished, fast and conversion-focused (the goal
 - Data: `@/config/site` (business identity, `navigation`, `bookingHref`), `@/data/services` (services, addOns, vehicleSizes, getService), `@/data/testimonials`, `@/data/faq`, `@/data/gallery`, `@/data/process`. **Never hardcode business facts; read from these.** You may add fields to data files only if your brief says you own that file.
 
 ## Conventions
+
 - Server Components by default. `"use client"` only for interactivity, kept to leaf components.
 - Every page exports `metadata` (title, description, OpenGraph) via `Metadata`.
 - Accessibility: semantic landmarks, labelled controls, keyboard operable, visible focus, alt text, `aria-*` where needed, colour contrast ≥ 4.5:1 for body text.
@@ -23,4 +28,5 @@ automotive. Every page must feel finished, fast and conversion-focused (the goal
 - Commit nothing. The orchestrator commits.
 
 ## Brand voice
+
 Confident, precise, warm. Short sentences. Specific numbers ("90% of swirls removed", "3-year written warranty") over adjectives. Speak to owners who care about their car and their time.

@@ -3,16 +3,16 @@
  * whole site (header, footer, metadata, JSON-LD, contact page) updates.
  */
 export const siteConfig = {
-  name: "Meridian Detail Co.",
-  shortName: "Meridian",
-  legalName: "Meridian Detail Co. LLC",
+  name: "Project's Auto Detailing",
+  shortName: "Project's",
+  legalName: "Project's Auto Detailing LLC",
   tagline: "Showroom finish. Delivered to your driveway.",
   description:
     "Premium mobile and studio auto detailing in Austin, TX. Paint correction, ceramic coatings, interior restoration and maintenance plans by certified detailers.",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://meridiandetail.co",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://projectsautodetailing.com",
   phone: "(512) 555-0147",
   phoneHref: "tel:+15125550147",
-  email: "hello@meridiandetail.co",
+  email: "hello@projectsautodetailing.com",
   address: {
     street: "4120 S Congress Ave, Suite B",
     city: "Austin",
@@ -21,6 +21,7 @@ export const siteConfig = {
     country: "US",
   },
   geo: { lat: 30.2264, lng: -97.7607 },
+  timeZone: "America/Chicago",
   serviceArea: [
     "Austin",
     "Round Rock",
@@ -39,10 +40,10 @@ export const siteConfig = {
     { days: "Sunday", open: "Closed", close: "" },
   ],
   social: {
-    instagram: "https://instagram.com/meridiandetailco",
-    facebook: "https://facebook.com/meridiandetailco",
-    tiktok: "https://tiktok.com/@meridiandetailco",
-    google: "https://g.page/meridiandetailco",
+    instagram: "https://instagram.com/projectsautodetailing",
+    facebook: "https://facebook.com/projectsautodetailing",
+    tiktok: "https://tiktok.com/@projectsautodetailing",
+    google: "https://g.page/projectsautodetailing",
   },
   stats: {
     vehiclesDetailed: 2400,
@@ -51,6 +52,9 @@ export const siteConfig = {
     reviewCount: 312,
   },
   founded: 2017,
+  /** Square logo on black, 1254x1254. Use logo-transparent.png over imagery. */
+  logo: "/images/logo.png",
+  logoTransparent: "/images/logo-transparent.png",
 } as const;
 
 export type SiteConfig = typeof siteConfig;

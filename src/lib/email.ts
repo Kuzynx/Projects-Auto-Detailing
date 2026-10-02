@@ -22,7 +22,7 @@ export interface EmailResult {
  */
 export async function sendEmail(message: EmailMessage): Promise<EmailResult> {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.BOOKING_FROM_EMAIL ?? "Meridian Detail Co. <onboarding@resend.dev>";
+  const from = process.env.BOOKING_FROM_EMAIL ?? "Project's Auto Detailing <onboarding@resend.dev>";
 
   if (!apiKey) {
     console.info("[email:simulated]", { from, to: message.to, subject: message.subject });

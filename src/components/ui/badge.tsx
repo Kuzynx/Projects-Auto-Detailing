@@ -8,7 +8,11 @@ const tones: Record<Tone, string> = {
   success: "border-success/40 bg-success/10 text-success",
 };
 
-export function Badge({ tone = "brand", className, ...props }: React.ComponentProps<"span"> & { tone?: Tone }) {
+export function Badge({
+  tone = "brand",
+  className,
+  ...props
+}: React.ComponentProps<"span"> & { tone?: Tone }) {
   return (
     <span
       className={cn(

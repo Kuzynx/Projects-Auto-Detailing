@@ -1,0 +1,76 @@
+/* Keyframe-driven effects for the home page. Every animation is opt-in to motion. */
+
+/* Hero: slow Ken Burns push on the background photo. */
+@keyframes kenburns {
+  from {
+    transform: scale(1.14) translate3d(1.5%, 1%, 0);
+  }
+  to {
+    transform: scale(1.02) translate3d(0, 0, 0);
+  }
+}
+.kenburns {
+  transform-origin: 70% 60%;
+  will-change: transform;
+  animation: kenburns 24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Hero: scroll cue dot travelling down the mouse outline. */
+@keyframes scrollDot {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+}
+.scrollDot {
+  animation: scrollDot 2.2s ease-in-out infinite;
+}
+
+/* Service area: rotating radar sweep and pulsing pin. */
+@keyframes sweep {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.sweep {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: sweep 9s linear infinite;
+}
+@keyframes ping {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+.ping {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ping 2.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kenburns,
+  .scrollDot,
+  .sweep,
+  .ping {
+    animation: none;
+  }
+  .kenburns {
+    transform: scale(1.02);
+  }
+}
