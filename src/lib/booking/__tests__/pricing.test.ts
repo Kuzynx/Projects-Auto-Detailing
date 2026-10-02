@@ -1,57 +1,62 @@
-import { describe, expect, it } from "vitest";
-import { addOns, services } from "@/data/services";
+import { describe, expect, it, vi } from "vitest";
+import { addOns, services, vehicleSizes } from "@/data/services";
 import { calculateEstimate } from "../pricing";
 
+vi.mock("@/data/services", async (importOriginal) =>
+  (await import("./fixtures/catalog")).withFixtureCatalog(await importOriginal<object>()),
+);
+
 describe("calculateEstimate", () => {
-  it("uses the base price for the vehicle size", () => {
+  it("uses the base price for every vehicle type", () => {
     for (const service of services) {
-      for (const size of ["sedan", "suv", "truck"] as const) {
-        const estimate = calculateEstimate({ serviceSlug: service.slug, size });
-        expect(estimate.total).toBe(service.price[size]);
-        expect(estimate.durationLabel).toBe(service.duration[size]);
+      for (const { id } of vehicleSizes) {
+        const estimate = calculateEstimate({ serviceSlug: service.slug, size: id });
+        expect(estimate.total).toBe(service.price[id]);
+        expect(estimate.durationLabel).toBe(service.duration[id]);
       }
     }
   });
 
+  it("prices motorcycles and exotics from their own columns", () => {
+    expect(calculateEstimate({ serviceSlug: "fx-full", size: "motorcycle" }).total).toBe(100);
+    expect(calculateEstimate({ serviceSlug: "fx-full", size: "exotic" }).total).toBe(250);
+  });
+
   it("adds each add-on price", () => {
     const estimate = calculateEstimate({
-      serviceSlug: "full-detail",
+      serviceSlug: "fx-full",
       size: "suv",
-      addOnSlugs: ["engine-bay", "headlight-restoration"],
+      addOnSlugs: ["fx-engine", "fx-headlights"],
     });
-    expect(estimate.service).toEqual({ slug: "full-detail", name: "The Full Detail", price: 399 });
-    expect(estimate.addOnsTotal).toBe(59 + 89);
-    expect(estimate.total).toBe(399 + 59 + 89);
-    expect(estimate.addOns.map((a) => a.slug)).toEqual(["engine-bay", "headlight-restoration"]);
+    expect(estimate.service).toEqual({ slug: "fx-full", name: "Fixture Full", price: 150 });
+    expect(estimate.addOnsTotal).toBe(20 + 30);
+    expect(estimate.total).toBe(150 + 20 + 30);
+    expect(estimate.addOns.map((a) => a.slug)).toEqual(["fx-engine", "fx-headlights"]);
   });
 
   it("counts duplicate add-ons once and ignores unknown slugs", () => {
     const estimate = calculateEstimate({
-      serviceSlug: "signature-wash",
-      size: "sedan",
-      addOnSlugs: ["engine-bay", "engine-bay", "laser-wax"],
+      serviceSlug: "fx-wash",
+      size: "car",
+      addOnSlugs: ["fx-engine", "fx-engine", "laser-wax"],
     });
-    expect(estimate.total).toBe(89 + 59);
+    expect(estimate.total).toBe(50 + 20);
   });
 
   it("returns add-ons only when no service is chosen", () => {
-    const estimate = calculateEstimate({
-      serviceSlug: "",
-      size: "sedan",
-      addOnSlugs: ["engine-bay"],
-    });
+    const estimate = calculateEstimate({ serviceSlug: "", size: "car", addOnSlugs: ["fx-engine"] });
     expect(estimate.service).toBeNull();
     expect(estimate.durationLabel).toBeNull();
-    expect(estimate.total).toBe(59);
+    expect(estimate.total).toBe(20);
   });
 
   it("matches the catalog when every add-on is selected", () => {
     const all = addOns.map((a) => a.slug);
     const estimate = calculateEstimate({
-      serviceSlug: "ceramic-coating",
+      serviceSlug: "fx-garage",
       size: "truck",
       addOnSlugs: all,
     });
-    expect(estimate.total).toBe(1649 + addOns.reduce((sum, a) => sum + a.price, 0));
+    expect(estimate.total).toBe(500 + addOns.reduce((sum, a) => sum + a.price, 0));
   });
 });

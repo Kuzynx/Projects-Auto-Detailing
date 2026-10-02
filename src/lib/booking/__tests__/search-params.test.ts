@@ -1,51 +1,59 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { parseBookingSearchParams } from "../search-params";
 
+vi.mock("@/data/services", async (importOriginal) =>
+  (await import("./fixtures/catalog")).withFixtureCatalog(await importOriginal<object>()),
+);
+
 describe("parseBookingSearchParams", () => {
-  it("pre-selects service, size and add-ons", () => {
+  it("pre-selects service, vehicle type and add-ons", () => {
     const { draft, hasService } = parseBookingSearchParams({
-      service: "full-detail",
+      service: "fx-full",
       size: "truck",
-      addons: "engine-bay,headlight-restoration",
+      addons: "fx-engine,fx-headlights",
     });
     expect(hasService).toBe(true);
-    expect(draft.service).toBe("full-detail");
+    expect(draft.service).toBe("fx-full");
     expect(draft.size).toBe("truck");
-    expect(draft.addOns).toEqual(["engine-bay", "headlight-restoration"]);
+    expect(draft.addOns).toEqual(["fx-engine", "fx-headlights"]);
   });
 
-  it("ignores unknown values and de-duplicates add-ons", () => {
+  it("accepts every vehicle type id, including motorcycle and exotic", () => {
+    expect(parseBookingSearchParams({ size: "motorcycle" }).draft.size).toBe("motorcycle");
+    expect(parseBookingSearchParams({ size: "exotic" }).draft.size).toBe("exotic");
+  });
+
+  it("ignores unknown values, defaults to car and de-duplicates add-ons", () => {
     const { draft, hasService } = parseBookingSearchParams({
       service: "spaceship",
-      size: "bus",
-      addons: ["engine-bay", "engine-bay,nope"],
+      size: "sedan",
+      addons: ["fx-engine", "fx-engine,nope"],
     });
     expect(hasService).toBe(false);
     expect(draft.service).toBe("");
-    expect(draft.size).toBe("sedan");
-    expect(draft.addOns).toEqual(["engine-bay"]);
+    expect(draft.size).toBe("car");
+    expect(draft.addOns).toEqual(["fx-engine"]);
   });
 
-  it("pre-selects services that need a garage like any other", () => {
-    const { draft, hasService } = parseBookingSearchParams({ service: "ceramic-coating" });
+  it("pre-selects garage services without confirming the garage", () => {
+    const { draft, hasService } = parseBookingSearchParams({ service: "fx-garage" });
     expect(hasService).toBe(true);
-    expect(draft.service).toBe("ceramic-coating");
     expect(draft.garageConfirmed).toBe(false);
   });
 
   it("is case and whitespace tolerant", () => {
     const { draft } = parseBookingSearchParams({
-      service: " Paint-Correction ",
+      service: " FX-Wash ",
       size: "SUV",
-      addons: " Engine-Bay , ",
+      addons: " FX-Engine , ",
     });
-    expect(draft.service).toBe("paint-correction");
+    expect(draft.service).toBe("fx-wash");
     expect(draft.size).toBe("suv");
-    expect(draft.addOns).toEqual(["engine-bay"]);
+    expect(draft.addOns).toEqual(["fx-engine"]);
   });
 
   it("returns a fresh draft each time", () => {
-    const a = parseBookingSearchParams({ addons: "engine-bay" }).draft;
+    const a = parseBookingSearchParams({ addons: "fx-engine" }).draft;
     const b = parseBookingSearchParams({}).draft;
     expect(b.addOns).toEqual([]);
     expect(a.addOns).not.toBe(b.addOns);

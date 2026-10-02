@@ -117,9 +117,11 @@ export function ContactForm() {
           </p>
         )}
         <p className="mt-3 text-pretty text-ink-muted">
-          A detailer, not a call center, will read it and reply by email. Typical reply within 1
-          business hour during business hours. Anything after hours is answered first thing the next
-          morning.
+          {siteConfig.team[0]
+            ? `${siteConfig.team[0].name}, who handles booking and messages, will reply by email, and anything about your car goes straight to ${siteConfig.founder.name}.`
+            : `${siteConfig.founder.name} will read it and reply by email.`}{" "}
+          Typical reply within 1 business hour during business hours. Anything after hours is
+          answered first thing the next morning.
         </p>
         <p className="mt-3 text-pretty text-ink-muted">
           Need us sooner?{" "}

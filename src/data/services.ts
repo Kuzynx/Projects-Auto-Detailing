@@ -1,10 +1,11 @@
 import { bookingHref } from "@/config/site";
+import { formatPrice } from "@/lib/utils";
 
 /**
  * Service catalog. Prices are starting prices by vehicle size. Everything on the
  * Services, Pricing and Booking pages is derived from this file.
  */
-export type VehicleSize = "sedan" | "suv" | "truck";
+export type VehicleSize = "car" | "suv" | "truck" | "sports" | "exotic" | "motorcycle";
 
 export const vehicleSizes: {
   id: VehicleSize;
@@ -13,26 +14,47 @@ export const vehicleSizes: {
   examples: string;
 }[] = [
   {
-    id: "sedan",
-    label: "Sedan / Coupe",
-    description: "Compact and mid-size cars",
-    examples: "Civic, 3 Series, Model 3, Mustang",
+    id: "car",
+    label: "Car",
+    description: "Sedans, coupes and hatchbacks",
+    examples: "Sedans, coupes, hatchbacks",
   },
   {
     id: "suv",
-    label: "SUV / Crossover",
-    description: "Two-row SUVs, wagons and small trucks",
-    examples: "RAV4, X5, Model Y, Tacoma",
+    label: "SUV",
+    description: "Crossovers, SUVs and minivans",
+    examples: "Crossovers, two- and three-row SUVs, minivans",
   },
   {
     id: "truck",
-    label: "Truck / XL",
-    description: "Three-row SUVs, full-size trucks and vans",
-    examples: "F-150, Tahoe, Sprinter, Escalade",
+    label: "Truck",
+    description: "Pickups and full-size trucks",
+    examples: "Pickups and full-size trucks",
+  },
+  {
+    id: "sports",
+    label: "Sports car",
+    description: "Performance cars",
+    examples: "Mustang, Camaro, Supra, M cars",
+  },
+  {
+    id: "exotic",
+    label: "Exotic",
+    description: "Exotic and supercars",
+    examples: "Lamborghini, Ferrari, McLaren, Porsche GT",
+  },
+  {
+    id: "motorcycle",
+    label: "Motorcycle",
+    description: "Motorcycles",
+    examples: "Cruisers, sport bikes",
   },
 ];
 
-export type ServiceCategory = "exterior" | "interior" | "packages" | "protection" | "correction";
+/** All vehicle size ids in display order. */
+export const vehicleSizeIds: VehicleSize[] = vehicleSizes.map((v) => v.id);
+
+export type ServiceCategory = "packages" | "exterior" | "work";
 
 export interface Service {
   slug: string;
@@ -42,21 +64,26 @@ export interface Service {
   description: string;
   /** Starting price per vehicle size. */
   price: Record<VehicleSize, number>;
-  /** Approximate duration in hours per vehicle size. */
+  /** Approximate duration per vehicle size (estimates). */
   duration: Record<VehicleSize, string>;
   includes: string[];
   idealFor: string[];
   image: string;
   featured?: boolean;
-  /** Marketing badge shown on cards, e.g. "Most popular". */
+  /** Marketing badge shown on cards, e.g. "Best value". Never a popularity claim. */
   badge?: string;
   /** Services that are often paired with this one. */
   pairsWith?: string[];
   /** Three short selling points used on cards and the pricing table. */
   highlights: string[];
-  /** Shown after prices, e.g. "per visit" for recurring services. */
+  /** Shown after prices, e.g. "starting". */
   priceSuffix?: string;
-  /** Where the work happens. Mobile services need no deposit. */
+  /**
+   * Sizes whose price is open-ended: "from" renders "from $100", "plus" renders "$150+".
+   * Use `formatServicePrice` to render.
+   */
+  priceNote?: Partial<Record<VehicleSize, "from" | "plus">>;
+  /** Where the work happens. Every current service is mobile. */
   location: ServiceLocation;
   /** Add-on slugs we recommend with this service (shown first in the booking sidebar). */
   recommendedAddOns: string[];
@@ -68,7 +95,7 @@ export interface Service {
   recentJob?: { image: string; alt: string; caption: string; width: number; height: number };
 }
 
-/** Every service is mobile. "garage" work needs a garage or covered, enclosed space at your location. */
+/** Every service is mobile. "garage" work needs a garage or covered, enclosed space at your location (unused by the current catalog). */
 export type ServiceLocation = "mobile" | "garage";
 
 export interface ServiceFaq {
@@ -76,34 +103,106 @@ export interface ServiceFaq {
   answer: string;
 }
 
+/** Client-provided catalog. See docs/SERVICES-SPEC.md. Slugs are fixed. */
 export const services: Service[] = [
   {
-    slug: "signature-wash",
-    name: "Signature Wash & Protect",
+    slug: "basic-wash",
+    name: "Basic Package — Exterior Wash",
     category: "exterior",
-    tagline: "A proper hand wash, not a drive-through.",
+    tagline: "A real hand wash, done in your driveway.",
     description:
-      "Our foundational exterior service. A two-bucket, pH-neutral hand wash with a foam pre-soak, decontamination of wheels and barrels, and a spray sealant that leaves the paint slick and protected for up to three months.",
-    price: { sedan: 89, suv: 109, truck: 129 },
-    duration: { sedan: "1.5 hrs", suv: "2 hrs", truck: "2.5 hrs" },
+      "A proper hand wash at your home or office. We wash the car by hand, clean the wheels and tires, dress the tires, clean the windows, dry it and finish with a wipe-down of the exterior. Quick, careful and a world away from a tunnel wash.",
+    price: { car: 50, suv: 60, truck: 65, sports: 70, exotic: 100, motorcycle: 40 },
+    priceNote: { exotic: "from" },
+    duration: {
+      car: "~1 hr",
+      suv: "~1 hr",
+      truck: "~1 hr",
+      sports: "~1 hr",
+      exotic: "~1 hr",
+      motorcycle: "~45 min",
+    },
     includes: [
-      "Foam pre-soak and two-bucket hand wash",
-      "Wheels, barrels and tires deep cleaned",
-      "Door jambs wiped down",
-      "Bug and tar removal",
-      "Three-month spray sealant",
-      "Tire dressing and glass cleaned inside and out",
+      "Hand wash",
+      "Wheels and tires",
+      "Tire shine",
+      "Windows",
+      "Dry",
+      "Basic exterior wipe-down",
     ],
-    idealFor: ["Monthly maintenance", "Pre-event shine", "Lease returns"],
+    idealFor: ["Regular upkeep", "Dusty daily drivers", "A quick refresh before the weekend"],
     image: "/images/work/shelby-gt350-rinse-wide.jpg",
-    pairsWith: ["interior-refresh"],
+    pairsWith: ["premium-detail", "full-deluxe"],
     highlights: [
-      "Two-bucket, pH-neutral hand wash",
-      "Wheels and barrels deep cleaned",
-      "Three-month spray sealant",
+      "Hand wash, not a tunnel wash",
+      "Wheels, tires and tire shine",
+      "Windows and exterior wipe-down",
     ],
     location: "mobile",
-    recommendedAddOns: ["glass-coating", "trim-restoration", "headlight-restoration"],
+    recommendedAddOns: [],
+    aftercare: [
+      "Rinse off bird droppings and bug splatter soon; desert sun bakes them onto the paint.",
+      "Skip automatic brush washes between visits. The brushes are what leave swirl marks.",
+      "Park in shade or a garage when you can to keep the finish looking fresh longer.",
+    ],
+    faq: [
+      {
+        question: "What is the difference between Basic and Premium?",
+        answer:
+          "Basic covers the essentials: hand wash, wheels and tires, tire shine, windows, a dry and an exterior wipe-down. Premium adds deep wheel cleaning, wheel wells, door jambs, bug removal, a spray wax/sealant and a more detailed dry.",
+      },
+      {
+        question: "Is the inside included?",
+        answer:
+          "No, the Basic Package is exterior only. If the inside needs attention too, the Full Deluxe Package covers the interior as well as the full Premium exterior.",
+      },
+      {
+        question: "Do I need to be home?",
+        answer:
+          "We need access to the car and enough room to walk around it. Let us know when you book how to reach the car and we will text you when we arrive and when we are done.",
+      },
+    ],
+  },
+  {
+    slug: "premium-detail",
+    name: "Premium Package — Exterior Detail",
+    category: "exterior",
+    tagline: "The exterior, detailed properly.",
+    description:
+      "Everything in the Basic Package, taken further. We deep clean the wheels, scrub the wheel wells, clean the door jambs, remove bugs, and finish with a spray wax/sealant and a more detailed dry so the car leaves glossy and protected.",
+    price: { car: 80, suv: 90, truck: 100, sports: 120, exotic: 150, motorcycle: 65 },
+    priceNote: { exotic: "plus" },
+    duration: {
+      car: "~1.5–2 hrs",
+      suv: "~1.5–2 hrs",
+      truck: "~1.5–2 hrs",
+      sports: "~1.5–2 hrs",
+      exotic: "~1.5–2 hrs",
+      motorcycle: "~1–1.5 hrs",
+    },
+    includes: [
+      "Everything in the Basic Package",
+      "Deep wheel cleaning",
+      "Wheel wells",
+      "Door jambs",
+      "Bug removal",
+      "Spray wax/sealant",
+      "More detailed drying",
+    ],
+    idealFor: [
+      "Bug and road-grime season",
+      "Cars that live outside",
+      "A sharp look before an event",
+    ],
+    image: "/images/work/shelby-gt350-finish-wide.jpg",
+    pairsWith: ["full-deluxe", "basic-wash"],
+    highlights: [
+      "Everything in Basic",
+      "Deep wheel cleaning, wheel wells and door jambs",
+      "Bug removal and spray wax/sealant",
+    ],
+    location: "mobile",
+    recommendedAddOns: [],
     recentJob: {
       image: "/images/work/shelby-gt350-two-bucket.jpg",
       alt: "Detailer hand washing a Shelby GT350 with a wash mitt beside two buckets in a driveway",
@@ -112,284 +211,145 @@ export const services: Service[] = [
       height: 2133,
     },
     aftercare: [
-      "Wait 12 hours before driving in rain so the sealant fully bonds.",
-      "Skip automatic car washes. The brushes reintroduce the swirls we avoid.",
-      "Rinse bird droppings and bug splatter within 48 hours; desert sun bakes them into the clear coat.",
+      "Keep the car out of sprinklers and rain for the rest of the day so the spray wax/sealant can set.",
+      "Wash every few weeks; regular washes keep the wax doing its job against dust and sun.",
+      "Avoid automatic brush washes, which strip wax and leave swirl marks.",
     ],
     faq: [
       {
-        question: "How is this different from a $20 tunnel wash?",
+        question: "How long does the spray wax/sealant last?",
         answer:
-          "Tunnel washes use recycled water and spinning brushes that drag grit across the paint, which is where most swirl marks come from. We hand wash with two buckets, grit guards and a fresh microfiber mitt per section, and we finish with a real sealant rather than a spray-on gloss that rinses off in a week.",
+          "It depends on the weather, how often the car is washed and whether it is parked outside. Desert sun and dust wear any wax down faster, so regular washes are the best way to keep the gloss and protection.",
       },
       {
-        question: "Do you need water or power at my house?",
+        question: "Why do door jambs and wheel wells matter?",
         answer:
-          "No. Our mobile unit carries its own deionized water, power and lighting. We just need enough room to open every door and walk around the car.",
+          "They are where dirt and grime hide. A car can look clean from ten feet and still show dirty jambs every time you open the door. Premium gets the places a quick wash skips.",
       },
       {
-        question: "How often should I book it?",
+        question: "Is the inside included?",
         answer:
-          "Every three to four weeks keeps a daily driver in top shape and lines up with the life of the sealant. If you want that on autopilot, the Maintenance Plan covers it at a lower per-visit price.",
+          "No, Premium is an exterior detail. The Full Deluxe Package includes everything in Premium plus a full interior clean.",
       },
     ],
   },
   {
-    slug: "interior-refresh",
-    name: "Interior Refresh",
-    category: "interior",
-    tagline: "Every surface, every seam, every vent.",
+    slug: "full-deluxe",
+    name: "Full Deluxe Package — Inside + Outside",
+    category: "packages",
+    tagline: "The whole car, inside and out.",
     description:
-      "A complete interior reset. We vacuum and compressed-air every crevice, steam-clean and condition all hard surfaces, shampoo mats, and treat leather with a UV-blocking conditioner.",
-    price: { sedan: 149, suv: 179, truck: 219 },
-    duration: { sedan: "2 hrs", suv: "2.5 hrs", truck: "3 hrs" },
+      "Our most complete package: the full Premium exterior detail plus the inside. A full interior vacuum, the dash, console and door panels cleaned, seats and mats done, interior windows cleaned, and deeper stain cleaning where it is needed.",
+    price: { car: 120, suv: 150, truck: 165, sports: 180, exotic: 250, motorcycle: 100 },
+    priceNote: { exotic: "plus" },
+    duration: {
+      car: "~2.5–3.5 hrs",
+      suv: "~2.5–3.5 hrs",
+      truck: "~2.5–3.5 hrs",
+      sports: "~2.5–3.5 hrs",
+      exotic: "~2.5–3.5 hrs",
+      motorcycle: "~1.5–2 hrs",
+    },
     includes: [
-      "Full vacuum including trunk and under seats",
-      "Steam cleaning of all hard surfaces",
-      "Leather cleaned and conditioned",
-      "Carpets and floor mats shampooed",
-      "Vents, seams and cup holders detailed",
-      "Streak-free interior glass",
+      "Everything in the Premium Package",
+      "Full interior vacuum",
+      "Dash, console and doors",
+      "Seats",
+      "Mats",
+      "Interior windows",
+      "Deeper stain cleaning",
     ],
-    idealFor: ["Families", "Rideshare drivers", "Pet owners"],
+    idealFor: ["Family cars", "Selling or trading in", "A seasonal deep clean"],
     image: "/images/detail-interior-dash.jpg",
-    pairsWith: ["signature-wash", "odor-elimination"],
+    featured: true,
+    badge: "Best value",
+    pairsWith: ["premium-detail", "working-truck"],
     highlights: [
-      "Steam-cleaned hard surfaces",
-      "Carpets and mats shampooed",
-      "Leather cleaned and UV-conditioned",
+      "Everything in Premium, outside",
+      "Full interior vacuum, seats and mats",
+      "Dash, console, doors and interior windows",
     ],
     location: "mobile",
-    recommendedAddOns: ["pet-hair-removal", "odor-elimination", "seat-shampoo"],
+    recommendedAddOns: [],
     aftercare: [
-      "Leave the windows cracked for two to three hours so shampooed carpets dry completely.",
-      "Avoid oily hand lotion on the steering wheel and shift knob for the first day.",
-      "Keep a microfiber towel in the glovebox for spills; blot, never rub.",
+      "If carpets or seats were damp after stain cleaning, crack the windows for a couple of hours to let them dry.",
+      "Blot spills right away with a clean towel; rubbing pushes them deeper.",
+      "Shake the mats out every week or two to keep dirt from grinding into the carpet.",
     ],
     faq: [
       {
-        question: "Can you get pet hair out of the carpet?",
+        question: "Can you get every stain out?",
         answer:
-          "A standard vacuum leaves most embedded hair behind. Add Pet Hair Removal and we use rubber blades and compressed air to pull it out of the weave. Heavy shedding on every surface can add 15 to 30 percent, and we quote that before we start.",
+          "Deeper stain cleaning lifts most everyday stains. Some old or set-in stains will lighten rather than disappear completely, and we will tell you honestly what to expect before we start.",
       },
       {
-        question: "Will my seats be wet when you leave?",
+        question: "What about pet hair?",
         answer:
-          "Leather and hard surfaces are dry on hand-off. Shampooed mats and carpets are damp to the touch and dry in two to four hours with the windows cracked, faster in dry desert heat.",
+          "We vacuum pet hair as part of the interior clean. Heavy, embedded pet hair takes a lot of extra time, so it can add to the price, and we always quote that before any work starts.",
       },
       {
-        question: "Do you remove stains from cloth seats?",
+        question: "How long does it take?",
         answer:
-          "We spot-treat light stains as part of the service. For set-in coffee, juice or makeup on cloth seats, add Fabric Seat Extraction, which uses hot-water extraction to lift what a surface clean cannot.",
+          "Plan on roughly two and a half to three and a half hours, depending on the size and condition of the vehicle. We will give you a better estimate when we see the car.",
       },
     ],
   },
   {
-    slug: "full-detail",
-    name: "The Full Detail",
-    category: "packages",
-    tagline: "Our most-booked package. Inside and out, done right.",
+    slug: "working-truck",
+    name: "Working Truck",
+    category: "work",
+    tagline: "A tough exterior wash for trucks that get dirty for a living.",
     description:
-      "Everything in the Signature Wash and Interior Refresh plus a clay bar decontamination, a one-step machine polish to restore gloss, and a six-month paint sealant. The car leaves looking better than the day you bought it.",
-    price: { sedan: 349, suv: 399, truck: 459 },
-    duration: { sedan: "4–5 hrs", suv: "5–6 hrs", truck: "6–7 hrs" },
+      "Built for trucks that actually work. An exterior hand wash, wheels and tires, wheel wells, bug and grime removal, door jambs and tire dressing. One starting price for every size; extremely dirty construction, farm or work vehicles add $15 to $30, quoted on site before we start.",
+    price: { car: 75, suv: 75, truck: 75, sports: 75, exotic: 75, motorcycle: 75 },
+    duration: {
+      car: "~1–1.5 hrs",
+      suv: "~1–1.5 hrs",
+      truck: "~1–1.5 hrs",
+      sports: "~1–1.5 hrs",
+      exotic: "~1–1.5 hrs",
+      motorcycle: "~1–1.5 hrs",
+    },
     includes: [
-      "Everything in Signature Wash & Protect",
-      "Everything in Interior Refresh",
-      "Clay bar and iron decontamination",
-      "One-step machine polish (gloss enhancement)",
-      "Six-month paint sealant",
-      "Engine bay light clean",
-    ],
-    idealFor: ["Seasonal deep clean", "Selling your car", "New-to-you vehicles"],
-    image: "/images/detail-foam-porsche.jpg",
-    featured: true,
-    badge: "Most popular",
-    pairsWith: ["ceramic-coating"],
-    highlights: [
-      "Complete interior and exterior reset",
-      "Clay bar plus one-step machine polish",
-      "Six-month paint sealant",
-    ],
-    location: "mobile",
-    recommendedAddOns: ["headlight-restoration", "engine-bay", "pet-hair-removal"],
-    aftercare: [
-      "Keep the car dry for 12 hours while the sealant cures.",
-      "Hand wash only, with a pH-neutral soap, for the life of the sealant.",
-      "Leave windows cracked for a few hours so shampooed carpets dry fully.",
-      "Book a Maintenance Plan visit within four weeks to keep the finish locked in.",
-    ],
-    faq: [
-      {
-        question: "Will the polish remove all the swirls?",
-        answer:
-          "The Full Detail includes a one-step polish that removes roughly 50 to 60 percent of light swirls and restores depth and gloss. If you want up to 90 percent defect removal, Paint Correction uses a multi-stage process measured panel by panel.",
-      },
-      {
-        question: "Is it worth doing before I sell?",
-        answer:
-          "Almost always. A clean, glossy car photographs better and signals it was looked after. One client sold their car for $1,800 over the dealer's offer the week after a Full Detail.",
-      },
-      {
-        question: "Can you do it at my house?",
-        answer:
-          "Yes. The Full Detail is fully mobile. We need a level spot with room to walk around the car, ideally in shade or a garage for the polishing stage. We bring the water, power and lighting.",
-      },
-    ],
-  },
-  {
-    slug: "paint-correction",
-    name: "Paint Correction",
-    category: "correction",
-    tagline: "Swirls, scratches and oxidation, permanently removed.",
-    description:
-      "Multi-stage machine compounding and polishing that levels the clear coat to remove swirl marks, light scratches, hard-water spots and sun oxidation. Done in your garage or covered space with our own lighting, power and water, and measured with a paint-depth gauge at every panel. Finished with a sealant or paired with a ceramic coating.",
-    price: { sedan: 599, suv: 699, truck: 849 },
-    duration: { sedan: "1 day", suv: "1 day", truck: "1–2 days" },
-    includes: [
-      "Paint-depth measurement on every panel",
-      "Full decontamination wash and clay",
-      "Two-stage compound and polish (up to 90% defect removal)",
-      "Panel wipe and inspection under color-matched lighting",
-      "Six-month sealant included",
-      "Before and after photo documentation",
-    ],
-    idealFor: ["Enthusiasts", "Dark-colored paint", "Pre-coating prep"],
-    image: "/images/detail-paint-closeup-red.jpg",
-    pairsWith: ["ceramic-coating"],
-    highlights: [
-      "Up to 90% of swirls and scratches removed",
-      "Paint depth measured on every panel",
-      "Photo documentation of every panel",
-    ],
-    location: "garage",
-    recommendedAddOns: ["headlight-restoration", "trim-restoration", "wheel-coating"],
-    aftercare: [
-      "No washing for seven days while the sealant cures.",
-      "Use the two-bucket method and a soft microfiber mitt. Never a brush.",
-      "Park in shade when you can; UV is the fastest way back to dull paint.",
-      "Consider a ceramic coating within 30 days to lock the corrected finish in.",
-    ],
-    faq: [
-      {
-        question: "Is paint correction safe for my clear coat?",
-        answer:
-          "Yes, when it is measured. We read paint depth on every panel before and during the work, so we know exactly how much clear coat is available and never remove more than a few microns. Thin or repainted panels get a gentler approach.",
-      },
-      {
-        question: "Can every scratch be removed?",
-        answer:
-          "Anything that does not catch a fingernail usually can. Deeper scratches that go through the clear coat can be reduced and made far less visible, but removing them fully would mean touch-up or a repaint. We tell you which is which during the walkthrough.",
-      },
-      {
-        question: "Why do you need my garage?",
-        answer:
-          "Polishing in direct sun or wind is how dust gets ground into fresh paint. A garage or covered, enclosed space gives us shade and still air; we bring the color-matched lighting, power and water. No garage? Ask us about a Full Detail instead, which can be done in open shade.",
-      },
-    ],
-  },
-  {
-    slug: "ceramic-coating",
-    name: "Ceramic Coating",
-    category: "protection",
-    tagline: "Years of gloss and protection in a single application.",
-    description:
-      "Professional-grade 9H ceramic coating applied in your garage or covered, enclosed space, out of the sun and wind. Includes a full paint correction prep stage so the coating locks in a flawless finish, then cures overnight in your garage. Hydrophobic, UV and chemical-resistant, and backed by a written warranty.",
-    price: { sedan: 1199, suv: 1399, truck: 1649 },
-    duration: { sedan: "2 days", suv: "2 days", truck: "2–3 days" },
-    includes: [
-      "Everything in Paint Correction",
-      "Professional 9H ceramic coating on all paint",
-      "Trim, wheels faces and glass coated",
-      "Three-year written warranty (five-year upgrade available)",
-      "Aftercare kit and maintenance guide",
-      "Annual inspection and top-up included",
-    ],
-    idealFor: ["New vehicles", "Daily drivers", "Anyone tired of waxing"],
-    image: "/images/hero-amg-dark.jpg",
-    featured: true,
-    badge: "Best value long-term",
-    pairsWith: ["maintenance-plan"],
-    highlights: [
-      "Paint correction prep included",
-      "Professional 9H ceramic on paint, trim and glass",
-      "Three-year written warranty",
-    ],
-    location: "garage",
-    recommendedAddOns: ["wheel-coating", "glass-coating", "trim-restoration"],
-    aftercare: [
-      "Keep the car dry for 48 hours and avoid washing for seven days while the coating cures.",
-      "Hand wash every two to three weeks with the coating-safe soap in your aftercare kit.",
-      "Avoid automatic washes and wax products; they mask the coating's hydrophobic layer.",
-      "Book your annual inspection and top-up; it keeps the warranty valid.",
-    ],
-    faq: [
-      {
-        question: "How long does the coating really last?",
-        answer:
-          "Our professional coating is warrantied for three years, with a five-year upgrade available. Real-world life depends on care: coated cars on our Maintenance Plan routinely bead water like day one well past the warranty.",
-      },
-      {
-        question: "Does a ceramic coating mean I never wash my car?",
-        answer:
-          "No, but washing becomes fast and safe. Dirt, pollen and bird droppings release easily from a coated surface, so a quick hand wash every few weeks keeps it looking freshly detailed, and you never have to wax again.",
-      },
-      {
-        question: "Why is paint correction included?",
-        answer:
-          "A coating locks in whatever is underneath it, swirls included. We correct the paint first so the finish you keep for the next three years is the best version of it.",
-      },
-    ],
-  },
-  {
-    slug: "maintenance-plan",
-    name: "Maintenance Plan",
-    category: "packages",
-    tagline: "Keep it perfect. We come to you every month.",
-    description:
-      "A recurring mobile wash and interior tidy for cars that have already had a Full Detail or coating. Priced per visit with no contract. Pause or cancel anytime.",
-    price: { sedan: 79, suv: 99, truck: 119 },
-    duration: { sedan: "1 hr", suv: "1.25 hrs", truck: "1.5 hrs" },
-    includes: [
-      "Maintenance hand wash with coating-safe soap",
-      "Interior vacuum and wipe-down",
-      "Glass inside and out",
+      "Exterior hand wash",
+      "Wheels and tires",
+      "Wheel wells",
+      "Bug and grime removal",
+      "Door jambs",
       "Tire dressing",
-      "Coating booster applied every visit",
-      "Priority scheduling",
     ],
-    idealFor: ["Coated vehicles", "Busy professionals", "Fleet vehicles"],
-    image: "/images/work/shelby-gt350-finish-wide.jpg",
-    badge: "Monthly",
-    pairsWith: ["ceramic-coating", "full-detail"],
-    priceSuffix: "per visit",
+    idealFor: ["Construction trucks", "Farm and ranch vehicles", "Contractor work trucks"],
+    image: "/images/car-suv-white.jpg",
+    badge: "Work vehicles",
+    pairsWith: ["full-deluxe"],
+    priceSuffix: "starting",
     highlights: [
-      "Monthly mobile wash and interior tidy",
-      "Coating booster every visit",
-      "No contract, pause anytime",
+      "Exterior hand wash",
+      "Wheel wells, bugs and grime removed",
+      "One starting price for every size",
     ],
     location: "mobile",
-    recommendedAddOns: ["pet-hair-removal", "glass-coating", "engine-bay"],
+    recommendedAddOns: [],
     aftercare: [
-      "Keep the same day each month and we will hold your slot automatically.",
-      "Text us if the car needs extra attention before a visit; we will plan for it.",
-      "Rinse heavy pollen or bird droppings between visits rather than letting them sit.",
+      "Rinse heavy mud off before it dries; dried mud is harder on the paint and takes longer to remove.",
+      "Hose out the wheel wells after a muddy job; they hold the most grime.",
+      "Regular washes keep job-site dust from building up on the paint and trim.",
     ],
     faq: [
       {
-        question: "Do I need a Full Detail or coating first?",
+        question: "What counts as extremely dirty?",
         answer:
-          "Yes. The plan is built to maintain a finish, not restore one. If your car has not had a Full Detail or Ceramic Coating with us in the last 90 days, we start with one of those so every monthly visit is quick and gentle.",
+          "Caked mud, heavy job-site dust or grime from construction, farm or work use. That adds $15 to $30 depending on how much there is, and we quote it on site before we start.",
       },
       {
-        question: "Is there a contract?",
+        question: "Why is it the same price for every size?",
         answer:
-          "No. You are billed per visit after each appointment. Pause for a trip or cancel anytime with a text or email; there is no fee.",
+          "With work trucks, how dirty the truck is matters more than its size, so every work vehicle starts at $75 and any extra for heavy grime is quoted on site.",
       },
       {
-        question: "Can I add more than one car?",
+        question: "Is the inside of the cab included?",
         answer:
-          "Absolutely. Households and small fleets book back-to-back visits at the same address, and we schedule them together so it is one appointment on your calendar.",
+          "No, the Working Truck service is exterior only. If the cab needs cleaning too, ask about the Full Deluxe Package.",
       },
     ],
   },
@@ -403,71 +363,13 @@ export interface AddOn {
   duration: string;
 }
 
-export const addOns: AddOn[] = [
-  {
-    slug: "engine-bay",
-    name: "Engine Bay Detail",
-    description: "Degreased, rinsed and dressed.",
-    price: 59,
-    duration: "+30 min",
-  },
-  {
-    slug: "headlight-restoration",
-    name: "Headlight Restoration",
-    description: "Wet-sanded, polished and UV sealed.",
-    price: 89,
-    duration: "+45 min",
-  },
-  {
-    slug: "pet-hair-removal",
-    name: "Pet Hair Removal",
-    description: "Rubber-blade and compressed-air extraction.",
-    price: 49,
-    duration: "+30 min",
-  },
-  {
-    slug: "odor-elimination",
-    name: "Odor Elimination",
-    description: "Ozone treatment that neutralizes smoke and mildew.",
-    price: 79,
-    duration: "+60 min",
-  },
-  {
-    slug: "glass-coating",
-    name: "Windshield Ceramic Coating",
-    description: "Hydrophobic glass coating for better wet-weather visibility.",
-    price: 69,
-    duration: "+20 min",
-  },
-  {
-    slug: "wheel-coating",
-    name: "Wheel Face Coating",
-    description: "Ceramic coating on wheel faces to resist brake dust.",
-    price: 149,
-    duration: "+60 min",
-  },
-  {
-    slug: "trim-restoration",
-    name: "Plastic Trim Restoration",
-    description: "Faded trim brought back to black.",
-    price: 59,
-    duration: "+30 min",
-  },
-  {
-    slug: "seat-shampoo",
-    name: "Fabric Seat Extraction",
-    description: "Hot-water extraction for stained cloth seats.",
-    price: 69,
-    duration: "+45 min",
-  },
-];
+/** No add-ons are offered. Every add-on UI hides itself when this is empty. */
+export const addOns: AddOn[] = [];
 
 export const serviceCategories: { id: ServiceCategory; label: string }[] = [
   { id: "packages", label: "Packages" },
   { id: "exterior", label: "Exterior" },
-  { id: "interior", label: "Interior" },
-  { id: "correction", label: "Paint Correction" },
-  { id: "protection", label: "Protection" },
+  { id: "work", label: "Work vehicles" },
 ];
 
 export function getService(slug: string) {
@@ -509,111 +411,67 @@ export interface ServiceProcessStep {
 export const serviceProcess: Record<ServiceCategory, ServiceProcessStep[]> = {
   exterior: [
     {
-      title: "Pre-rinse and foam",
+      title: "Set up at your place",
       description:
-        "A thick pH-neutral foam dwells for five minutes to lift grit before anything touches the paint.",
+        "We park, set up our own water and power, and take a quick walk around the car with you.",
     },
     {
-      title: "Wheels first",
+      title: "Wheels and tires first",
       description:
-        "Dedicated brushes and an iron remover clean faces, barrels and calipers so brake dust never reaches the paint mitt.",
+        "Wheels and tires are cleaned before the paint so brake dust and road grime never reach the wash mitt.",
     },
     {
-      title: "Two-bucket contact wash",
+      title: "Hand wash",
       description:
-        "Grit guards and a fresh microfiber mitt per section. Top to bottom, never in circles.",
+        "The car is washed by hand, top to bottom, with clean mitts and plenty of rinse water.",
     },
     {
-      title: "Dry and protect",
+      title: "Dry and finish",
       description:
-        "Filtered-air blow-dry for mirrors and trim, plush towel dry, then a sealant layer on paint and dressing on tires.",
-    },
-  ],
-  interior: [
-    {
-      title: "Empty and inspect",
-      description:
-        "We remove mats and loose items, note stains and wear, and agree on priorities with you.",
-    },
-    {
-      title: "Air and vacuum",
-      description:
-        "Compressed air pushes debris out of seams, vents and rails before a full vacuum, trunk included.",
-    },
-    {
-      title: "Steam and shampoo",
-      description:
-        "Hard surfaces are steam-cleaned and wiped; carpets and mats are shampooed and extracted.",
-    },
-    {
-      title: "Condition and finish",
-      description:
-        "Leather gets a UV-blocking conditioner, plastics a non-greasy matte protectant, and glass is cleaned streak-free.",
+        "A careful dry, windows cleaned, tires dressed. Premium adds the jambs, wheel wells, bug removal and a spray wax/sealant.",
     },
   ],
   packages: [
     {
       title: "Walkthrough",
       description:
-        "Five minutes with you at the car to agree on the plan and flag anything that needs extra care.",
+        "A few minutes at the car to agree on the plan and point out any stains or problem spots inside.",
     },
     {
-      title: "Exterior decontamination",
+      title: "Premium exterior",
       description:
-        "Foam, two-bucket wash, iron remover and clay bar strip bonded contamination from the paint.",
+        "Deep wheel cleaning, wheel wells, door jambs, bug removal, hand wash, spray wax/sealant and a detailed dry.",
     },
     {
-      title: "Interior reset",
-      description: "Vacuum, steam, shampoo and condition while the exterior dries in the shade.",
-    },
-    {
-      title: "Gloss and protection",
+      title: "Interior clean",
       description:
-        "Machine polish where included, then a sealant or coating booster and a final inspection under lights.",
+        "A full vacuum, then the dash, console, doors, seats and mats, with deeper stain cleaning where it is needed.",
+    },
+    {
+      title: "Glass and final check",
+      description:
+        "Interior and exterior windows cleaned, then a final look over the whole car with you.",
     },
   ],
-  correction: [
+  work: [
     {
-      title: "Measure",
+      title: "Loosen the grime",
       description:
-        "Paint-depth readings on every panel tell us how much clear coat we can safely work with.",
+        "Mud, dust and job-site grime are rinsed and loosened first so they come off without scrubbing them into the paint.",
     },
     {
-      title: "Decontaminate",
+      title: "Wheels and wheel wells",
       description:
-        "Full wash, iron remover and clay bar so the polishing pads only touch clean paint.",
+        "Wheels, tires and wheel wells are cleaned out, where most of the mud and grime builds up.",
     },
     {
-      title: "Compound and refine",
-      description:
-        "A cutting stage levels swirls and scratches, then a finishing polish restores clarity and depth.",
+      title: "Hand wash",
+      description: "An exterior hand wash with bug and grime removal, top to bottom.",
     },
     {
-      title: "Inspect and document",
+      title: "Jambs and tire dressing",
       description:
-        "Panel wipe to reveal true results, inspection under color-matched lights, and before/after photos of every panel.",
-    },
-  ],
-  protection: [
-    {
-      title: "Correct",
-      description:
-        "Every coating starts with paint correction so the finish you lock in is flawless.",
-    },
-    {
-      title: "Prep",
-      description:
-        "An IPA panel wipe removes polishing oils so the coating bonds directly to clear coat.",
-    },
-    {
-      title: "Apply and level",
-      description:
-        "The coating goes on panel by panel under our portable lighting, with the garage door down to keep dust out, then is leveled by hand at the exact flash time.",
-    },
-    {
-      title: "Cure and hand-off",
-      description:
-        "The coating cures overnight in your garage. We return for a final inspection and walk you through your aftercare kit and warranty.",
+        "Door jambs wiped out and tires dressed so the truck looks sharp on the next job.",
     },
   ],
 };
@@ -626,119 +484,73 @@ export interface ComparisonFeature {
   values: Partial<Record<string, ComparisonValue>>;
 }
 
-/** Feature matrix for the Pricing page. Rows are features, columns are services. */
+const allFour = {
+  "basic-wash": true,
+  "premium-detail": true,
+  "full-deluxe": true,
+  "working-truck": true,
+} as const;
+const premiumAndUp = { "premium-detail": true, "full-deluxe": true } as const;
+const deluxeOnly = { "full-deluxe": true } as const;
+
+/** Feature matrix for the Pricing page. Rows are features, columns are services. Built from the client's includes. */
 export const comparisonFeatures: ComparisonFeature[] = [
+  { label: "Hand wash", values: allFour },
+  { label: "Wheels and tires", values: allFour },
   {
-    label: "Hand wash",
+    label: "Tire shine",
     values: {
-      "signature-wash": true,
-      "full-detail": true,
-      "paint-correction": true,
-      "ceramic-coating": true,
-      "maintenance-plan": true,
+      "basic-wash": true,
+      "premium-detail": true,
+      "full-deluxe": true,
+      "working-truck": "Tire dressing",
     },
   },
+  { label: "Windows", values: { "basic-wash": true, "premium-detail": true, "full-deluxe": true } },
   {
-    label: "Wheels and tires deep cleaned",
-    values: {
-      "signature-wash": true,
-      "full-detail": true,
-      "paint-correction": true,
-      "ceramic-coating": true,
-      "maintenance-plan": "Maintenance clean",
-    },
+    label: "Exterior wipe-down",
+    values: { "basic-wash": true, "premium-detail": true, "full-deluxe": true },
   },
-  {
-    label: "Clay bar decontamination",
-    values: { "full-detail": true, "paint-correction": true, "ceramic-coating": true },
-  },
-  {
-    label: "Machine polish",
-    values: {
-      "full-detail": "One-step",
-      "paint-correction": "Two-stage",
-      "ceramic-coating": "Two-stage",
-    },
-  },
-  {
-    label: "Paint-depth measurement",
-    values: { "paint-correction": true, "ceramic-coating": true },
-  },
-  {
-    label: "Interior vacuum",
-    values: { "interior-refresh": true, "full-detail": true, "maintenance-plan": true },
-  },
-  {
-    label: "Interior steam",
-    values: { "interior-refresh": true, "full-detail": true },
-  },
-  {
-    label: "Carpet and mat shampoo",
-    values: { "interior-refresh": true, "full-detail": true },
-  },
-  {
-    label: "Leather conditioning",
-    values: { "interior-refresh": true, "full-detail": true },
-  },
-  {
-    label: "Paint protection",
-    values: {
-      "signature-wash": "3-month sealant",
-      "full-detail": "6-month sealant",
-      "paint-correction": "6-month sealant",
-      "ceramic-coating": "Multi-year ceramic",
-      "maintenance-plan": "Coating booster",
-    },
-  },
-  {
-    label: "Ceramic coating",
-    values: { "ceramic-coating": true },
-  },
-  {
-    label: "Before and after photos",
-    values: { "paint-correction": true, "ceramic-coating": true },
-  },
-  {
-    label: "Warranty",
-    values: { "ceramic-coating": "3-year written" },
-  },
-  {
-    label: "Where we work",
-    values: {
-      "signature-wash": "Your driveway",
-      "interior-refresh": "Your driveway",
-      "full-detail": "Your driveway",
-      "paint-correction": "Your garage",
-      "ceramic-coating": "Your garage",
-      "maintenance-plan": "Your driveway",
-    },
-  },
+  { label: "Deep wheel cleaning", values: premiumAndUp },
+  { label: "Wheel wells", values: { ...premiumAndUp, "working-truck": true } },
+  { label: "Door jambs", values: { ...premiumAndUp, "working-truck": true } },
+  { label: "Bug removal", values: { ...premiumAndUp, "working-truck": "Bugs and grime" } },
+  { label: "Spray wax/sealant", values: premiumAndUp },
+  { label: "Interior vacuum", values: deluxeOnly },
+  { label: "Dash, console and doors", values: deluxeOnly },
+  { label: "Seats", values: deluxeOnly },
+  { label: "Mats", values: deluxeOnly },
+  { label: "Interior windows", values: deluxeOnly },
+  { label: "Deeper stain cleaning", values: deluxeOnly },
 ];
 
 export interface PriceFactor {
   title: string;
   description: string;
+  /** What it can add, e.g. "+$15–$30". */
+  amount?: string;
 }
 
 /** Things that can change a quote. Always quoted before work starts. */
 export const priceFactors: PriceFactor[] = [
   {
-    title: "Vehicle condition",
+    title: "Extremely dirty work vehicles",
+    description: "Construction, farm or work vehicles with caked mud or heavy job-site grime.",
+    amount: "+$15–$30",
+  },
+  {
+    title: "Heavy soil",
     description:
-      "Heavy sun oxidation, hard-water spots or neglected paint takes longer to bring back.",
+      "Mud, sand, spills or build-up well beyond normal daily use takes extra time to clean safely.",
   },
   {
     title: "Pet hair",
-    description: "Embedded hair in carpet and cloth needs dedicated extraction time.",
-  },
-  {
-    title: "Excessive soiling",
     description:
-      "Caked mud, embedded desert sand, spills or biohazard clean-up beyond normal daily use.",
+      "Heavy, embedded pet hair in carpet and seats needs a lot of extra vacuuming time.",
   },
 ];
 
-/** Range applied for the factors above, as a percentage of the base price. */
+/** Range applied for heavy soil and pet hair, as a percentage of the base price. */
 export const priceFactorRange = { min: 15, max: 30 } as const;
 
 /** Parse an add-on duration such as "+45 min" into minutes. */
@@ -747,7 +559,7 @@ export function addOnMinutes(addOn: Pick<AddOn, "duration">) {
   return match ? Number(match[1]) : 0;
 }
 
-/** Lowest and highest starting price for a service across vehicle sizes. */
+/** Lowest and highest starting price for a service across all vehicle sizes (motorcycle to exotic). */
 export function priceRange(service: Pick<Service, "price">) {
   const values = Object.values(service.price);
   return { min: Math.min(...values), max: Math.max(...values) };
@@ -766,5 +578,17 @@ export function bookingUrl(
 }
 
 export function isVehicleSize(value: unknown): value is VehicleSize {
-  return value === "sedan" || value === "suv" || value === "truck";
+  return typeof value === "string" && (vehicleSizeIds as string[]).includes(value);
+}
+
+/** Render a service price for one size, honoring open-ended notes: "$50", "from $100", "$150+". */
+export function formatServicePrice(
+  service: Pick<Service, "price" | "priceNote">,
+  size: VehicleSize,
+) {
+  const amount = formatPrice(service.price[size]);
+  const note = service.priceNote?.[size];
+  if (note === "from") return `from ${amount}`;
+  if (note === "plus") return `${amount}+`;
+  return amount;
 }

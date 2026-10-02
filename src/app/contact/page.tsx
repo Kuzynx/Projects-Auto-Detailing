@@ -68,7 +68,7 @@ export default function ContactPage() {
       <PageHero
         eyebrow="Contact"
         title="Talk to a detailer"
-        description="Real people, not a call center. Ask about a quote, a fleet account or that one scratch that bugs you. Typical reply within 1 business hour."
+        description="Real people, not a call center. Ask about a quote, a work truck or a fleet, or which package fits your car. Typical reply within 1 business hour."
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Contact" }]}
       />
 
@@ -89,7 +89,11 @@ export default function ContactPage() {
                 >
                   Pick a time online
                 </Link>
-                . For everything else, this goes straight to our team.
+                . For everything else, this goes straight to{" "}
+                {siteConfig.team[0]
+                  ? `${siteConfig.team[0].name}, who handles booking and messages, and ${siteConfig.founder.name}`
+                  : siteConfig.founder.name}
+                .
               </p>
               <ContactForm />
             </Card>

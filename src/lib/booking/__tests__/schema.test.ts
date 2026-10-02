@@ -1,9 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { siteConfig } from "@/config/site";
 import { formatPhoneAsYouType, formatUsPhone, isValidUsPhone, normalizeUsPhone } from "../phone";
 import {
   emptyDraft,
+  DEFAULT_VEHICLE_SIZE,
   firstStepWithErrors,
+  getBookingSteps,
   getCrossFieldErrors,
   getRecommendedAddOns,
   OTHER_CITY,
@@ -15,12 +17,16 @@ import {
   type BookingDraft,
 } from "../schema";
 
+vi.mock("@/data/services", async (importOriginal) =>
+  (await import("./fixtures/catalog")).withFixtureCatalog(await importOriginal<object>()),
+);
+
 // Wednesday 7 Oct 2026, 10:00 AM local (PDT).
 const NOW = new Date("2026-10-07T17:00:00Z");
 
 const validDraft: BookingDraft = {
   ...emptyDraft,
-  service: "full-detail",
+  service: "fx-full",
   size: "suv",
   year: "2022",
   make: "Porsche",
@@ -89,6 +95,27 @@ describe("step validation", () => {
     expect(validateStep("vehicle", validDraft, NOW)).toEqual({});
   });
 
+  it("defaults to the first vehicle type and rejects unknown ones", () => {
+    expect(DEFAULT_VEHICLE_SIZE).toBe("car");
+    expect(validateStep("vehicle", { ...validDraft, size: "car" }, NOW)).toEqual({});
+    expect(
+      validateStep("vehicle", { ...validDraft, size: "sedan" as BookingDraft["size"] }, NOW).size,
+    ).toBeDefined();
+  });
+
+  it("does not ask about the interior of a motorcycle", () => {
+    const bike = {
+      ...validDraft,
+      size: "motorcycle" as BookingDraft["size"],
+      interiorCondition: "" as const,
+      petHair: false,
+    };
+    expect(validateStep("vehicle", bike, NOW)).toEqual({});
+    expect(
+      validateStep("vehicle", { ...bike, size: "exotic" }, NOW).interiorCondition,
+    ).toBeDefined();
+  });
+
   it("accepts an empty year but rejects a malformed one", () => {
     expect(validateStep("vehicle", { ...validDraft, year: "" }, NOW).year).toBeUndefined();
     expect(validateStep("vehicle", { ...validDraft, year: "22" }, NOW).year).toBeDefined();
@@ -100,7 +127,7 @@ describe("step validation", () => {
       validateStep("addons", { ...validDraft, addOns: ["laser-wax"] }, NOW).addOns,
     ).toBeDefined();
     expect(
-      validateStep("addons", { ...validDraft, addOns: ["engine-bay", "engine-bay"] }, NOW).addOns,
+      validateStep("addons", { ...validDraft, addOns: ["fx-engine", "fx-engine"] }, NOW).addOns,
     ).toBeDefined();
     expect(validateStep("addons", { ...validDraft, addOns: [] }, NOW)).toEqual({});
   });
@@ -137,11 +164,11 @@ describe("step validation", () => {
 });
 
 describe("cross-field rules", () => {
-  it("requires garage confirmation for correction and coatings", () => {
-    expect(requiresGarage("ceramic-coating")).toBe(true);
-    expect(requiresGarage("paint-correction")).toBe(true);
-    expect(requiresGarage("full-detail")).toBe(false);
-    const coating = { ...validDraft, service: "ceramic-coating", time: "07:00" };
+  it("requires garage confirmation for garage services", () => {
+    expect(requiresGarage("fx-garage")).toBe(true);
+    expect(requiresGarage("fx-full")).toBe(false);
+    expect(requiresGarage("unknown")).toBe(false);
+    const coating = { ...validDraft, service: "fx-garage", time: "07:00" };
     expect(getCrossFieldErrors(coating, NOW).garageConfirmed).toMatch(/garage or covered space/i);
     expect(getCrossFieldErrors(coating, NOW).garageConfirmed).toMatch(/shade and still air/);
     expect(getCrossFieldErrors({ ...coating, garageConfirmed: true }, NOW)).toEqual({});
@@ -162,7 +189,7 @@ describe("cross-field rules", () => {
   });
 
   it("rejects a time that doesn't fit the service on that day", () => {
-    // Full Detail SUV is 5 hours; Saturday closes at 4 PM, so 1 PM is too late.
+    // Fixture Full on an SUV is 5 hours; Saturday closes at 4 PM, so 1 PM is too late.
     expect(
       getCrossFieldErrors({ ...validDraft, date: "2026-10-10", time: "13:00", addOns: [] }, NOW)
         .time,
@@ -205,6 +232,22 @@ describe("validateBooking (server)", () => {
 });
 
 describe("helpers", () => {
+  it("only includes the add-ons step when add-ons are offered", () => {
+    expect(getBookingSteps(true).map((s) => s.id)).toEqual([
+      "service",
+      "vehicle",
+      "addons",
+      "schedule",
+      "contact",
+    ]);
+    expect(getBookingSteps(false).map((s) => s.id)).toEqual([
+      "service",
+      "vehicle",
+      "schedule",
+      "contact",
+    ]);
+  });
+
   it("maps errors to the first step that owns them", () => {
     expect(firstStepWithErrors({ phone: "x", make: "y" })).toBe(stepIndexOf("vehicle"));
     expect(firstStepWithErrors({})).toBe(-1);

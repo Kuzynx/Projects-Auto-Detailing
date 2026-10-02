@@ -1,33 +1,24 @@
-import { Eye, Gauge, Handshake, Timer, type LucideIcon } from "lucide-react";
+import { Droplets, Eye, Handshake, Timer, type LucideIcon } from "lucide-react";
 
-/**
- * About-page copy. Team members are representative profiles for the site build;
- * replace with the client's real staff before launch.
- */
-export const founder = {
-  name: "Luis Herrera",
-  role: "Founder and lead detailer",
-  credential: "IDA Certified Detailer",
-} as const;
-
+/** About-page copy. Facts about the founder live in `siteConfig.founder`. */
 export const values: { title: string; description: string; Icon: LucideIcon }[] = [
   {
-    Icon: Gauge,
-    title: "Measure before we touch",
+    Icon: Droplets,
+    title: "By hand, every time",
     description:
-      "Paint is read with a depth gauge on every panel before a pad spins. Decisions come from numbers, not guesses.",
+      "No brushes, no automatic equipment. Every car is washed and dried by hand, panel by panel.",
   },
   {
     Icon: Eye,
     title: "Honest scope",
     description:
-      "If a scratch is through the clear coat, we say so. We quote what your car needs, not what earns the biggest ticket.",
+      "If a mark will not wash out, you hear that up front. You get recommended the package your car needs, not the biggest ticket.",
   },
   {
     Icon: Handshake,
-    title: "Own the outcome",
+    title: "Make it right",
     description:
-      "Not right? We come back and fix it at no charge. Every coating carries a 3-year written warranty.",
+      "Spot something we missed? Say so before we pack up, or text us after, and we will come back and fix it.",
   },
   {
     Icon: Timer,
@@ -39,77 +30,32 @@ export const values: { title: string; description: string; Icon: LucideIcon }[] 
 
 export const standards: { title: string; description: string }[] = [
   {
-    title: "Two-bucket hand wash, every time",
+    title: "Two-bucket hand wash",
     description:
       "One bucket for soap, one for rinsing the mitt, grit guards in both. Dirt stays at the bottom instead of being dragged across your paint.",
   },
   {
-    title: "pH-neutral soaps and dedicated chemistry",
+    title: "pH-neutral soap",
     description:
-      "Gentle on coatings, wax, rubber and trim. Iron removers and degreasers are matched to the surface, never one bottle for everything.",
+      "Gentle on paint, wax, rubber and trim. It lifts dirt without stripping the protection already on your car.",
   },
   {
-    title: "Paint-depth gauges on every correction",
+    title: "Microfiber-only drying",
     description:
-      "We record readings panel by panel so we never remove more clear coat than the defect requires.",
+      "Clean, plush microfiber towels, never a chamois or an old bath towel. Paint, glass, wheels and interior each get their own.",
   },
   {
-    title: "Color-matched inspection lighting",
+    title: "Early starts",
     description:
-      "High-CRI lights reveal swirls and holograms that sunlight and garage bulbs hide. If we cannot see it, we cannot fix it.",
+      "Desert sun makes soap dry on the paint before it can rinse clean. We start early, work in shade where we can and keep panels cool.",
   },
   {
-    title: "Cool panels only",
-    description:
-      "Desert sun makes soap and polish dry before they can work. We start early, work in shade and check panel temperature before anything touches the paint.",
-  },
-  {
-    title: "Coatings in a garage, never in the open",
-    description:
-      "Correction and ceramic coatings happen in your garage or another covered space, under our portable lighting, so wind-blown dust never gets sealed in.",
+    title: "Wheels and tires get their own tools",
+    description: "Brake dust and road grime never touch the mitt that washes your paint.",
   },
   {
     title: "Self-contained rig",
     description:
-      "We carry our own water, power and lighting. Nothing from your house, and nothing left behind but a clean car.",
-  },
-  {
-    title: "Fresh microfiber, color-coded by task",
-    description:
-      "Paint, glass, wheels and interior each get their own towels. Towels are laundered after every job and retired early.",
-  },
-  {
-    title: "IDA-certified technicians",
-    description:
-      "Every detailer on your car holds International Detailing Association certification and at least three years of hands-on experience.",
+      "We bring our own water and power. Nothing needed from your house, and nothing left behind but a clean car.",
   },
 ];
-
-export const team: { name: string; role: string; bio: string; credentials: string[] }[] = [
-  {
-    name: founder.name,
-    role: founder.role,
-    bio: "Started with a pressure washer and a borrowed van. Still personally inspects every correction and coating before we pack up and hand back the keys.",
-    credentials: ["IDA Certified Detailer", "Coatings installer"],
-  },
-  {
-    name: "Maya Okafor",
-    role: "Correction and coatings specialist",
-    bio: "Runs our garage-day correction and coating jobs. Black paint, soft clear coats and fresh resprays are her favorite problems to solve.",
-    credentials: ["IDA Certified Detailer", "Paint-depth specialist"],
-  },
-  {
-    name: "Andre Castillo",
-    role: "Mobile team lead",
-    bio: "Leads the daily wash and interior routes. Knows which HOAs want a heads-up and which streets get the morning shade.",
-    credentials: ["IDA Certified Detailer", "Water-reclaim trained"],
-  },
-];
-
-export const credentials = [
-  { label: "IDA Certified", detail: "International Detailing Association" },
-  { label: "$2M liability", detail: "General liability coverage" },
-  { label: "Garage keepers", detail: "Your car is covered in our care" },
-  { label: "3-year warranty", detail: "Written, on every ceramic coating" },
-  { label: "Background checked", detail: "Every technician on every job" },
-] as const;

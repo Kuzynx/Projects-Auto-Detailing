@@ -1,9 +1,10 @@
 "use client";
 
-import { getAddOn, vehicleSizes } from "@/data/services";
-import { interiorConditions, paintConditions } from "@/lib/booking/schema";
-import { cn } from "@/lib/utils";
-import { CheckboxField, errorId, FieldError, fieldId, SelectField, TextField } from "./fields";
+import { vehicleSizes } from "@/data/services";
+import { detailerName } from "@/lib/booking/format";
+import { interiorConditions, isMotorcycle, paintConditions } from "@/lib/booking/schema";
+import { errorId, CheckboxField, FieldError, fieldId, SelectField, TextField } from "./fields";
+import { OptionCard } from "./option-card";
 import type { StepProps } from "./step-types";
 
 const withHints = (list: readonly { value: string; label: string; hint: string }[]) =>
@@ -11,53 +12,49 @@ const withHints = (list: readonly { value: string; label: string; hint: string }
 
 export function VehicleStep({ draft, errors, update }: StepProps) {
   const sizeError = errors.size;
-  const petHairAddOn = getAddOn("pet-hair-removal");
-  const odorAddOn = getAddOn("odor-elimination");
+  const motorcycle = isMotorcycle(draft.size);
+  const noun = motorcycle ? "bike" : "car";
 
   return (
     <div className="space-y-8">
-      <fieldset aria-describedby={sizeError ? errorId("size") : undefined}>
-        <legend className="mb-3 text-sm font-medium text-ink">Vehicle size</legend>
-        <div className="grid gap-2 rounded-lg border border-border bg-bg-elevated p-1.5 sm:grid-cols-3">
+      <div>
+        <p id="bk-size-label" className="mb-3 text-sm font-medium text-ink">
+          Vehicle type
+        </p>
+        <div
+          role="radiogroup"
+          aria-labelledby="bk-size-label"
+          aria-describedby={sizeError ? errorId("size") : undefined}
+          aria-invalid={sizeError ? true : undefined}
+          className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+        >
           {vehicleSizes.map((size, i) => {
             const checked = draft.size === size.id;
             return (
-              <label
+              <OptionCard
                 key={size.id}
-                className={cn(
-                  "relative cursor-pointer rounded-md px-4 py-3 transition-colors has-focus-visible:ring-2 has-focus-visible:ring-brand-400",
-                  checked
-                    ? "bg-surface-hover shadow-card ring-1 ring-brand-500/60"
-                    : "hover:bg-white/[0.03]",
-                )}
+                type="radio"
+                name="size"
+                value={size.id}
+                id={(draft.size ? checked : i === 0) ? fieldId("size") : undefined}
+                checked={checked}
+                onChange={() => update({ size: size.id })}
+                invalid={Boolean(sizeError)}
+                className="p-4 sm:p-4"
               >
-                <input
-                  type="radio"
-                  name="size"
-                  value={size.id}
-                  id={(draft.size ? checked : i === 0) ? fieldId("size") : undefined}
-                  checked={checked}
-                  onChange={() => update({ size: size.id })}
-                  className="sr-only"
-                />
-                <span
-                  className={cn(
-                    "block font-display text-sm font-semibold",
-                    checked ? "text-brand-300" : "text-ink",
-                  )}
-                >
+                <span className="block font-display text-sm font-semibold text-ink">
                   {size.label}
                 </span>
                 <span className="mt-0.5 block text-xs text-ink-subtle">{size.examples}</span>
-              </label>
+              </OptionCard>
             );
           })}
         </div>
         <FieldError name="size" message={sizeError} />
-      </fieldset>
+      </div>
 
       <fieldset>
-        <legend className="mb-3 text-sm font-medium text-ink">About the car</legend>
+        <legend className="mb-3 text-sm font-medium text-ink">About the {noun}</legend>
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField
             name="make"
@@ -65,7 +62,7 @@ export function VehicleStep({ draft, errors, update }: StepProps) {
             value={draft.make}
             onValueChange={(make) => update({ make })}
             error={errors.make}
-            placeholder="Porsche"
+            placeholder={motorcycle ? "Harley-Davidson" : "Toyota"}
             autoComplete="off"
             maxLength={40}
           />
@@ -75,7 +72,7 @@ export function VehicleStep({ draft, errors, update }: StepProps) {
             value={draft.model}
             onValueChange={(model) => update({ model })}
             error={errors.model}
-            placeholder="911 Carrera"
+            placeholder={motorcycle ? "Street Glide" : "Camry"}
             autoComplete="off"
             maxLength={60}
           />
@@ -98,7 +95,7 @@ export function VehicleStep({ draft, errors, update }: StepProps) {
             value={draft.color}
             onValueChange={(color) => update({ color })}
             error={errors.color}
-            placeholder="Chalk grey"
+            placeholder={motorcycle ? "Vivid black" : "Silver"}
             autoComplete="off"
             maxLength={30}
           />
@@ -122,38 +119,38 @@ export function VehicleStep({ draft, errors, update }: StepProps) {
             placeholder="Choose the closest match"
             error={errors.paintCondition}
           />
-          <SelectField
-            name="interiorCondition"
-            label="Interior"
-            value={draft.interiorCondition}
-            onValueChange={(value) =>
-              update({ interiorCondition: value as typeof draft.interiorCondition })
-            }
-            options={withHints(interiorConditions)}
-            placeholder="Choose the closest match"
-            error={errors.interiorCondition}
-          />
+          {!motorcycle && (
+            <SelectField
+              name="interiorCondition"
+              label="Interior"
+              value={draft.interiorCondition}
+              onValueChange={(value) =>
+                update({ interiorCondition: value as typeof draft.interiorCondition })
+              }
+              options={withHints(interiorConditions)}
+              placeholder="Choose the closest match"
+              error={errors.interiorCondition}
+            />
+          )}
         </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <CheckboxField
-            name="petHair"
-            checked={draft.petHair}
-            onCheckedChange={(petHair) => update({ petHair })}
-            label="There's pet hair in the cabin"
-            description={
-              petHairAddOn ? `We'll suggest ${petHairAddOn.name} on the next step.` : undefined
-            }
-          />
-          <CheckboxField
-            name="smoke"
-            checked={draft.smoke}
-            onCheckedChange={(smoke) => update({ smoke })}
-            label="It's been smoked in"
-            description={
-              odorAddOn ? `We'll suggest ${odorAddOn.name} on the next step.` : undefined
-            }
-          />
-        </div>
+        {!motorcycle && (
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <CheckboxField
+              name="petHair"
+              checked={draft.petHair}
+              onCheckedChange={(petHair) => update({ petHair })}
+              label="There's pet hair in the cabin"
+              description={`Helps ${detailerName} plan time and products.`}
+            />
+            <CheckboxField
+              name="smoke"
+              checked={draft.smoke}
+              onCheckedChange={(smoke) => update({ smoke })}
+              label="It's been smoked in"
+              description={`Helps ${detailerName} plan time and products.`}
+            />
+          </div>
+        )}
       </fieldset>
     </div>
   );

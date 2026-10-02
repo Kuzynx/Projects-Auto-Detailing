@@ -24,7 +24,7 @@ function summarize(reference: string, booking: BookingData, total: number) {
     `Booking request ${reference}`,
     "",
     `Service: ${service} (${size})`,
-    `Add-ons: ${addOns.length ? addOns.join(", ") : "none"}`,
+    ...(addOns.length ? [`Add-ons: ${addOns.join(", ")}`] : []),
     `Vehicle: ${vehicle || "not specified"}`,
     `Paint: ${booking.paintCondition}; interior: ${booking.interiorCondition}`,
     `Pet hair: ${booking.petHair ? "yes" : "no"}; smoke: ${booking.smoke ? "yes" : "no"}`,

@@ -3,7 +3,14 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { CalendarDays, Car, MapPin, Phone, Sparkles } from "lucide-react";
 import { siteConfig } from "@/config/site";
-import { formatAppointment, formatVehicle, getCityName, getSizeLabel } from "@/lib/booking/format";
+import {
+  formatAppointment,
+  formatVehicle,
+  getCityName,
+  getEstimateNote,
+  getSizeLabel,
+} from "@/lib/booking/format";
+import { formatServicePrice, getService } from "@/data/services";
 import { calculateEstimate } from "@/lib/booking/pricing";
 import { requiresGarage, type BookingDraft } from "@/lib/booking/schema";
 import { cn, formatPrice } from "@/lib/utils";
@@ -38,6 +45,7 @@ export function BookingSummary({ draft, className }: { draft: BookingDraft; clas
     size: draft.size,
     addOnSlugs: draft.addOns,
   });
+  const service = getService(draft.service);
   const vehicle = formatVehicle(draft);
   const when = formatAppointment(draft);
   const city = getCityName(draft);
@@ -62,7 +70,9 @@ export function BookingSummary({ draft, className }: { draft: BookingDraft; clas
             <span className="flex items-baseline justify-between gap-3">
               <span>{estimate.service.name}</span>
               <span className="font-display tabular-nums">
-                {formatPrice(estimate.service.price)}
+                {service
+                  ? formatServicePrice(service, draft.size)
+                  : formatPrice(estimate.service.price)}
               </span>
             </span>
           ) : (
@@ -123,8 +133,7 @@ export function BookingSummary({ draft, className }: { draft: BookingDraft; clas
           </p>
         </div>
         <p className="mt-2 text-xs leading-relaxed text-ink-subtle">
-          Starting price. Your final quote is confirmed on site after a quick inspection, before any
-          work begins.
+          {getEstimateNote(draft.service, draft.size)}
         </p>
       </div>
 

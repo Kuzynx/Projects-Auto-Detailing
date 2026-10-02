@@ -207,7 +207,7 @@ export function ServiceArea() {
                 Mobile detailing across <span className="text-gradient-brand">the {region}.</span>
               </span>
             }
-            description="We work in your driveway, your garage or your office lot. Our mobile unit carries its own water, power and lighting. Paint correction and ceramic coatings just need a garage or covered space to keep dust and sun off the paint."
+            description="We work in your driveway, your garage or your office lot. Our mobile setup carries its own water, power and lighting, so all we need is the vehicle and a little room to walk around it."
           />
 
           <h3 className="mt-10 font-display text-xs font-semibold tracking-[0.2em] text-ink-subtle uppercase">

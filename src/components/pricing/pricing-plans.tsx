@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, Check, Clock } from "lucide-react";
 import { Badge, ButtonLink } from "@/components/ui";
-import { bookingUrl, serviceLocations, type Service } from "@/data/services";
-import { cn, formatPrice } from "@/lib/utils";
+import { bookingUrl, formatServicePrice, serviceLocations, type Service } from "@/data/services";
+import { cn } from "@/lib/utils";
 import { SizeValue } from "./size-value";
 
 /** Pricing cards for every service. Prices follow the page-level size toggle. */
@@ -38,9 +38,15 @@ export function PricingPlans({ services }: { services: Service[] }) {
 
             <div className="mt-6 flex items-baseline gap-2">
               <p className="font-display text-5xl font-semibold tracking-tight text-ink tabular-nums">
-                <SizeValue render={(size) => formatPrice(service.price[size])} />
+                <SizeValue render={(size) => formatServicePrice(service, size)} />
               </p>
-              <span className="text-sm text-ink-subtle">{service.priceSuffix ?? "starting"}</span>
+              <span className="text-sm text-ink-subtle">
+                <SizeValue
+                  render={(size) =>
+                    service.priceNote?.[size] ? "" : (service.priceSuffix ?? "starting")
+                  }
+                />
+              </span>
             </div>
             <p className="mt-2 inline-flex items-center gap-1.5 text-sm text-ink-muted">
               <Clock aria-hidden className="size-4 text-brand-400" />
@@ -67,7 +73,7 @@ export function PricingPlans({ services }: { services: Service[] }) {
                     className="w-full"
                     aria-label={`Book ${service.name}`}
                   >
-                    Book {service.name.replace(/^The /, "")}
+                    Book this package
                   </ButtonLink>
                 )}
               />

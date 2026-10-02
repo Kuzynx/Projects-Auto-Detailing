@@ -5,19 +5,28 @@ import { cn } from "@/lib/utils";
 // Literal class names so Tailwind can see them.
 const visibility = {
   inline: {
-    sedan: "hidden group-data-[size=sedan]/size:inline",
+    car: "hidden group-data-[size=car]/size:inline",
     suv: "hidden group-data-[size=suv]/size:inline",
     truck: "hidden group-data-[size=truck]/size:inline",
+    sports: "hidden group-data-[size=sports]/size:inline",
+    exotic: "hidden group-data-[size=exotic]/size:inline",
+    motorcycle: "hidden group-data-[size=motorcycle]/size:inline",
   },
   flex: {
-    sedan: "hidden group-data-[size=sedan]/size:flex",
+    car: "hidden group-data-[size=car]/size:flex",
     suv: "hidden group-data-[size=suv]/size:flex",
     truck: "hidden group-data-[size=truck]/size:flex",
+    sports: "hidden group-data-[size=sports]/size:flex",
+    exotic: "hidden group-data-[size=exotic]/size:flex",
+    motorcycle: "hidden group-data-[size=motorcycle]/size:flex",
   },
   block: {
-    sedan: "hidden group-data-[size=sedan]/size:block",
+    car: "hidden group-data-[size=car]/size:block",
     suv: "hidden group-data-[size=suv]/size:block",
     truck: "hidden group-data-[size=truck]/size:block",
+    sports: "hidden group-data-[size=sports]/size:block",
+    exotic: "hidden group-data-[size=exotic]/size:block",
+    motorcycle: "hidden group-data-[size=motorcycle]/size:block",
   },
 } satisfies Record<string, Record<VehicleSize, string>>;
 

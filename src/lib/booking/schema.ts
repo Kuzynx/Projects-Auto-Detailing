@@ -4,7 +4,15 @@
  */
 import { z } from "zod";
 import { siteConfig } from "@/config/site";
-import { getAddOn, getService, services, type VehicleSize } from "@/data/services";
+import {
+  addOns as addOnCatalog,
+  getAddOn,
+  getService,
+  isVehicleSize,
+  services,
+  vehicleSizes,
+  type VehicleSize,
+} from "@/data/services";
 import { isValidUsPhone, formatUsPhone } from "./phone";
 import {
   findTimeSlot,
@@ -19,7 +27,25 @@ import {
 /* Option lists                                                        */
 /* ------------------------------------------------------------------ */
 
-export const vehicleSizeIds = ["sedan", "suv", "truck"] as const satisfies readonly VehicleSize[];
+/** Vehicle type ids, in catalog order. Derived from `vehicleSizes`; never hardcoded. */
+export const vehicleSizeIds: readonly VehicleSize[] = vehicleSizes.map((size) => size.id);
+
+/** Default vehicle type: the first one in the catalog ("car"). */
+export const DEFAULT_VEHICLE_SIZE: VehicleSize = vehicleSizes[0].id;
+
+/* Ids with special handling. Compared as strings so this compiles against any catalog. */
+const MOTORCYCLE_ID = "motorcycle";
+const EXOTIC_ID = "exotic";
+
+/** Motorcycles have no cabin: no interior condition, pet hair or smoke questions. */
+export function isMotorcycle(size: string): boolean {
+  return size === MOTORCYCLE_ID;
+}
+
+/** Exotic prices are "starting at" and always confirmed on site. */
+export function isExotic(size: string): boolean {
+  return size === EXOTIC_ID;
+}
 
 export const paintConditions = [
   { value: "excellent", label: "Excellent", hint: "Deep gloss, no marks you can see" },
@@ -56,7 +82,7 @@ export function requiresGarage(serviceSlug: string): boolean {
 }
 
 export const GARAGE_REQUIRED_MESSAGE =
-  "Confirm you have a garage or covered space. Correction and coatings need shade and still air: direct sun flashes the product before it levels, and wind blows dust into the finish.";
+  "Confirm you have a garage or covered space. This package needs shade and still air: direct sun flashes products before they level, and wind blows dust into the finish.";
 
 /** Add-ons we suggest based on what the customer told us about the vehicle. */
 export function getRecommendedAddOns(draft: Pick<BookingDraft, "petHair" | "smoke">): string[] {
@@ -102,7 +128,7 @@ export type FieldErrors = Partial<Record<BookingField, string>>;
 
 export const emptyDraft: BookingDraft = {
   service: "",
-  size: "sedan",
+  size: DEFAULT_VEHICLE_SIZE,
   year: "",
   make: "",
   model: "",
@@ -130,7 +156,7 @@ export const emptyDraft: BookingDraft = {
 /* Steps                                                               */
 /* ------------------------------------------------------------------ */
 
-export const bookingSteps = [
+const allBookingSteps = [
   { id: "service", label: "Service", fields: ["service"] },
   {
     id: "vehicle",
@@ -156,17 +182,30 @@ export const bookingSteps = [
   { id: "contact", label: "Confirm", fields: ["name", "email", "phone", "notes", "smsConsent"] },
 ] as const satisfies readonly { id: string; label: string; fields: readonly BookingField[] }[];
 
-export type BookingStepId = (typeof bookingSteps)[number]["id"];
+export type BookingStepId = (typeof allBookingSteps)[number]["id"];
 
+export interface BookingStep {
+  id: BookingStepId;
+  label: string;
+  fields: readonly BookingField[];
+}
+
+/** The flow's steps. The add-ons step only exists when the catalog offers add-ons. */
+export function getBookingSteps(hasAddOns: boolean): readonly BookingStep[] {
+  return allBookingSteps.filter((step) => hasAddOns || step.id !== "addons");
+}
+
+/** Steps for the current catalog. */
+export const bookingSteps: readonly BookingStep[] = getBookingSteps(addOnCatalog.length > 0);
+
+/** Index of a step in the current flow, or -1 when the step is not shown. */
 export function stepIndexOf(id: BookingStepId): number {
   return bookingSteps.findIndex((step) => step.id === id);
 }
 
 /** Index of the first step that owns any of these errors, or -1. */
 export function firstStepWithErrors(errors: FieldErrors): number {
-  return bookingSteps.findIndex((step) =>
-    step.fields.some((field) => errors[field as BookingField]),
-  );
+  return bookingSteps.findIndex((step) => step.fields.some((field) => errors[field]));
 }
 
 /* ------------------------------------------------------------------ */
@@ -197,7 +236,9 @@ export const serviceStepSchema = z.object({
 });
 
 export const vehicleStepSchema = z.object({
-  size: z.enum(vehicleSizeIds, { error: "Choose your vehicle size." }),
+  size: z.custom<VehicleSize>((value) => isVehicleSize(value), {
+    error: "Choose your vehicle type.",
+  }),
   year: z
     .string()
     .trim()
@@ -213,7 +254,8 @@ export const vehicleStepSchema = z.object({
   paintCondition: z.enum(values(paintConditions), {
     error: "Choose the closest match for your paint.",
   }),
-  interiorCondition: z.enum(values(interiorConditions), {
+  // Required for everything except motorcycles; see getCrossFieldErrors.
+  interiorCondition: z.union([z.enum(values(interiorConditions)), z.literal("")], {
     error: "Choose the closest match for your interior.",
   }),
   petHair: z.boolean(),
@@ -294,17 +336,30 @@ const stepSchemas = {
 
 type CrossFieldInput = Pick<
   BookingDraft,
-  "service" | "size" | "addOns" | "city" | "cityOther" | "garageConfirmed" | "date" | "time"
+  | "service"
+  | "size"
+  | "interiorCondition"
+  | "addOns"
+  | "city"
+  | "cityOther"
+  | "garageConfirmed"
+  | "date"
+  | "time"
 >;
 
 /**
- * Rules that depend on more than one field or on the clock: the "Other" city,
+ * Rules that depend on more than one field or on the clock: interior condition
+ * (not asked for motorcycles), the "Other" city,
  * garage confirmation for correction and coatings, open days, lead time and
  * time-slot fit.
  */
 export function getCrossFieldErrors(data: CrossFieldInput, now: Date): FieldErrors {
   const errors: FieldErrors = {};
   const service = getService(data.service);
+
+  if (!isMotorcycle(data.size) && !data.interiorCondition) {
+    errors.interiorCondition = "Choose the closest match for your interior.";
+  }
 
   if (data.city.trim() === OTHER_CITY && !data.cityOther.trim()) {
     errors.cityOther = "Tell us which city the car is in.";
@@ -365,11 +420,11 @@ function toFieldErrors(error: z.ZodError): FieldErrors {
 export function validateStep(step: BookingStepId, draft: BookingDraft, now: Date): FieldErrors {
   const result = stepSchemas[step].safeParse(draft);
   const errors = result.success ? {} : toFieldErrors(result.error);
-  if (step === "schedule") {
-    const cross = getCrossFieldErrors(draft, now);
-    for (const [field, message] of Object.entries(cross) as [BookingField, string][]) {
-      errors[field] ??= message;
-    }
+  // Cross-field errors belong to whichever step owns the field.
+  const owned = new Set<BookingField>(allBookingSteps.find((s) => s.id === step)?.fields ?? []);
+  const cross = getCrossFieldErrors(draft, now);
+  for (const [field, message] of Object.entries(cross) as [BookingField, string][]) {
+    if (owned.has(field)) errors[field] ??= message;
   }
   return errors;
 }

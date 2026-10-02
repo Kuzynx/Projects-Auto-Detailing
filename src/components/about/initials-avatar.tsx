@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-/** Monogram avatar. We show initials rather than stock faces. */
+/** Monogram avatar for team members without a photo. */
 export function InitialsAvatar({ name, className }: { name: string; className?: string }) {
   const initials = name
     .split(/\s+/)

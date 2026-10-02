@@ -11,7 +11,7 @@ import { siteConfig } from "@/config/site";
 import { faqs } from "@/data/faq";
 
 const title = "FAQ";
-const description = `Straight answers about detailing with ${siteConfig.name}: pricing, booking and deposits, mobile service, ceramic coatings, paint correction and aftercare.`;
+const description = `Straight answers about detailing with ${siteConfig.name}: pricing by vehicle, what each package includes, booking, payment and mobile service.`;
 
 export const metadata: Metadata = buildMetadata({
   title,
@@ -47,7 +47,7 @@ export default function FaqPage() {
       <PageHero
         eyebrow="FAQ"
         title="Answers, before you ask"
-        description="Pricing, scheduling, mobile service and coatings, explained plainly. Search below or filter by topic."
+        description="Packages, pricing, scheduling and mobile service, explained plainly. Search below or filter by topic."
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "FAQ" }]}
       />
 

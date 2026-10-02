@@ -1,13 +1,13 @@
 "use client";
 
-import { vehicleSizes, type VehicleSize } from "@/data/services";
+import { vehicleSizeIds, type VehicleSize } from "@/data/services";
 import { useQueryParam } from "@/components/services/use-query-param";
 
-export const sizeIds = vehicleSizes.map((v) => v.id);
+export const sizeIds = vehicleSizeIds;
 
 /** Read/write the `?size=` query param shared by everything on the Pricing page. */
 export function useSizeParam() {
-  return useQueryParam<VehicleSize>("size", sizeIds, "sedan");
+  return useQueryParam<VehicleSize>("size", sizeIds, "car");
 }
 
 /**

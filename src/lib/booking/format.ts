@@ -1,12 +1,56 @@
 /** Display helpers shared by the summary card, confirmation screen and emails. */
 import { siteConfig } from "@/config/site";
 import { faqs } from "@/data/faq";
-import { vehicleSizes, type VehicleSize } from "@/data/services";
-import { interiorConditions, OTHER_CITY, paintConditions, type BookingDraft } from "./schema";
+import { getService, priceFactors, vehicleSizes, type VehicleSize } from "@/data/services";
+import {
+  interiorConditions,
+  isExotic,
+  OTHER_CITY,
+  paintConditions,
+  type BookingDraft,
+} from "./schema";
 import { findTimeSlot, formatClock, formatDateLong, parseTimeValue } from "./slots";
 
 /** "Victorville and the High Desert", from siteConfig. */
 export const serviceAreaLabel = `${siteConfig.address.city} and the ${siteConfig.region}`;
+
+/** Who details the car: the founder. */
+export const detailerName: string = siteConfig.founder.name;
+
+/**
+ * Who confirms bookings by text: the first team member (the manager), falling
+ * back to the founder when there is no team.
+ */
+export const bookingContactName: string =
+  (siteConfig.team as readonly { name: string }[])[0]?.name ?? siteConfig.founder.name;
+
+/** Default note under every estimate. */
+export const DEFAULT_ESTIMATE_NOTE =
+  "Starting price. Your final quote is confirmed on site after a quick inspection, before any work begins.";
+
+/** Shown for exotic vehicles, whose prices are "starting at" / "+". */
+export const EXOTIC_ESTIMATE_NOTE =
+  "Exotic pricing starts at the amount shown; final quote confirmed on site.";
+
+/** "$15–$30" from the catalog's price factor for extremely dirty work vehicles, if any. */
+function workVehicleSurcharge(): string | null {
+  const factor = priceFactors.find((f) => f.amount && /work vehicle/i.test(f.title));
+  return factor?.amount ? factor.amount.replace(/^\+/, "") : null;
+}
+
+/**
+ * Note shown under the estimate in the summary, confirmation and emails.
+ * Exotic sizes and work vehicles get their own wording; everything else the default.
+ */
+export function getEstimateNote(serviceSlug: string, size: VehicleSize): string {
+  const service = getService(serviceSlug);
+  if (isExotic(size) || (service && service.priceNote?.[size])) return EXOTIC_ESTIMATE_NOTE;
+  const surcharge = workVehicleSurcharge();
+  if (service?.category === "work" && surcharge) {
+    return `Starting price; extremely dirty construction, farm or work vehicles may add ${surcharge}, quoted on site.`;
+  }
+  return DEFAULT_ESTIMATE_NOTE;
+}
 
 export function getSizeLabel(size: VehicleSize): string {
   return vehicleSizes.find((s) => s.id === size)?.label ?? size;

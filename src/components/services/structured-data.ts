@@ -1,10 +1,11 @@
 import { siteConfig } from "@/config/site";
 import {
+  bookingUrl,
   priceRange,
   serviceCategories,
   vehicleSizes,
-  bookingUrl,
   type Service,
+  type VehicleSize,
 } from "@/data/services";
 
 /** Absolute URL on the canonical site origin. */
@@ -44,6 +45,24 @@ export function providerJsonLd() {
   };
 }
 
+/**
+ * Price fields for one Offer. Open-ended prices ("from $100", "$150+") are
+ * expressed as a minimum price rather than a fixed one.
+ */
+export function offerPriceJsonLd(
+  service: Pick<Service, "price" | "priceNote" | "priceSuffix">,
+  size: VehicleSize,
+) {
+  const amount = service.price[size];
+  if (service.priceNote?.[size] || service.priceSuffix === "starting") {
+    return {
+      priceCurrency: "USD",
+      priceSpecification: { "@type": "PriceSpecification", minPrice: amount, priceCurrency: "USD" },
+    };
+  }
+  return { price: amount, priceCurrency: "USD" };
+}
+
 /** Full Service node with one Offer per vehicle size. */
 export function serviceJsonLd(service: Service) {
   const path = `/services/${service.slug}`;
@@ -62,8 +81,7 @@ export function serviceJsonLd(service: Service) {
     offers: vehicleSizes.map((size) => ({
       "@type": "Offer",
       name: `${service.name}, ${size.label}`,
-      price: service.price[size.id],
-      priceCurrency: "USD",
+      ...offerPriceJsonLd(service, size.id),
       availability: "https://schema.org/InStock",
       url: siteUrl(bookingUrl({ service: service.slug, size: size.id })),
       eligibleQuantity: { "@type": "QuantitativeValue", value: 1, unitText: size.description },

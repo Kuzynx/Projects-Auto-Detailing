@@ -72,7 +72,7 @@ export function ServiceFilter({ items }: ServiceFilterProps) {
         {`Showing ${visible.length} ${visible.length === 1 ? "service" : "services"}`}
       </p>
 
-      <ul className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <ul className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {visible.map((item) => (
           <li key={item.key} className="animate-fade-up">
             {item.node}

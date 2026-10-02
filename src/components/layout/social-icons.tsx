@@ -76,7 +76,7 @@ export const socialLinks = [
   { label: "Instagram", href: siteConfig.social.instagram, Icon: InstagramIcon },
   { label: "Facebook", href: siteConfig.social.facebook, Icon: FacebookIcon },
   { label: "TikTok", href: siteConfig.social.tiktok, Icon: TikTokIcon },
-  { label: "Google reviews", href: siteConfig.social.google, Icon: GoogleIcon },
+  { label: "Google", href: siteConfig.social.google, Icon: GoogleIcon },
 ] as const;
 
 /** Row of circular social links. Works in server and client trees. */

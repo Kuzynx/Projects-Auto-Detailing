@@ -59,7 +59,6 @@ export function ContactQuickCards() {
 
 const visitChecklist = [
   "A parking spot with about three feet of clearance",
-  "A garage or covered space for paint correction and coatings",
   "No water or power needed: we bring our own",
   "You only need to be there at the start and the end",
 ];

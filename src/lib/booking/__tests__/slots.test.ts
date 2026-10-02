@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { siteConfig } from "@/config/site";
 import {
   addDays,
@@ -18,6 +18,10 @@ import {
   weekdayOf,
   weeklyHours,
 } from "../slots";
+
+vi.mock("@/data/services", async (importOriginal) =>
+  (await import("./fixtures/catalog")).withFixtureCatalog(await importOriginal<object>()),
+);
 
 // Wednesday 7 Oct 2026, 10:00 AM local (PDT, UTC-7). Time zone comes from siteConfig.timeZone.
 const WED_MORNING = new Date("2026-10-07T17:00:00Z");
@@ -131,9 +135,9 @@ describe("durations", () => {
   it("adds add-on time to the service time", () => {
     expect(
       getJobDuration({
-        serviceSlug: "signature-wash",
-        size: "sedan",
-        addOnSlugs: ["engine-bay", "odor-elimination"],
+        serviceSlug: "fx-wash",
+        size: "car",
+        addOnSlugs: ["fx-engine", "odor-elimination"],
       }),
     ).toEqual({ minutes: 90 + 30 + 60, dayBased: false });
   });
@@ -141,23 +145,26 @@ describe("durations", () => {
   it("counts a repeated add-on once", () => {
     expect(
       getJobDuration({
-        serviceSlug: "signature-wash",
-        size: "sedan",
-        addOnSlugs: ["engine-bay", "engine-bay"],
+        serviceSlug: "fx-wash",
+        size: "car",
+        addOnSlugs: ["fx-engine", "fx-engine"],
       }).minutes,
     ).toBe(120);
+  });
+
+  it("reads approximate labels like the live catalog's", () => {
+    expect(getJobDuration({ serviceSlug: "fx-work", size: "truck" })).toEqual({
+      minutes: 60,
+      dayBased: false,
+    });
   });
 });
 
 describe("time slots", () => {
   const values = (slots: { value: string }[]) => slots.map((s) => s.value);
 
-  it("offers hourly starts from 7 AM that finish by closing on weekdays", () => {
-    const slots = getTimeSlots({
-      date: "2026-10-14",
-      serviceSlug: "signature-wash",
-      size: "sedan",
-    });
+  it("offers hourly starts from opening that finish by closing on weekdays", () => {
+    const slots = getTimeSlots({ date: "2026-10-14", serviceSlug: "fx-wash", size: "car" });
     expect(values(slots)).toEqual([
       "07:00",
       "08:00",
@@ -174,50 +181,51 @@ describe("time slots", () => {
   });
 
   it("uses Saturday hours", () => {
-    const slots = getTimeSlots({ date: "2026-10-10", serviceSlug: "full-detail", size: "sedan" });
+    const slots = getTimeSlots({ date: "2026-10-10", serviceSlug: "fx-full", size: "car" });
     expect(values(slots)).toEqual(["07:00", "08:00", "09:00", "10:00", "11:00", "12:00"]);
+  });
+
+  it("uses the duration for the chosen vehicle type", () => {
+    const slots = getTimeSlots({ date: "2026-10-10", serviceSlug: "fx-full", size: "truck" });
+    expect(values(slots)).toEqual(["07:00", "08:00", "09:00", "10:00"]);
   });
 
   it("hides starts that would run past close once add-ons are included", () => {
     const slots = getTimeSlots({
       date: "2026-10-10",
-      serviceSlug: "full-detail",
-      size: "sedan",
+      serviceSlug: "fx-full",
+      size: "car",
       addOnSlugs: ["odor-elimination"],
     });
     expect(values(slots)).toEqual(["07:00", "08:00", "09:00", "10:00", "11:00"]);
   });
 
   it("returns nothing on closed days", () => {
-    expect(
-      getTimeSlots({ date: "2026-10-11", serviceSlug: "signature-wash", size: "sedan" }),
-    ).toEqual([]);
+    expect(getTimeSlots({ date: "2026-10-11", serviceSlug: "fx-wash", size: "car" })).toEqual([]);
   });
 
   it("gives day-based services a single arrival at opening", () => {
+    expect(getTimeSlots({ date: "2026-10-12", serviceSlug: "fx-garage", size: "suv" })).toEqual([
+      { value: "07:00", label: "Arrival 7:00 AM", kind: "arrival" },
+    ]);
     expect(
-      getTimeSlots({ date: "2026-10-12", serviceSlug: "ceramic-coating", size: "suv" }),
-    ).toEqual([{ value: "07:00", label: "Arrival 7:00 AM", kind: "arrival" }]);
-    expect(
-      getTimeSlots({ date: "2026-10-10", serviceSlug: "paint-correction", size: "sedan" })[0].label,
+      getTimeSlots({ date: "2026-10-10", serviceSlug: "fx-garage", size: "car" })[0].label,
     ).toBe("Arrival 7:00 AM");
   });
 
   it("falls back to one full-day start when the job is longer than the day", () => {
     const slots = getTimeSlots({
       date: "2026-10-10",
-      serviceSlug: "full-detail",
+      serviceSlug: "fx-full",
       size: "truck",
-      addOnSlugs: ["odor-elimination", "wheel-coating", "headlight-restoration", "engine-bay"],
+      addOnSlugs: ["odor-elimination", "fx-wheels", "fx-headlights", "fx-engine"],
     });
     expect(slots).toEqual([{ value: "07:00", label: "7:00 AM (full day)", kind: "full-day" }]);
   });
 
   it("returns nothing for an unknown service or a bad date", () => {
-    expect(getTimeSlots({ date: "2026-10-14", serviceSlug: "nope", size: "sedan" })).toEqual([]);
-    expect(
-      getTimeSlots({ date: "2026-13-01", serviceSlug: "signature-wash", size: "sedan" }),
-    ).toEqual([]);
+    expect(getTimeSlots({ date: "2026-10-14", serviceSlug: "nope", size: "car" })).toEqual([]);
+    expect(getTimeSlots({ date: "2026-13-01", serviceSlug: "fx-wash", size: "car" })).toEqual([]);
   });
 
   it("formats clock labels", () => {

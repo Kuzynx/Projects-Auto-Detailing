@@ -17,6 +17,7 @@ import {
   websiteJsonLd,
 } from "@/lib/seo/json-ld";
 import { buildMetadata } from "@/lib/seo/metadata";
+import { socialProofLine, socialServiceLabels } from "@/lib/seo/social";
 
 const origin = new URL(siteConfig.url).origin;
 
@@ -115,7 +116,7 @@ describe("localBusinessJsonLd", () => {
     expect(business.image).toBe(`${origin}${siteConfig.logo}`);
   });
 
-  it("includes address, geo, phone and rating from siteConfig", () => {
+  it("includes address, geo, phone and founder from siteConfig", () => {
     expect(business.address).toMatchObject({
       "@type": "PostalAddress",
       addressLocality: siteConfig.address.city,
@@ -127,12 +128,15 @@ describe("localBusinessJsonLd", () => {
       longitude: siteConfig.geo.lng,
     });
     expect(business.telephone).toMatch(/^\+1\d{10}$/);
-    expect(business.aggregateRating).toMatchObject({
-      ratingValue: siteConfig.stats.googleRating,
-      reviewCount: siteConfig.stats.reviewCount,
-    });
+    expect(business.foundingDate).toBe(String(siteConfig.founded));
+    expect(business.founder).toEqual({ "@type": "Person", name: siteConfig.founder.name });
     expect(business.sameAs).toEqual(Object.values(siteConfig.social));
     expect(business.areaServed).toHaveLength(siteConfig.serviceArea.length);
+  });
+
+  it("never emits a rating: no ratings without verified reviews", () => {
+    expect(business).not.toHaveProperty("aggregateRating");
+    expect(JSON.stringify(business)).not.toMatch(/rating/i);
   });
 
   it("serves every town in siteConfig.serviceArea as a City", () => {
@@ -158,7 +162,7 @@ describe("localBusinessJsonLd", () => {
 });
 
 describe("serviceJsonLd", () => {
-  const service = getService("ceramic-coating") ?? services[0];
+  const service = getService("full-deluxe") ?? services[0];
   const node = serviceJsonLd(service);
 
   it("describes the service with an aggregate price range", () => {
@@ -201,12 +205,12 @@ describe("breadcrumbJsonLd", () => {
   it("prepends Home, numbers positions and leaves the current page without an item", () => {
     const node = breadcrumbJsonLd([
       { label: "Services", href: "/services" },
-      { label: "Ceramic Coating" },
+      { label: "Full Deluxe Package" },
     ]);
     expect(node.itemListElement).toEqual([
       { "@type": "ListItem", position: 1, name: "Home", item: `${origin}/` },
       { "@type": "ListItem", position: 2, name: "Services", item: `${origin}/services` },
-      { "@type": "ListItem", position: 3, name: "Ceramic Coating" },
+      { "@type": "ListItem", position: 3, name: "Full Deluxe Package" },
     ]);
   });
 
@@ -275,5 +279,27 @@ describe("buildMetadata", () => {
       { url: "/images/hero.jpg", alt: `${siteConfig.name}: Home` },
     ]);
     expect(metadata.robots).toEqual({ index: false, follow: true });
+  });
+});
+
+describe("social card copy", () => {
+  it("derives short service labels from catalog names", () => {
+    expect(
+      socialServiceLabels([
+        { name: "Basic Package — Exterior Wash" },
+        { name: "Premium Package — Exterior Detail" },
+        { name: "Full Deluxe Package — Inside + Outside" },
+        { name: "Working Truck" },
+      ]),
+    ).toEqual(["Exterior wash", "Exterior detail", "Inside + outside", "Working truck"]);
+  });
+
+  it("has one label per live service", () => {
+    expect(socialServiceLabels(services)).toHaveLength(services.length);
+  });
+
+  it("states only verifiable facts", () => {
+    expect(socialProofLine).toContain(`Since ${siteConfig.founded}`);
+    expect(socialProofLine).not.toMatch(/\d+(\.\d+)?\s*(star|rating|reviews|vehicles)/i);
   });
 });

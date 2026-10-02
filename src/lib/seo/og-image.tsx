@@ -9,7 +9,13 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { siteConfig } from "@/config/site";
-import { socialImageSize, socialLocationLine } from "./social";
+import { services } from "@/data/services";
+import {
+  socialImageSize,
+  socialLocationLine,
+  socialProofLine as proofLine,
+  socialServiceLabels,
+} from "./social";
 
 /**
  * Brand colors for Satori, which cannot read CSS variables.
@@ -41,8 +47,8 @@ export async function readPublicPng(publicPath: string) {
 /** 1200x630 social card: real logo left; city, chrome tagline and proof points right; purple accents. */
 export async function renderSocialImage() {
   const logo = await readPublicPng(siteConfig.logoTransparent);
-  const { googleRating, reviewCount, vehiclesDetailed } = siteConfig.stats;
   const logoHeight = 420;
+  const serviceLabels = socialServiceLabels(services);
   // "Showroom finish. Delivered to your driveway." -> one sentence per line.
   const taglineLines = siteConfig.tagline.match(/[^.]+\.?/g)?.map((line) => line.trim()) ?? [
     siteConfig.tagline,
@@ -128,11 +134,42 @@ export async function renderSocialImage() {
             backgroundColor: ogColors.brand500,
           }}
         />
-        <div style={{ display: "flex", marginTop: 30, fontSize: 26, color: ogColors.ink }}>
-          Paint correction · Ceramic coatings · Interiors
+        {/* Purple-dot list that wraps between items, never inside one. */}
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            marginTop: 30,
+            fontSize: 24,
+            lineHeight: 1.4,
+            color: ogColors.ink,
+          }}
+        >
+          {serviceLabels.map((label) => (
+            <span
+              key={label}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                whiteSpace: "nowrap",
+                marginRight: 26,
+              }}
+            >
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  marginRight: 10,
+                  borderRadius: 999,
+                  backgroundColor: ogColors.brand500,
+                }}
+              />
+              {label}
+            </span>
+          ))}
         </div>
         <div style={{ display: "flex", marginTop: 14, fontSize: 22, color: ogColors.inkMuted }}>
-          {`${googleRating} Google rating · ${reviewCount} reviews · ${vehiclesDetailed.toLocaleString("en-US")}+ vehicles`}
+          {proofLine}
         </div>
       </div>
     </div>,

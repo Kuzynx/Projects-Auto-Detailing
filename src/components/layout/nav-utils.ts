@@ -1,4 +1,4 @@
-/** True when `href` is the current page or one of its children (e.g. /services/ceramic-coating). */
+/** True when `href` is the current page or one of its children (e.g. /services/[slug]). */
 export function isActivePath(pathname: string | null, href: string) {
   if (!pathname) return false;
   if (href === "/") return pathname === "/";

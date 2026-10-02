@@ -8,7 +8,7 @@ export const siteConfig = {
   legalName: "Project's Auto Detailing LLC",
   tagline: "Showroom finish. Delivered to your driveway.",
   description:
-    "Premium mobile auto detailing in Victorville and the High Desert. Paint correction, ceramic coatings, interior restoration and maintenance plans, done at your home or office.",
+    "Mobile auto detailing in Victorville and the High Desert. Hand washes, exterior details and full inside-and-out packages for cars, SUVs, trucks, sports cars, exotics and motorcycles, done at your home or office.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://projectsautodetailing.com",
   phone: "(760) 555-0147",
   phoneHref: "tel:+17605550147",
@@ -49,13 +49,38 @@ export const siteConfig = {
     tiktok: "https://tiktok.com/@projectsautodetailing",
     google: "https://g.page/projectsautodetailing",
   },
-  stats: {
-    vehiclesDetailed: 2400,
-    yearsInBusiness: 9,
-    googleRating: 4.9,
-    reviewCount: 312,
+  /**
+   * Honest, verifiable facts only. There are no review counts or ratings here on purpose:
+   * add them when real Google reviews exist, and never invent them.
+   */
+  founded: 2024,
+  founder: {
+    name: "Kevin",
+    nickname: "Project",
+    title: "Founder and detailer",
+    since: 2024,
+    startedAtAge: 16,
+    photo: "/images/team/kevin.jpg",
+    photoSquare: "/images/team/kevin-square.jpg",
+    /** Client-supplied bio, lightly edited. */
+    bio: "Kevin, known to his customers as Project, founded Project's Auto Detailing in 2024 at sixteen years old. He has a passion for auto detailing and is here to make your vehicle look the best it can.",
   },
-  founded: 2017,
+  /**
+   * Team beyond the founder. `photo` is null until a suitable photo exists; the UI shows an
+   * initials avatar in that case.
+   */
+  team: [
+    {
+      name: "Nal",
+      role: "Manager",
+      bio: "Nal manages the business side of Project's Auto Detailing: the website, payments and booking. She is here to make your time and the whole process easier.",
+      photo: null as string | null,
+    },
+  ],
+  /** Facts the site may state. Flip these only when they are true and documented. */
+  claims: {
+    insured: false,
+  },
   /** Square logo on black, 1254x1254. Use logo-transparent.png over imagery. */
   logo: "/images/logo.png",
   logoTransparent: "/images/logo-transparent.png",

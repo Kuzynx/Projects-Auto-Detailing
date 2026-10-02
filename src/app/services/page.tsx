@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Quote, Star } from "lucide-react";
+import { Quote } from "lucide-react";
 import { CtaBanner } from "@/components/layout/cta-banner";
 import { PageHero } from "@/components/layout/page-hero";
 import { AddOnCard } from "@/components/services/add-on-card";
@@ -13,13 +13,13 @@ import {
 } from "@/components/services/structured-data";
 import { ButtonLink, Container, Eyebrow, Section, SectionHeading } from "@/components/ui";
 import { siteConfig } from "@/config/site";
-import { addOns, getService, services } from "@/data/services";
+import { addOns, getService, priceRange, services } from "@/data/services";
 import { testimonials } from "@/data/testimonials";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { formatPrice } from "@/lib/utils";
 
 const title = "Detailing Services";
-const description = `Mobile hand washes, interior restoration, paint correction and ceramic coatings across ${siteConfig.address.city} and the ${siteConfig.region}. Published prices by vehicle size, done at your home by certified detailers.`;
+const description = `Mobile hand washes, exterior details, inside-and-out packages and work truck washes across ${siteConfig.address.city} and the ${siteConfig.region}. Published prices for cars, SUVs, trucks, sports cars, exotics and motorcycles.`;
 const ogImage = "/images/detail-foam-porsche.jpg";
 
 export const metadata: Metadata = {
@@ -30,15 +30,15 @@ export const metadata: Metadata = {
     title: `${title} | ${siteConfig.name}`,
     description,
     url: "/services",
-    images: [{ url: ogImage, alt: "Technician hand washing a black Porsche covered in foam" }],
+    images: [{ url: ogImage, alt: "Black Porsche covered in foam during a hand wash" }],
   },
 };
 
-const pullQuote = testimonials.find((t) => t.id === "t6") ?? testimonials[0];
+const pullQuote = testimonials.find((t) => t.id === "t6") ?? testimonials.at(0);
 
 export default function ServicesPage() {
-  const washPrice =
-    getService("signature-wash")?.price.sedan ?? Math.min(...services.map((s) => s.price.sedan));
+  const basic = getService("basic-wash");
+  const washPrice = basic ? basic.price.car : Math.min(...services.map((s) => priceRange(s).min));
 
   return (
     <>
@@ -65,9 +65,9 @@ export default function ServicesPage() {
       <PageHero
         eyebrow="Services"
         title="Services built around how you actually use your car"
-        description={`From a proper hand wash at ${formatPrice(washPrice)} to a multi-year ceramic coating. Every price is published by vehicle size, and every job is done by a certified detailer.`}
+        description={`From a proper hand wash at ${formatPrice(washPrice)} for a car to a full inside-and-out detail. Every price is published by vehicle type, and ${siteConfig.founder.name} does the work himself, at your place.`}
         image={ogImage}
-        imageAlt="Technician hand washing a black Porsche covered in foam"
+        imageAlt="Black Porsche covered in foam during a hand wash"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Services" }]}
       />
 
@@ -119,61 +119,72 @@ export default function ServicesPage() {
         </Container>
       </Section>
 
-      <Section>
-        <Container>
-          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-            <SectionHeading
-              eyebrow="Add-ons"
-              title="Finish it your way"
-              description="Bolt any of these onto a service. Flat prices, any vehicle size, added at booking."
-            />
-            <ButtonLink href="/pricing" variant="outline" className="self-start md:self-auto">
-              Compare all prices
-            </ButtonLink>
-          </div>
-          <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {addOns.map((addOn) => (
-              <li key={addOn.slug}>
-                <AddOnCard addOn={addOn} />
-              </li>
-            ))}
-          </ul>
-        </Container>
-      </Section>
-
-      <Section size="sm" className="border-t border-border">
-        <Container>
-          <figure className="relative mx-auto max-w-4xl text-center">
-            <Quote aria-hidden className="mx-auto size-10 text-brand-500/60" />
-            <div
-              className="mt-4 flex justify-center gap-1"
-              role="img"
-              aria-label={`Rated ${pullQuote.rating} out of 5`}
-            >
-              {Array.from({ length: pullQuote.rating }).map((_, i) => (
-                <Star key={i} aria-hidden className="size-4 fill-brand-400 text-brand-400" />
-              ))}
+      {addOns.length > 0 ? (
+        <Section>
+          <Container>
+            <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+              <SectionHeading
+                eyebrow="Add-ons"
+                title="Finish it your way"
+                description="Bolt any of these onto a service. Flat prices, any vehicle type, added at booking."
+              />
+              <ButtonLink href="/pricing" variant="outline" className="self-start md:self-auto">
+                Compare all prices
+              </ButtonLink>
             </div>
-            <blockquote className="mt-6 font-display text-2xl leading-snug font-medium text-balance text-ink sm:text-3xl lg:text-4xl">
-              &ldquo;{pullQuote.quote}&rdquo;
-            </blockquote>
-            <figcaption className="mt-8 text-sm text-ink-muted">
-              <span className="font-semibold text-ink">{pullQuote.name}</span>, {pullQuote.location}
-              <span className="mx-2 text-ink-subtle" aria-hidden>
-                /
-              </span>
-              {pullQuote.vehicle}, {pullQuote.service}
-              <span className="mt-1 block text-xs text-ink-subtle">
-                Verified {pullQuote.source} review
-              </span>
-            </figcaption>
-          </figure>
-        </Container>
-      </Section>
+            <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {addOns.map((addOn) => (
+                <li key={addOn.slug}>
+                  <AddOnCard addOn={addOn} />
+                </li>
+              ))}
+            </ul>
+          </Container>
+        </Section>
+      ) : (
+        <Section size="sm">
+          <Container>
+            <div className="flex flex-col items-start justify-between gap-6 rounded-lg border border-border bg-surface p-6 sm:p-8 md:flex-row md:items-center">
+              <div>
+                <h2 className="font-display text-2xl font-semibold">
+                  Compare every package side by side
+                </h2>
+                <p className="mt-2 text-ink-muted">
+                  Prices for all six vehicle types and exactly what each package includes.
+                </p>
+              </div>
+              <ButtonLink href="/pricing" variant="outline">
+                See full pricing
+              </ButtonLink>
+            </div>
+          </Container>
+        </Section>
+      )}
+
+      {pullQuote && (
+        <Section size="sm" className="border-t border-border">
+          <Container>
+            <figure className="relative mx-auto max-w-4xl text-center">
+              <Quote aria-hidden className="mx-auto size-10 text-brand-500/60" />
+              <blockquote className="mt-6 font-display text-2xl leading-snug font-medium text-balance text-ink sm:text-3xl lg:text-4xl">
+                &ldquo;{pullQuote.quote}&rdquo;
+              </blockquote>
+              <figcaption className="mt-8 text-sm text-ink-muted">
+                <span className="font-semibold text-ink">{pullQuote.name}</span>,{" "}
+                {pullQuote.location}
+                <span className="mx-2 text-ink-subtle" aria-hidden>
+                  /
+                </span>
+                {pullQuote.vehicle}, {pullQuote.service}
+              </figcaption>
+            </figure>
+          </Container>
+        </Section>
+      )}
 
       <CtaBanner
         title="Know what you need? Lock in a time."
-        description="Booking takes about a minute. We confirm by text within the hour."
+        description="Booking takes about a minute, and we come to you."
       />
     </>
   );

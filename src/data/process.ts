@@ -8,61 +8,64 @@ export const processSteps: ProcessStep[] = [
   {
     step: 1,
     title: "Book in 60 seconds",
-    description:
-      "Pick a service, your vehicle size and a time. We confirm by text within the hour.",
+    description: "Pick a service, your vehicle size and a time. You get a confirmation by text.",
   },
   {
     step: 2,
     title: "We come to you",
     description:
-      "Our fully self-contained mobile unit arrives with water, power and lighting. Paint correction and coatings are done in your garage or under cover.",
+      "A fully self-contained mobile setup arrives with water, power and lighting. All we need is the vehicle and a little room around it.",
   },
   {
     step: 3,
-    title: "Inspection and walkthrough",
+    title: "Walkaround and plan",
     description:
-      "We walk the car with you, measure paint where relevant, and agree on the plan before touching anything.",
+      "We walk the car together, point out anything worth knowing, and agree on the plan and the price before touching anything.",
   },
   {
     step: 4,
     title: "The work",
     description:
-      "Certified technicians, professional-grade products, and a checklist for every panel and surface.",
+      "Kevin does the work himself: pH-neutral products, the two-bucket method, and a checklist for every panel and surface.",
   },
   {
     step: 5,
-    title: "Delivery and aftercare",
-    description: "Final walkthrough, photo documentation, and a care guide so the finish lasts.",
+    title: "Handover and aftercare",
+    description:
+      "Final walkthrough, before and after photos, and simple care tips so the finish lasts.",
   },
 ];
 
+/** Honest, verifiable reasons to book. No certifications, insurance or warranty claims here. */
 export const differentiators = [
   {
-    title: "Certified technicians",
+    title: "Owner-operated",
     description:
-      "IDA-certified detailers with a minimum of three years of experience. No trainees on your car.",
+      "Kevin details every car himself. The person you book is the person who does the work, start to finish.",
   },
   {
-    title: "Paint-depth measured",
+    title: "Fully mobile",
     description:
-      "We gauge every panel before correction so we never take more clear coat than needed.",
+      "Driveway, garage or office lot anywhere in the High Desert. We bring the water, power and lighting.",
   },
   {
-    title: "Written warranty",
+    title: "Two-bucket method",
     description:
-      "Every ceramic coating carries a three-year written warranty with annual inspections included.",
+      "Separate wash and rinse buckets with a clean mitt, so the grit that causes swirl marks never goes back on your paint.",
   },
   {
-    title: "Fully insured",
+    title: "pH-neutral products",
     description:
-      "$2M general liability and garage keepers coverage on every job, at every address.",
+      "Gentle on paint, wax, sealants, trim and rubber. Nothing harsh that strips protection or dries out plastics.",
   },
   {
     title: "Transparent pricing",
-    description: "Published starting prices by vehicle size. No surprise upsells at the end.",
+    description:
+      "Published starting prices by vehicle size. If your car needs extra time, you hear about it before we start, never after.",
   },
   {
-    title: "Satisfaction guaranteed",
-    description: "If something is not right, we come back and fix it at no charge. Full stop.",
+    title: "Made right, or I come back",
+    description:
+      "Every job is photographed before and after. If something isn't right, I come back and fix it.",
   },
 ];

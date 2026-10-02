@@ -1,11 +1,11 @@
 import {
-  BadgeCheck,
-  FileCheck,
-  Gauge,
-  Handshake,
+  Camera,
+  Droplets,
+  FlaskConical,
   ReceiptText,
-  ShieldCheck,
   Sparkles,
+  Truck,
+  UserCheck,
   type LucideIcon,
 } from "lucide-react";
 import { Card, Container, Section, SectionHeading } from "@/components/ui";
@@ -15,12 +15,12 @@ import { Reveal, RevealGroup, RevealItem } from "./reveal";
 
 /** Icons keyed by differentiator title; anything new falls back to a neutral mark. */
 const icons: Record<string, LucideIcon> = {
-  "Certified technicians": BadgeCheck,
-  "Paint-depth measured": Gauge,
-  "Written warranty": FileCheck,
-  "Fully insured": ShieldCheck,
+  "Owner-operated": UserCheck,
+  "Fully mobile": Truck,
+  "Two-bucket method": Droplets,
+  "pH-neutral products": FlaskConical,
   "Transparent pricing": ReceiptText,
-  "Satisfaction guaranteed": Handshake,
+  "Made right, or I come back": Camera,
 };
 
 export function Differentiators() {
@@ -39,7 +39,7 @@ export function Differentiators() {
                 The details behind <span className="text-gradient-brand">the detail.</span>
               </span>
             }
-            description="Anyone can make a car shine for a week. These are the standards that make it last, and the promises we put in writing."
+            description={`Anyone can make a car shine for a week. These are the habits that make it last, and the promises ${siteConfig.founder.name} stands behind on every job.`}
           />
         </Reveal>
 

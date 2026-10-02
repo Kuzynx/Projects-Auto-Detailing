@@ -28,29 +28,32 @@ interface ContactStepProps extends StepProps {
 export function ContactStep({ draft, errors, update, onEdit }: ContactStepProps) {
   const service = getService(draft.service);
   const deposit = requiresGarage(draft.service) ? getDepositPolicy() : null;
-  const review: { step: BookingStepId; label: string; value: string }[] = [
-    { step: "service", label: "Service", value: service?.name ?? "Not chosen" },
-    {
-      step: "vehicle",
-      label: "Vehicle",
-      value: [formatVehicle(draft), getSizeLabel(draft.size)].filter(Boolean).join(" · "),
-    },
-    {
-      step: "addons",
-      label: "Add-ons",
-      value:
-        draft.addOns
-          .map((slug) => getAddOn(slug)?.name)
-          .filter(Boolean)
-          .join(", ") || "None",
-    },
-    { step: "schedule", label: "When", value: formatAppointment(draft) ?? "Not scheduled" },
-    {
-      step: "schedule",
-      label: "Where",
-      value: formatServiceAddress(draft),
-    },
-  ];
+  type SummaryRow = { step: BookingStepId; label: string; value: string };
+  const summaryRows = (
+    [
+      { step: "service", label: "Service", value: service?.name ?? "Not chosen" },
+      {
+        step: "vehicle",
+        label: "Vehicle",
+        value: [formatVehicle(draft), getSizeLabel(draft.size)].filter(Boolean).join(" · "),
+      },
+      {
+        step: "addons",
+        label: "Add-ons",
+        value:
+          draft.addOns
+            .map((slug) => getAddOn(slug)?.name)
+            .filter(Boolean)
+            .join(", ") || "None",
+      },
+      { step: "schedule", label: "When", value: formatAppointment(draft) ?? "Not scheduled" },
+      {
+        step: "schedule",
+        label: "Where",
+        value: formatServiceAddress(draft),
+      },
+    ] satisfies SummaryRow[]
+  ).filter((row: SummaryRow) => stepIndexOf(row.step) !== -1); // drop rows for hidden steps
 
   return (
     <div className="space-y-8">
@@ -117,17 +120,17 @@ export function ContactStep({ draft, errors, update, onEdit }: ContactStepProps)
       </fieldset>
 
       <section
-        aria-labelledby="bk-review-heading"
+        aria-labelledby="bk-check-heading"
         className="rounded-lg border border-border bg-bg-elevated"
       >
         <h3
-          id="bk-review-heading"
+          id="bk-check-heading"
           className="border-b border-border px-5 py-4 font-display text-base font-semibold text-ink"
         >
-          Review your booking
+          Check your booking
         </h3>
         <dl className="divide-y divide-border">
-          {review.map((row) => (
+          {summaryRows.map((row) => (
             <div key={row.label} className="flex items-start gap-4 px-5 py-3.5 text-sm">
               <dt className="w-20 shrink-0 text-ink-subtle">{row.label}</dt>
               <dd className="min-w-0 flex-1 text-ink">{row.value}</dd>

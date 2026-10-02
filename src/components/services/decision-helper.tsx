@@ -5,114 +5,83 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, RotateCcw, Sparkles } from "lucide-react";
 import { ButtonLink } from "@/components/ui";
-import { bookingUrl, getAddOn, getService } from "@/data/services";
+import { bookingUrl, getService, priceRange } from "@/data/services";
 import { formatPrice } from "@/lib/utils";
 import { SegmentedControl, type SegmentedOption } from "./segmented-control";
 
-type Paint = "glossy" | "dull" | "scratched";
-type Interior = "tidy" | "lived-in" | "heavy";
-type Keep = "yes" | "no";
+type Vehicle = "daily" | "work";
+type Outside = "dusty" | "grimy";
+type Inside = "fine" | "needs";
 
-const paintOptions: SegmentedOption<Paint>[] = [
-  { value: "glossy", label: "Glossy, just dirty", hint: "Reflections look sharp" },
-  { value: "dull", label: "Dull or hazy", hint: "Swirls show in the sun" },
-  { value: "scratched", label: "Scratched or faded", hint: "Marks you can see from 3 ft" },
+const vehicleOptions: SegmentedOption<Vehicle>[] = [
+  { value: "daily", label: "Daily car, SUV or bike", hint: "Including sports cars and exotics" },
+  { value: "work", label: "Work truck", hint: "Construction, farm or job vehicle" },
 ];
 
-const interiorOptions: SegmentedOption<Interior>[] = [
-  { value: "tidy", label: "Pretty tidy", hint: "Dust and a few crumbs" },
-  { value: "lived-in", label: "Lived-in", hint: "Stains, sticky cup holders" },
-  { value: "heavy", label: "Kids, pets or rideshare", hint: "Hair, spills, odors" },
+const outsideOptions: SegmentedOption<Outside>[] = [
+  { value: "dusty", label: "Just dusty", hint: "Needs a good wash" },
+  { value: "grimy", label: "Grimy", hint: "Bugs, brake dust, dirty wheel wells" },
 ];
 
-const keepOptions: SegmentedOption<Keep>[] = [
-  { value: "yes", label: "Yes, keeping it", hint: "More than two years" },
-  { value: "no", label: "Probably not", hint: "Selling, trading or leasing" },
+const insideOptions: SegmentedOption<Inside>[] = [
+  { value: "fine", label: "Inside is fine", hint: "Outside only, please" },
+  { value: "needs", label: "Inside needs work", hint: "Crumbs, dust, stains" },
 ];
 
 interface Recommendation {
   slug: string;
   reason: string;
-  addOn?: string;
 }
 
-function recommend(paint: Paint, interior: Interior, keep: Keep): Recommendation {
-  const messy = interior !== "tidy";
-  const addOn = interior === "heavy" ? "pet-hair-removal" : undefined;
-
-  if (paint === "scratched") {
-    return keep === "yes"
+function recommend(vehicle: Vehicle, outside: Outside, inside: Inside): Recommendation {
+  if (vehicle === "work") {
+    return inside === "needs"
       ? {
-          slug: "ceramic-coating",
+          slug: "full-deluxe",
           reason:
-            "Correct the paint once, then lock it in. The coating includes full paint correction and protects the result for years.",
-          addOn,
+            "The Working Truck service is exterior only. If the cab needs cleaning too, Full Deluxe covers inside and out.",
         }
       : {
-          slug: "paint-correction",
+          slug: "working-truck",
           reason:
-            "Up to 90% of visible scratches and swirls removed, measured panel by panel. The biggest visual upgrade before a sale or lease return.",
-          addOn,
+            "Built for trucks that get dirty for a living: wheel wells, bugs and grime, door jambs and tire dressing, from one starting price for any size.",
         };
   }
-  if (paint === "dull") {
-    return keep === "yes"
-      ? {
-          slug: "ceramic-coating",
-          reason:
-            "Hazy paint is the clear coat telling you it needs correcting. Since you are keeping the car, coat it afterwards and stop waxing for good.",
-          addOn,
-        }
-      : {
-          slug: "full-detail",
-          reason:
-            "A one-step machine polish brings back gloss without the cost of full correction, and the interior gets a complete reset too.",
-          addOn,
-        };
+  if (inside === "needs") {
+    return {
+      slug: "full-deluxe",
+      reason:
+        "You get the full Premium exterior plus the inside: vacuum, dash, console, doors, seats, mats, interior windows and deeper stain cleaning.",
+    };
   }
-  if (messy) {
-    return keep === "yes"
-      ? {
-          slug: "full-detail",
-          reason:
-            "Your paint is in good shape; the inside needs the work. The Full Detail resets both and adds six months of paint protection.",
-          addOn,
-        }
-      : {
-          slug: "interior-refresh",
-          reason:
-            "The paint is fine, so put the budget where it shows: steam, shampoo and conditioning for every surface inside.",
-          addOn,
-        };
+  if (outside === "grimy") {
+    return {
+      slug: "premium-detail",
+      reason:
+        "Grime lives in the wheels, wheel wells and door jambs. Premium cleans all of them, removes bugs and finishes with a spray wax/sealant.",
+    };
   }
-  return keep === "yes"
-    ? {
-        slug: "ceramic-coating",
-        reason:
-          "Good paint is the best time to coat. You lock in the finish while it is healthy and skip years of waxing.",
-      }
-    : {
-        slug: "signature-wash",
-        reason:
-          "Your car is in good shape. A proper hand wash and three-month sealant keeps it that way for less than a tank of gas.",
-      };
+  return {
+    slug: "basic-wash",
+    reason:
+      "Your car just needs a proper hand wash: wheels and tires, tire shine, windows, a dry and a wipe-down.",
+  };
 }
 
 /** Three-question helper that recommends a service. */
 export function DecisionHelper() {
-  const [paint, setPaint] = useState<Paint | null>(null);
-  const [interior, setInterior] = useState<Interior | null>(null);
-  const [keep, setKeep] = useState<Keep | null>(null);
+  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+  const [outside, setOutside] = useState<Outside | null>(null);
+  const [inside, setInside] = useState<Inside | null>(null);
 
-  const result = paint && interior && keep ? recommend(paint, interior, keep) : null;
+  const result = vehicle && outside && inside ? recommend(vehicle, outside, inside) : null;
   const service = result ? getService(result.slug) : undefined;
-  const addOn = result?.addOn ? getAddOn(result.addOn) : undefined;
-  const answered = [paint, interior, keep].filter(Boolean).length;
+  const answered = [vehicle, outside, inside].filter(Boolean).length;
 
   function reset() {
-    setPaint(null);
-    setInterior(null);
-    setKeep(null);
+    setVehicle(null);
+    setOutside(null);
+    setInside(null);
   }
 
   return (
@@ -141,26 +110,28 @@ export function DecisionHelper() {
 
       <div className="mt-8 space-y-8">
         <SegmentedControl
-          legend="1. How does the paint look in direct sunlight?"
+          legend="1. What are we washing?"
           variant="tile"
-          options={paintOptions}
-          value={paint}
-          onChange={setPaint}
+          options={vehicleOptions}
+          value={vehicle}
+          onChange={setVehicle}
+          gridClassName="sm:grid-cols-2"
         />
         <SegmentedControl
-          legend="2. What is the interior like right now?"
+          legend="2. How does the outside look?"
           variant="tile"
-          options={interiorOptions}
-          value={interior}
-          onChange={setInterior}
+          options={outsideOptions}
+          value={outside}
+          onChange={setOutside}
+          gridClassName="sm:grid-cols-2"
         />
         <SegmentedControl
-          legend="3. Keeping the car for more than two years?"
+          legend="3. What about the inside?"
           variant="tile"
-          options={keepOptions}
-          value={keep}
-          onChange={setKeep}
-          className="[&>div]:sm:grid-cols-2"
+          options={insideOptions}
+          value={inside}
+          onChange={setInside}
+          gridClassName="sm:grid-cols-2"
         />
       </div>
 
@@ -184,25 +155,17 @@ export function DecisionHelper() {
                 </p>
                 <h3 className="mt-2 text-2xl font-semibold">{service.name}</h3>
                 <p className="mt-1 text-sm text-ink-subtle">
-                  From {formatPrice(service.price.sedan)}
-                  {service.priceSuffix ? ` ${service.priceSuffix}` : ""} · {service.duration.sedan}
+                  From {formatPrice(priceRange(service).min)}
+                  {service.priceSuffix ? ` ${service.priceSuffix}` : ""} · {service.duration.car}
                 </p>
                 <p className="mt-3 text-sm text-pretty text-ink-muted">{result.reason}</p>
-                {addOn && (
-                  <p className="mt-3 text-sm text-ink-muted">
-                    Add <span className="font-semibold text-ink">{addOn.name}</span> (+
-                    {formatPrice(addOn.price)}) for hair and spills.
-                  </p>
-                )}
                 <div className="mt-5 flex flex-wrap items-center gap-3">
                   <ButtonLink
-                    href={bookingUrl({
-                      service: service.slug,
-                      addons: addOn ? [addOn.slug] : undefined,
-                    })}
+                    href={bookingUrl({ service: service.slug })}
                     size="sm"
+                    aria-label={`Book ${service.name}`}
                   >
-                    Book {service.name}
+                    Book this package
                   </ButtonLink>
                   <Link
                     href={`/services/${service.slug}`}

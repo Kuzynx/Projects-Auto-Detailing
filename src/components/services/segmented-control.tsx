@@ -19,6 +19,8 @@ interface SegmentedControlProps<T extends string> {
   /** "pill" for short labels in one row; "tile" for longer labels that stack on mobile. */
   variant?: "pill" | "tile";
   className?: string;
+  /** Extra classes for the options grid, e.g. "grid-flow-row grid-cols-3" to wrap pills. */
+  gridClassName?: string;
 }
 
 /** Accessible single-choice control built on native radio inputs. */
@@ -30,6 +32,7 @@ export function SegmentedControl<T extends string>({
   onChange,
   variant = "pill",
   className,
+  gridClassName,
 }: SegmentedControlProps<T>) {
   const name = useId();
   const pill = variant === "pill";
@@ -46,6 +49,7 @@ export function SegmentedControl<T extends string>({
           pill
             ? "grid auto-cols-fr grid-flow-col gap-1 rounded-full border border-border bg-bg p-1"
             : "grid gap-2 sm:grid-cols-3",
+          gridClassName,
         )}
       >
         {options.map((option) => (

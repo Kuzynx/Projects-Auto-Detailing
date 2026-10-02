@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { siteConfig } from "@/config/site";
 import {
   renderBusinessNotificationEmail,
@@ -7,6 +7,10 @@ import {
 import { calculateEstimate } from "../pricing";
 import { validateBooking, emptyDraft } from "../schema";
 
+vi.mock("@/data/services", async (importOriginal) =>
+  (await import("./fixtures/catalog")).withFixtureCatalog(await importOriginal<object>()),
+);
+
 // Wednesday 7 Oct 2026, 10:00 AM local (PDT).
 const NOW = new Date("2026-10-07T17:00:00Z");
 
@@ -14,8 +18,8 @@ function makeInput(overrides: Partial<typeof emptyDraft> = {}) {
   const result = validateBooking(
     {
       ...emptyDraft,
-      service: "paint-correction",
-      size: "sedan",
+      service: "fx-garage",
+      size: "car",
       make: "BMW",
       model: "M4",
       paintCondition: "visible-scratches",
@@ -53,11 +57,11 @@ describe("customer confirmation email", () => {
 
   it("includes the reference, schedule and price in both formats", () => {
     expect(email.subject).toContain("PAD-7F3K2Q");
-    expect(email.subject).toContain("Paint Correction");
+    expect(email.subject).toContain("Fixture Garage Service");
     for (const body of [email.html, email.text]) {
       expect(body).toContain("PAD-7F3K2Q");
       expect(body).toContain("Monday, October 12, 2026, arrival at 7:00 AM");
-      expect(body).toContain("$599");
+      expect(body).toContain("$500");
       expect(body).toContain(siteConfig.phone);
     }
   });
@@ -76,11 +80,58 @@ describe("customer confirmation email", () => {
     }
   });
 
+  it("names who confirms and who details, with the owner-operated footer", () => {
+    const confirmer = siteConfig.team[0]?.name ?? siteConfig.founder.name;
+    for (const body of [email.html, email.text]) {
+      expect(body).toContain(`${confirmer} will text`);
+      expect(body).toContain(
+        `${siteConfig.founder.name}'s arrival time`.replace(
+          "'",
+          body === email.html ? "&#39;" : "'",
+        ),
+      );
+      expect(body).toContain(`Since ${siteConfig.founded}`);
+    }
+  });
+
   it("escapes customer-supplied text in HTML", () => {
     expect(email.html).not.toContain("<script>");
     const shop = renderBusinessNotificationEmail(makeInput());
     expect(shop.html).not.toContain("<script>");
     expect(shop.html).toContain("&lt;script&gt;");
+  });
+});
+
+describe("add-ons and price notes", () => {
+  it("omits the add-ons line when none were chosen", () => {
+    const email = renderCustomerConfirmationEmail(makeInput());
+    expect(email.text).not.toContain("Add-ons");
+    expect(email.html).not.toContain("Add-ons");
+  });
+
+  it("lists add-ons when some were chosen", () => {
+    const email = renderCustomerConfirmationEmail(
+      makeInput({
+        service: "fx-full",
+        garageConfirmed: false,
+        time: "09:00",
+        addOns: ["fx-engine"],
+      }),
+    );
+    expect(email.text).toContain("Add-ons: Fixture Engine Bay ($20)");
+  });
+
+  it("uses the work-vehicle and exotic notes under the estimate", () => {
+    const work = renderCustomerConfirmationEmail(
+      makeInput({ service: "fx-work", size: "truck", garageConfirmed: false, time: "09:00" }),
+    );
+    expect(work.text).toContain(
+      "extremely dirty construction, farm or work vehicles may add $15–$30",
+    );
+    const exotic = renderCustomerConfirmationEmail(
+      makeInput({ service: "fx-wash", size: "exotic", garageConfirmed: false, time: "09:00" }),
+    );
+    expect(exotic.text).toContain("Exotic pricing starts at the amount shown");
   });
 });
 

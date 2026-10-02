@@ -1,4 +1,4 @@
-import { Star } from "lucide-react";
+import { Store } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
 /**
@@ -51,7 +51,7 @@ export const socialLinks = [
   { label: "Instagram", href: siteConfig.social.instagram, Icon: InstagramIcon },
   { label: "Facebook", href: siteConfig.social.facebook, Icon: FacebookIcon },
   { label: "TikTok", href: siteConfig.social.tiktok, Icon: TikTokIcon },
-  { label: "Google reviews", href: siteConfig.social.google, Icon: Star },
+  { label: "Google", href: siteConfig.social.google, Icon: Store },
 ] as const;
 
 /** "@handle" derived from a profile URL. */

@@ -41,7 +41,7 @@ export async function generateMetadata({
   if (!service) return {};
 
   const { min } = priceRange(service);
-  const description = `${service.tagline} From ${formatPrice(min)}${service.priceSuffix ? ` ${service.priceSuffix}` : ""} in ${siteConfig.address.city}, ${siteConfig.address.state}. ${service.location === "garage" ? "Mobile, done in your garage" : "Mobile service"} across the ${siteConfig.region} by certified detailers.`;
+  const description = `${service.tagline} From ${formatPrice(min)}${service.priceSuffix ? ` ${service.priceSuffix}` : ""} in ${siteConfig.address.city}, ${siteConfig.address.state}. ${service.location === "garage" ? "Mobile, done in your garage" : "Mobile service"} across the ${siteConfig.region}, owner-operated.`;
   const path = `/services/${service.slug}`;
 
   return {
@@ -142,9 +142,10 @@ export default async function ServiceDetailPage({ params }: PageProps<"/services
           </span>
           <span className="inline-flex items-center gap-1.5">
             <Clock aria-hidden className="size-4 text-brand-400" />
-            {service.duration.sedan === service.duration.truck
-              ? service.duration.sedan
-              : `${service.duration.sedan} to ${service.duration.truck}`}
+            {service.duration.car}
+            {service.duration.motorcycle !== service.duration.car && (
+              <span className="text-ink-subtle">({service.duration.motorcycle} motorcycles)</span>
+            )}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <MapPin aria-hidden className="size-4 text-brand-400" />
@@ -319,7 +320,7 @@ export default async function ServiceDetailPage({ params }: PageProps<"/services
             {(pairedServices.length > 0 || pairedAddOns.length > 0) && (
               <section aria-labelledby="pairs-with">
                 <SectionTitle id="pairs-with" eyebrow="Pairs well with">
-                  Get more from this visit
+                  You might also consider
                 </SectionTitle>
                 <ul className="grid gap-4 sm:grid-cols-2">
                   {pairedServices.map((s) => (
@@ -342,7 +343,7 @@ export default async function ServiceDetailPage({ params }: PageProps<"/services
                             {s.name}
                           </span>
                           <span className="mt-0.5 block text-sm text-ink-muted">
-                            From {formatPrice(s.price.sedan)}
+                            From {formatPrice(priceRange(s).min)}
                             {s.priceSuffix ? ` ${s.priceSuffix}` : ""}
                           </span>
                         </span>
@@ -395,6 +396,7 @@ export default async function ServiceDetailPage({ params }: PageProps<"/services
                 slug: service.slug,
                 name: service.name,
                 price: service.price,
+                priceNote: service.priceNote,
                 duration: service.duration,
                 location: service.location,
                 priceSuffix: service.priceSuffix,
@@ -414,7 +416,7 @@ export default async function ServiceDetailPage({ params }: PageProps<"/services
 
       <CtaBanner
         title={`Ready to book your ${service.name}?`}
-        description="Pick a time online in about a minute. We confirm by text within the hour."
+        description="Pick a time online in about a minute, and we come to you."
         primaryLabel="Book this service"
         primaryHref={bookingUrl({ service: service.slug })}
       />

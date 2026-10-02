@@ -5,7 +5,7 @@ export interface BuildMetadataOptions {
   /** Page title. The root layout's template appends ` | ${siteConfig.name}`. */
   title: string;
   description: string;
-  /** Route path, e.g. "/services/ceramic-coating". Used for canonical and og:url. */
+  /** Route path, e.g. "/services/full-deluxe". Used for canonical and og:url. */
   path: `/${string}`;
   /** Social image path or absolute URL. Defaults to the generated `/opengraph-image`. */
   image?: string;
@@ -38,9 +38,9 @@ const DEFAULT_OG_IMAGE = defaultOgImage;
  * defines `openGraph` without `images` silently drops the root `opengraph-image`.
  *
  *   export const metadata = buildMetadata({
- *     title: "Ceramic Coating",
+ *     title: "Full Deluxe Package",
  *     description: "...",
- *     path: "/services/ceramic-coating",
+ *     path: "/services/full-deluxe",
  *     image: service.image,
  *   });
  */

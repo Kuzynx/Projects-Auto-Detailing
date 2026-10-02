@@ -10,28 +10,27 @@ const LAST_UPDATED = "2026-10-02";
 
 /**
  * Policy figures quoted in these terms. They mirror the FAQ (`src/data/faq.ts`) and the
- * ceramic coating copy in `src/data/services.ts`; change them together.
+ * work-vehicle note in `src/data/services.ts`; change them together. No service takes a deposit.
  */
 const policy = {
   cancellationWindowHours: 24,
   lateCancellationFee: 50,
-  correctionDeposit: 150,
+  /** Surcharge range for extremely dirty construction, farm or work vehicles. */
+  workVehicleSurcharge: { min: 15, max: 30 },
   noShowGraceMinutes: 30,
   concernWindowHours: 48,
-  coatingWarrantyYears: 3,
-  coatingWarrantyUpgradeYears: 5,
   quoteValidDays: 30,
 } as const;
 
 export const metadata = buildMetadata({
   title: "Terms of Service",
-  description: `The terms for booking ${siteConfig.name}: estimates and final pricing, deposits, the ${policy.cancellationWindowHours}-hour cancellation policy, vehicle condition, ceramic coating warranty and liability.`,
+  description: `The terms for booking ${siteConfig.name}: estimates and final pricing, the ${policy.cancellationWindowHours}-hour cancellation policy, vehicle condition and liability.`,
   path: "/terms",
 });
 
 const { name, legalName, email, phone, address } = siteConfig;
 const fee = formatPrice(policy.lateCancellationFee);
-const deposit = formatPrice(policy.correctionDeposit);
+const surcharge = `${formatPrice(policy.workVehicleSurcharge.min)}–${formatPrice(policy.workVehicleSurcharge.max)}`;
 const hours = `${policy.cancellationWindowHours} hours`;
 
 const sections: LegalSection[] = [
@@ -60,13 +59,9 @@ const sections: LegalSection[] = [
     content: (
       <>
         <p>
-          We are a fully mobile business. We provide exterior and interior detailing, paint
-          correction, ceramic coatings and recurring maintenance services at your home or workplace
-          in {address.city} and across the {siteConfig.region}. What each service includes is
-          described on our <Link href="/services">services pages</Link>. Paint correction and
-          ceramic coatings need shade and protection from wind and dust, so they are performed in a
-          garage or covered space at your location (see{" "}
-          <a href="#your-responsibilities">Your responsibilities</a>).
+          We are a fully mobile business. We wash and detail vehicles, inside and out, at your home
+          or workplace in {address.city} and across the {siteConfig.region}. What each package
+          includes is described on our <Link href="/services">services pages</Link>.
         </p>
         <p>
           We may decline or stop work on a vehicle that is unsafe to work on, including vehicles
@@ -92,7 +87,10 @@ const sections: LegalSection[] = [
         </p>
         <ul>
           <li>Heavy pet hair, sand, mud, staining, smoke odor or spills.</li>
-          <li>Heavily oxidized, contaminated or previously mis-polished paint.</li>
+          <li>
+            Extremely dirty construction, farm or work vehicles: a {surcharge} surcharge, quoted on
+            site before work starts.
+          </li>
           <li>Oversized, lifted or modified vehicles beyond our standard size categories.</li>
         </ul>
         <p>
@@ -101,26 +99,6 @@ const sections: LegalSection[] = [
           perform the service you originally booked as far as is practical, at the original price.
           Written quotes are valid for {policy.quoteValidDays} days. Any applicable taxes are shown
           on your invoice.
-        </p>
-      </>
-    ),
-  },
-  {
-    id: "deposits",
-    title: "Booking and deposits",
-    content: (
-      <>
-        <p>
-          Washes, interior services and the Full Detail require no deposit. Paint correction and
-          ceramic coatings take a full day or more, so they require a{" "}
-          <strong>{deposit} deposit</strong> to hold your appointment slot. The deposit is applied
-          in full to your final invoice.
-        </p>
-        <p>
-          If you cancel a deposit-backed booking at least {hours} before your appointment, we refund
-          your deposit in full. If you cancel later, or do not show, we keep the {fee}{" "}
-          late-cancellation fee from the deposit and refund the balance or hold it as credit,
-          whichever you prefer.
         </p>
       </>
     ),
@@ -135,8 +113,8 @@ const sections: LegalSection[] = [
           charge.
         </li>
         <li>
-          <strong>Within {hours}:</strong> a {fee} late-cancellation fee applies. For services
-          without a deposit, the fee is credited toward your next booking with us.
+          <strong>Within {hours}:</strong> a {fee} late-cancellation fee applies, credited toward
+          your next booking with us. We do not take deposits for any service.
         </li>
         <li>
           <strong>No-shows:</strong> if the vehicle is not available within{" "}
@@ -161,12 +139,6 @@ const sections: LegalSection[] = [
           For mobile service, provide a safe, legal place to work with about three feet of clearance
           around the vehicle, and make sure you have the property owner&rsquo;s, HOA&rsquo;s or
           building&rsquo;s permission. We bring our own water and power.
-        </li>
-        <li>
-          For paint correction and ceramic coatings, provide a garage or covered space for the
-          length of the appointment (and overnight where a coating needs to cure), with access to it
-          for our team and equipment. If the space is not available or suitable on the day, we will
-          reschedule, and the appointment is treated as a late cancellation.
         </li>
         <li>
           Remove valuables, cash, documents and child seats before the appointment. We are not
@@ -203,14 +175,6 @@ const sections: LegalSection[] = [
           <li>Rock chips, prior body or paint repairs, and corrosion.</li>
           <li>Electrical faults caused by prior water intrusion or aftermarket wiring.</li>
         </ul>
-        <h3>Paint correction</h3>
-        <p>
-          Correction works by removing a very thin layer of clear coat. We measure paint depth on
-          every panel and will limit or stop correction where paint is too thin to do safely.
-          Scratches through the clear coat, rock chips and deep etching cannot be fully removed by
-          polishing. Figures such as &ldquo;up to 90% defect removal&rdquo; describe typical results
-          on sound factory paint and are not a guarantee for every vehicle.
-        </p>
       </>
     ),
   },
@@ -228,63 +192,12 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    id: "coating-warranty",
-    title: "Ceramic coating warranty",
-    content: (
-      <>
-        <p>
-          Our professional ceramic coatings come with a{" "}
-          <strong>{policy.coatingWarrantyYears}-year written warranty</strong> from the date of
-          application, or {policy.coatingWarrantyUpgradeYears} years where the upgrade was
-          purchased. Your warranty certificate is issued with your invoice.
-        </p>
-        <h3>What is covered</h3>
-        <p>
-          If the coating fails under normal use, meaning it loses its hydrophobic (water-beading)
-          behavior or gloss, or shows application defects such as high spots or hazing, we will
-          polish and re-coat the affected panels at no charge.
-        </p>
-        <h3>Conditions</h3>
-        <ul>
-          <li>
-            Wash the vehicle by hand with a pH-neutral soap every two to four weeks, as described in
-            your aftercare guide.
-          </li>
-          <li>Avoid automatic car washes that use brushes or harsh chemicals.</li>
-          <li>
-            Book the included annual inspection and top-up, performed at your location, within 30
-            days of each anniversary of application.
-          </li>
-        </ul>
-        <h3>What is not covered</h3>
-        <ul>
-          <li>Scratches, swirls, rock chips, dents and collision, vandalism or theft damage.</li>
-          <li>
-            Etching or staining from bird droppings, tree sap, bug residue, hard water or industrial
-            fallout left on the vehicle for an extended period.
-          </li>
-          <li>Damage from abrasive polishes, harsh chemicals or improper washing.</li>
-          <li>Panels repainted, wrapped or repaired after the coating was applied.</li>
-          <li>
-            Normal wear of coatings on glass, wheels and trim, which wear faster than coatings on
-            paint.
-          </li>
-        </ul>
-        <p>
-          The warranty stays with the vehicle. If you sell it, the new owner can keep the coverage
-          by contacting us within 30 days of purchase.
-        </p>
-      </>
-    ),
-  },
-  {
     id: "payment",
     title: "Payment",
     content: (
       <p>
         Payment is due when the work is complete. We send invoices by text and email and accept the
-        payment methods listed in our <Link href="/faq">FAQ</Link>. Recurring maintenance visits are
-        billed per visit, with no contract; you can pause or cancel at any time.
+        payment methods listed in our <Link href="/faq">FAQ</Link>.
       </p>
     ),
   },
@@ -306,10 +219,10 @@ const sections: LegalSection[] = [
     content: (
       <>
         <p>
-          {name} carries general liability and garagekeepers insurance. If we damage your vehicle
-          through our own negligence, we will, at our option, repair it at our cost through a
-          qualified shop or reimburse the reasonable cost of repair. Please report any damage before
-          we leave or within {policy.concernWindowHours} hours, so we can inspect it.
+          If we damage your vehicle through our own negligence, we will, at our option, repair it at
+          our cost through a qualified shop or reimburse the reasonable cost of repair. Please
+          report any damage before we leave or within {policy.concernWindowHours} hours, so we can
+          inspect it.
         </p>
         <p>
           To the fullest extent allowed by law, we are not liable for indirect or consequential
@@ -390,7 +303,7 @@ export default function TermsPage() {
       <PageHero
         eyebrow="Legal"
         title="Terms of Service"
-        description="Clear terms for every booking: how pricing works, what happens if plans change, how we treat your vehicle and what our coating warranty covers."
+        description="Clear terms for every booking: how pricing works, what happens if plans change, and how we treat your vehicle."
         breadcrumbs={breadcrumbs}
       />
       <LegalDocument
@@ -403,9 +316,7 @@ export default function TermsPage() {
             <p className="text-ink-muted">
               Website prices are starting prices; we confirm the final price after inspection and
               never add charges without your OK. Cancel free up to {hours} ahead; later
-              cancellations cost {fee}. Paint correction and coatings need a {deposit} deposit,
-              applied to your invoice. Ceramic coatings carry a {policy.coatingWarrantyYears}-year
-              written warranty.
+              cancellations cost {fee}. No deposits, and payment is due when the work is done.
             </p>
           </>
         }

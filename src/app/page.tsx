@@ -6,6 +6,7 @@ import { Differentiators } from "@/components/home/differentiators";
 import { FaqTeaser } from "@/components/home/faq-teaser";
 import { GalleryTeaser } from "@/components/home/gallery-teaser";
 import { Hero } from "@/components/home/hero";
+import { MeetKevin } from "@/components/home/meet-kevin";
 import { Process } from "@/components/home/process";
 import { RevealNoScript } from "@/components/home/reveal-noscript";
 import { ServiceArea } from "@/components/home/service-area";
@@ -14,8 +15,8 @@ import { StatsBar } from "@/components/home/stats-bar";
 import { Testimonials } from "@/components/home/testimonials";
 import { siteConfig } from "@/config/site";
 
-const title = `${siteConfig.name} | Mobile Detailing, Paint Correction & Ceramic Coating in ${siteConfig.address.city}, ${siteConfig.address.state}`;
-const description = `${siteConfig.tagline} Mobile detailing across ${siteConfig.address.city} and the ${siteConfig.region}: hand washes, interior resets, and paint correction and ceramic coatings done in your garage, with a 3-year written warranty. Rated ${siteConfig.stats.googleRating} from ${siteConfig.stats.reviewCount} reviews.`;
+const title = `${siteConfig.name} | Mobile Car Washes & Detailing in ${siteConfig.address.city}, ${siteConfig.address.state}`;
+const description = `${siteConfig.tagline} Owner-operated mobile detailing across ${siteConfig.address.city} and the ${siteConfig.region} since ${siteConfig.founded}: hand washes, exterior details and full inside-and-out details at your home or office, plus a package for working trucks. Published prices, before and after photos on every job.`;
 
 export const metadata: Metadata = {
   title: { absolute: title },
@@ -41,13 +42,14 @@ export default function HomePage() {
       <StatsBar />
       <ServicesShowcase />
       <BeforeAfter />
+      <MeetKevin />
       <Process />
       <Differentiators />
       <Testimonials />
       <GalleryTeaser />
       <ServiceArea />
       <FaqTeaser />
-      <CtaBanner description="Pick a service, your vehicle size and a time. It takes about a minute, and we confirm by text within the hour." />
+      <CtaBanner description="Pick a service, your vehicle size and a time. It takes about a minute, and you get a confirmation by text." />
     </>
   );
 }

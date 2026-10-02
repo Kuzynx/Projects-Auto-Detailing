@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { Check, Minus } from "lucide-react";
-import { bookingUrl, type ComparisonFeature, type Service } from "@/data/services";
-import { cn, formatPrice } from "@/lib/utils";
+import {
+  bookingUrl,
+  formatServicePrice,
+  type ComparisonFeature,
+  type Service,
+} from "@/data/services";
+import { cn } from "@/lib/utils";
 import { SizeValue } from "./size-value";
 
 interface ComparisonMatrixProps {
@@ -57,10 +62,10 @@ export function ComparisonMatrix({ services, features }: ComparisonMatrixProps) 
                     {service.name}
                   </Link>
                   <span className="mt-1 block font-display text-lg font-semibold text-ink tabular-nums">
-                    <SizeValue render={(size) => formatPrice(service.price[size])} />
+                    <SizeValue render={(size) => formatServicePrice(service, size)} />
                     {service.priceSuffix && (
                       <span className="ml-1 font-sans text-xs font-normal text-ink-subtle">
-                        /visit
+                        {service.priceSuffix}
                       </span>
                     )}
                   </span>

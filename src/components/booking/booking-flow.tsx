@@ -5,13 +5,16 @@ import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion
 import { AlertCircle, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { submitBooking } from "@/app/book/actions";
 import { siteConfig } from "@/config/site";
+import { bookingContactName } from "@/lib/booking/format";
 import { calculateEstimate } from "@/lib/booking/pricing";
 import {
   bookingSteps,
   firstStepWithErrors,
+  isMotorcycle,
   validateAllSteps,
   validateStep,
   type BookingDraft,
+  type BookingStepId,
   type BookingField,
   type FieldErrors,
 } from "@/lib/booking/schema";
@@ -32,10 +35,7 @@ import { VehicleStep } from "./vehicle-step";
 
 const LAST_STEP = bookingSteps.length - 1;
 
-const stepCopy: Record<
-  (typeof bookingSteps)[number]["id"],
-  { title: string; description: string }
-> = {
+const stepCopy: Record<BookingStepId, { title: string; description: string }> = {
   service: {
     title: "Choose your service",
     description:
@@ -44,7 +44,7 @@ const stepCopy: Record<
   vehicle: {
     title: "Tell us about your vehicle",
     description:
-      "Size sets the price. Make, model and condition help us bring the right products and plan your time.",
+      "Vehicle type sets the price. Make, model and condition help us bring the right products and plan the time.",
   },
   addons: {
     title: "Add finishing touches",
@@ -56,7 +56,7 @@ const stepCopy: Record<
   },
   contact: {
     title: "Confirm your details",
-    description: "We hold your slot now and confirm within the hour. Nothing to pay online.",
+    description: `Your slot is held now and ${bookingContactName} confirms by text within the hour. Nothing to pay online.`,
   },
 };
 
@@ -66,7 +66,7 @@ function headingId(step: number) {
 
 /** Element id of the first field (in form order) that has an error on a step. */
 function firstErrorTarget(step: number, errors: FieldErrors): string {
-  const field = bookingSteps[step].fields.find((f) => errors[f as BookingField]);
+  const field = bookingSteps[step].fields.find((f) => errors[f]);
   return field ? fieldId(field) : headingId(step);
 }
 
@@ -93,6 +93,10 @@ type FlowAction =
 /** Keeps dependent fields consistent after any edit. */
 function reconcile(draft: BookingDraft): BookingDraft {
   let next = draft;
+  // Motorcycles have no cabin, so interior answers don't apply.
+  if (isMotorcycle(next.size) && (next.interiorCondition || next.petHair || next.smoke)) {
+    next = { ...next, interiorCondition: "", petHair: false, smoke: false };
+  }
   if (next.date) {
     const slots = getTimeSlots({
       date: next.date,

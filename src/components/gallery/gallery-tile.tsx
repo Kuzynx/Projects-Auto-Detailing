@@ -1,8 +1,15 @@
 import Image from "next/image";
 import { Expand } from "lucide-react";
 import { Badge } from "@/components/ui";
-import type { GalleryItem } from "@/data/gallery";
+import { galleryCategories, type GalleryItem } from "@/data/gallery";
 import { cn } from "@/lib/utils";
+
+/** Filter chips that would have results. The bar is hidden when fewer than two real categories remain. */
+export function availableCategories(items: GalleryItem[]) {
+  const used = new Set(items.map((item) => item.category));
+  const categories = galleryCategories.filter((c) => c.id === "all" || used.has(c.id));
+  return { categories, showFilters: categories.length > 2 };
+}
 
 /** Client job photos lead the grid; everything else keeps its data order. */
 export function orderGalleryItems(items: GalleryItem[]) {

@@ -2,10 +2,9 @@
 
 import { Clock } from "lucide-react";
 import { Badge } from "@/components/ui";
-import { services } from "@/data/services";
+import { formatServicePrice, services } from "@/data/services";
 import { getSizeLabel } from "@/lib/booking/format";
 import { requiresGarage } from "@/lib/booking/schema";
-import { formatPrice } from "@/lib/utils";
 import { errorId, FieldError, fieldId } from "./fields";
 import { OptionCard } from "./option-card";
 import type { StepProps } from "./step-types";
@@ -51,9 +50,9 @@ export function ServiceStep({ draft, errors, update }: StepProps) {
             </span>
             <span className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
               <span className="text-ink">
-                <span className="text-ink-subtle">From </span>
+                {!service.priceNote?.[draft.size] && <span className="text-ink-subtle">From </span>}
                 <span className="font-display font-semibold">
-                  {formatPrice(service.price[draft.size])}
+                  {formatServicePrice(service, draft.size)}
                 </span>
               </span>
               <span className="inline-flex items-center gap-1.5 text-ink-subtle">

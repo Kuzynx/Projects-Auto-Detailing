@@ -7,6 +7,9 @@ import { ButtonLink, buttonClasses, Eyebrow } from "@/components/ui";
 import { siteConfig } from "@/config/site";
 import { getService } from "@/data/services";
 import {
+  bookingContactName,
+  getEstimateNote,
+  detailerName,
   formatAppointment,
   formatServiceAddress,
   formatVehicle,
@@ -106,21 +109,22 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
     }
   }
 
+  const founder = detailerName;
   const contactMethod = booking.smsConsent ? `text ${booking.phone}` : `call ${booking.phone}`;
   const nextSteps = [
     {
-      title: "We confirm your time",
-      body: `A detailer will ${contactMethod} within the hour during business hours. A confirmation email is on its way to ${booking.email}.`,
+      title: `${bookingContactName} confirms your time`,
+      body: `${bookingContactName} will ${contactMethod} within the hour during business hours. A confirmation email is on its way to ${booking.email}.`,
     },
     {
       title: "Day-before reminder",
       body: requiresGarage(booking.service)
-        ? "You'll get your arrival time. Clear the garage or covered space so we can work all the way around the car; we bring water, power and lighting."
-        : "You'll get your technician's arrival window. Leave about three feet of clearance around the car; we bring water and power.",
+        ? `You'll get ${founder}'s arrival time. Clear the garage or covered space so he can work all the way around the car; he brings water, power and lighting.`
+        : `You'll get ${founder}'s arrival window. Leave about three feet of clearance around the car; he arrives with everything, including water and power.`,
     },
     {
       title: "Walkthrough, then the work",
-      body: "We inspect the car with you and confirm the final price before any work begins. You pay after the final walkthrough.",
+      body: `${founder} walks the car with you and confirms the final price before any work begins. You pay after the final walkthrough.`,
     },
   ];
 
@@ -154,8 +158,8 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
             You&apos;re on the schedule, {firstName(booking.name)}.
           </h2>
           <p className="relative mx-auto mt-3 max-w-xl text-pretty text-ink-muted">
-            We&apos;ve held {when ?? "your slot"} for your {service?.name ?? "detail"}. We&apos;ll{" "}
-            {contactMethod} within the hour to confirm.
+            We&apos;ve held {when ?? "your slot"} for your {service?.name ?? "detail"}.{" "}
+            {bookingContactName} will {contactMethod} within the hour to confirm.
           </p>
 
           <div className="relative mt-8 inline-flex items-center gap-3 rounded-full border border-border-strong bg-bg py-2 pr-2 pl-5">
@@ -212,7 +216,9 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
                   "Vehicle",
                   [formatVehicle(booking), getSizeLabel(booking.size)].filter(Boolean).join(" · "),
                 ],
-                ["Add-ons", estimate.addOns.map((a) => a.name).join(", ") || "None"],
+                ...(estimate.addOns.length > 0
+                  ? [["Add-ons", estimate.addOns.map((a) => a.name).join(", ")]]
+                  : []),
                 ["When", when ?? booking.date],
                 ["Where", formatServiceAddress(booking)],
               ].map(([label, value]) => (
@@ -228,7 +234,7 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
                     {formatPrice(estimate.total)}
                   </span>
                   <span className="block text-xs text-ink-subtle">
-                    Starting price, confirmed on site.
+                    {getEstimateNote(booking.service, booking.size)}
                   </span>
                 </dd>
               </div>

@@ -1,10 +1,11 @@
 /**
  * Pre-selection from links elsewhere on the site:
- *   /book?service=<slug>&size=<sedan|suv|truck>&addons=<slug,slug>
+ *   /book?service=<slug>&size=<vehicle type id>&addons=<slug,slug>
+ * Vehicle type ids come from `vehicleSizes` (car, suv, truck, sports, exotic, motorcycle).
  * Unknown values are ignored rather than erroring.
  */
-import { getAddOn, getService, type VehicleSize } from "@/data/services";
-import { emptyDraft, vehicleSizeIds, type BookingDraft } from "./schema";
+import { getAddOn, getService, isVehicleSize } from "@/data/services";
+import { emptyDraft, type BookingDraft } from "./schema";
 
 type SearchParamValue = string | string[] | undefined;
 
@@ -27,8 +28,7 @@ export function parseBookingSearchParams(
   if (service) draft.service = service.slug;
 
   const size = first(params.size)?.trim().toLowerCase();
-  if (size && (vehicleSizeIds as readonly string[]).includes(size))
-    draft.size = size as VehicleSize;
+  if (isVehicleSize(size)) draft.size = size;
 
   const rawAddOns = ([] as string[]).concat(params.addons ?? []).flatMap((v) => v.split(","));
   draft.addOns = [...new Set(rawAddOns.map((v) => v.trim().toLowerCase()))].filter((slug) =>

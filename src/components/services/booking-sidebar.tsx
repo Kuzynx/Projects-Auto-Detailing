@@ -10,6 +10,7 @@ import {
   RefreshCw,
   ShieldCheck,
   Truck,
+  UserRound,
   Warehouse,
   Zap,
 } from "lucide-react";
@@ -19,6 +20,7 @@ import {
   addOnMinutes,
   bookingUrl,
   serviceLocations,
+  vehicleSizeIds,
   vehicleSizes,
   type AddOn,
   type Service,
@@ -28,8 +30,7 @@ import { cn, formatPrice } from "@/lib/utils";
 import { SegmentedControl } from "./segmented-control";
 import { useQueryParam } from "./use-query-param";
 
-const sizeIds = vehicleSizes.map((v) => v.id);
-const sizeOptions = vehicleSizes.map((v) => ({ value: v.id, label: v.label.split(" / ")[0] }));
+const sizeOptions = vehicleSizes.map((v) => ({ value: v.id, label: v.label }));
 
 function formatMinutes(total: number) {
   const hours = Math.floor(total / 60);
@@ -39,14 +40,17 @@ function formatMinutes(total: number) {
 }
 
 interface BookingSidebarProps {
-  service: Pick<Service, "slug" | "name" | "price" | "duration" | "location" | "priceSuffix">;
+  service: Pick<
+    Service,
+    "slug" | "name" | "price" | "priceNote" | "duration" | "location" | "priceSuffix"
+  >;
   recommended: AddOn[];
   more: AddOn[];
 }
 
 /** Live price configurator with a deep link into the booking flow. */
 export function BookingSidebar({ service, recommended, more }: BookingSidebarProps) {
-  const [size, setSize] = useQueryParam<VehicleSize>("size", sizeIds, "sedan");
+  const [size, setSize] = useQueryParam<VehicleSize>("size", vehicleSizeIds, "car");
   const [selected, setSelected] = useState<string[]>([]);
 
   const all = [...recommended, ...more];
@@ -54,6 +58,7 @@ export function BookingSidebar({ service, recommended, more }: BookingSidebarPro
   const addOnTotal = chosen.reduce((sum, a) => sum + a.price, 0);
   const extraMinutes = chosen.reduce((sum, a) => sum + addOnMinutes(a), 0);
   const base = service.price[size];
+  const openEnded = Boolean(service.priceNote?.[size]) || service.priceSuffix === "starting";
   const total = base + addOnTotal;
   const sizeInfo = vehicleSizes.find((v) => v.id === size);
   const moreCount = more.filter((a) => selected.includes(a.slug)).length;
@@ -67,7 +72,11 @@ export function BookingSidebar({ service, recommended, more }: BookingSidebarPro
   return (
     <div className="rounded-lg border border-border-strong bg-surface/95 p-6 shadow-card backdrop-blur-xl">
       <h2 className="font-display text-lg font-semibold">Configure and book</h2>
-      <p className="mt-1 text-sm text-ink-muted">Pick your vehicle size. Add extras if you like.</p>
+      <p className="mt-1 text-sm text-ink-muted">
+        {all.length > 0
+          ? "Pick your vehicle type. Add extras if you like."
+          : "Pick your vehicle type to see your price."}
+      </p>
 
       <SegmentedControl
         legend="Vehicle size"
@@ -76,10 +85,11 @@ export function BookingSidebar({ service, recommended, more }: BookingSidebarPro
         value={size}
         onChange={setSize}
         className="mt-5"
+        gridClassName="grid-flow-row grid-cols-3 rounded-[1.25rem]"
       />
       {sizeInfo && (
         <p className="mt-2 text-xs text-ink-subtle">
-          {sizeInfo.description}, e.g. {sizeInfo.examples}
+          {sizeInfo.label}: {sizeInfo.examples}
         </p>
       )}
 
@@ -90,11 +100,12 @@ export function BookingSidebar({ service, recommended, more }: BookingSidebarPro
       >
         <div className="flex items-baseline justify-between gap-3">
           <p className="text-sm text-ink-muted">
-            {addOnTotal > 0 ? "Estimated total" : "Starting price"}
+            {addOnTotal > 0 ? "Estimated total" : openEnded ? "Starting at" : "Your price"}
           </p>
           <p className="font-display text-3xl font-semibold tracking-tight text-ink tabular-nums">
             {formatPrice(total)}
-            {service.priceSuffix && (
+            {openEnded && "+"}
+            {service.priceSuffix && !openEnded && (
               <span className="ml-1 font-sans text-xs font-normal tracking-normal text-ink-subtle">
                 {service.priceSuffix}
               </span>
@@ -195,6 +206,10 @@ export function BookingSidebar({ service, recommended, more }: BookingSidebarPro
         <li className="flex items-center gap-2.5">
           <Zap aria-hidden className="size-4 shrink-0 text-brand-400" />
           We bring water, power and lighting
+        </li>
+        <li className="flex items-center gap-2.5">
+          <UserRound aria-hidden className="size-4 shrink-0 text-brand-400" />
+          Owner-operated: {siteConfig.founder.name} does the work
         </li>
       </ul>
     </div>

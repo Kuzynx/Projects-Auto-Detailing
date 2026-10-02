@@ -4,13 +4,14 @@ import { ArrowRight, Check, Clock, MapPin } from "lucide-react";
 import { Badge, ButtonLink } from "@/components/ui";
 import {
   bookingUrl,
+  formatServicePrice,
   serviceCategories,
   serviceLocations,
   vehicleSizes,
   type Service,
   type VehicleSize,
 } from "@/data/services";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface ServiceCardProps {
   service: Service;
@@ -21,15 +22,15 @@ interface ServiceCardProps {
   className?: string;
 }
 
-const shortSizeLabel: Record<VehicleSize, string> = { sedan: "Sedan", suv: "SUV", truck: "Truck" };
-
 export function ServiceCard({
   service,
   size,
   headingLevel: Heading = "h3",
   className,
 }: ServiceCardProps) {
-  const activeSize = size ?? "sedan";
+  const activeSize = size ?? "car";
+  const samePriceEverywhere = vehicleSizes.every((v) => service.price[v.id] === service.price.car);
+  const showSuffix = service.priceSuffix && !service.priceNote?.[activeSize];
   const category = serviceCategories.find((c) => c.id === service.category)?.label;
   const detailsHref = `/services/${service.slug}`;
   const featured = Boolean(service.featured);
@@ -56,7 +57,7 @@ export function ServiceCard({
           src={service.image}
           alt=""
           fill
-          sizes="(min-width: 1280px) 400px, (min-width: 768px) 50vw, 100vw"
+          sizes="(min-width: 1280px) 320px, (min-width: 768px) 50vw, 100vw"
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         />
         <div
@@ -93,11 +94,15 @@ export function ServiceCard({
         <div className="mt-5 flex items-end justify-between gap-4 border-y border-border py-4">
           <div>
             <p className="text-xs text-ink-subtle">
-              {size ? vehicleSizes.find((v) => v.id === size)?.label : "Starting from"}
+              {size
+                ? vehicleSizes.find((v) => v.id === size)?.label
+                : samePriceEverywhere
+                  ? "Any vehicle"
+                  : vehicleSizes.find((v) => v.id === "car")?.label}
             </p>
             <p className="font-display text-3xl font-semibold tracking-tight text-ink">
-              {formatPrice(service.price[activeSize])}
-              {service.priceSuffix && (
+              {formatServicePrice(service, activeSize)}
+              {showSuffix && (
                 <span className="ml-1.5 font-sans text-sm font-normal tracking-normal text-ink-subtle">
                   {service.priceSuffix}
                 </span>
@@ -112,11 +117,11 @@ export function ServiceCard({
             </span>
           </p>
         </div>
-        {!size && (
-          <p className="mt-2 text-xs text-ink-subtle">
+        {!size && !samePriceEverywhere && (
+          <p className="mt-2 text-xs leading-relaxed text-ink-subtle">
             {vehicleSizes
-              .filter((v) => v.id !== "sedan")
-              .map((v) => `${shortSizeLabel[v.id]} ${formatPrice(service.price[v.id])}`)
+              .filter((v) => v.id !== "car")
+              .map((v) => `${v.label} ${formatServicePrice(service, v.id)}`)
               .join("  ·  ")}
           </p>
         )}

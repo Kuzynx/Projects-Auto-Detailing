@@ -7,6 +7,9 @@ import { siteConfig } from "@/config/site";
 import { getService } from "@/data/services";
 import { absoluteUrl, formatPrice } from "@/lib/utils";
 import {
+  bookingContactName,
+  getEstimateNote,
+  detailerName,
   formatAppointment,
   formatServiceAddress,
   formatVehicle,
@@ -57,9 +60,9 @@ export function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
-/** "Mobile detailing in Victorville, CA and the High Desert" */
+/** "Owner-operated · Fully mobile · Since 2024 · Victorville, CA and the High Desert" */
 function serviceAreaLine(): string {
-  return `Mobile detailing in ${siteConfig.address.city}, ${siteConfig.address.state} and the ${siteConfig.region}`;
+  return `Owner-operated · Fully mobile · Since ${siteConfig.founded} · ${siteConfig.address.city}, ${siteConfig.address.state} and the ${siteConfig.region}`;
 }
 
 function firstName(name: string): string {
@@ -78,12 +81,14 @@ function bookingRows(input: BookingEmailInput, { internal }: { internal: boolean
       `${service?.name ?? booking.service} (${formatPrice(estimate.service?.price ?? 0)})`,
     ],
     ["Vehicle", `${vehicle} · ${getSizeLabel(booking.size)}`],
-    [
-      "Add-ons",
-      estimate.addOns.length
-        ? estimate.addOns.map((a) => `${a.name} (${formatPrice(a.price)})`).join(", ")
-        : "None",
-    ],
+    ...(estimate.addOns.length > 0
+      ? [
+          [
+            "Add-ons",
+            estimate.addOns.map((a) => `${a.name} (${formatPrice(a.price)})`).join(", "),
+          ] as Row,
+        ]
+      : []),
     ["When", formatAppointment(booking) ?? booking.date],
     ["Where", formatServiceAddress(booking)],
   ];
@@ -185,13 +190,13 @@ function detailsTable(rows: Row[]): string {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px 0;">${body}</table>`;
 }
 
-function totalBlock(estimate: Estimate): string {
+function totalBlock(estimate: Estimate, note: string): string {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px 0;">
 <tr>
 <td style="font-size:14px;color:${color.muted};">Estimated total</td>
 <td align="right" style="font-size:24px;font-weight:700;color:${color.ink};">${escapeHtml(formatPrice(estimate.total))}</td>
 </tr>
-<tr><td colspan="2" style="padding-top:4px;font-size:12px;line-height:18px;color:${color.subtle};">Starting price. Your final quote is confirmed on site after a quick inspection, before any work begins.</td></tr>
+<tr><td colspan="2" style="padding-top:4px;font-size:12px;line-height:18px;color:${color.subtle};">${escapeHtml(note)}</td></tr>
 </table>`;
 }
 
@@ -207,18 +212,19 @@ function button(href: string, label: string): string {
 /* ------------------------------------------------------------------ */
 
 function nextSteps(booking: BookingData): [string, string][] {
+  const founder = detailerName;
   const contactLine = booking.smsConsent
-    ? `We text ${booking.phone} within the hour (during business hours) to lock in your slot.`
-    : `We call ${booking.phone} within the hour (during business hours) to lock in your slot.`;
+    ? `${bookingContactName} will text ${booking.phone} within the hour (during business hours) to lock in your slot.`
+    : `${bookingContactName} will call ${booking.phone} within the hour (during business hours) to lock in your slot.`;
   const dayBefore = requiresGarage(booking.service)
-    ? "The day before, we send your arrival time. Clear the garage or covered space so we can work all the way around the car; we bring our own water, power and lighting."
-    : "The day before, we send a reminder with your technician's arrival window. We need about three feet of clearance around the car; we bring our own water and power.";
+    ? `The day before, you'll get ${founder}'s arrival time. Clear the garage or covered space so he can work all the way around the car; he arrives with his own water, power and lighting.`
+    : `The day before, you'll get ${founder}'s arrival window. Leave about three feet of clearance around the car; he arrives with everything, including water and power.`;
   return [
-    ["We confirm your time", contactLine],
+    [`${bookingContactName} confirms your time`, contactLine],
     ["Day-before reminder", dayBefore],
     [
       "Walkthrough, then the work",
-      "We inspect the car with you, confirm the final price and plan, and only then begin.",
+      `${founder} walks the car with you and confirms the final price and plan before any work begins.`,
     ],
   ];
 }
@@ -252,7 +258,7 @@ ${heading(`Thanks, ${firstName(booking.name)}. Your slot is held.`)}
 ${paragraph(`We've reserved <strong style="color:${color.ink};">${escapeHtml(when)}</strong> for your ${escapeHtml(serviceName)}. Keep this email for your records.`)}
 ${referenceBlock(reference)}
 ${detailsTable(rows)}
-${totalBlock(estimate)}
+${totalBlock(estimate, getEstimateNote(booking.service, booking.size))}
 <h2 style="margin:0 0 16px 0;font-size:17px;font-weight:700;color:${color.ink};">What happens next</h2>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${stepsHtml}</table>
 ${deposit ? paragraph(escapeHtml(deposit), "font-size:13px;line-height:20px;") : ""}
@@ -270,7 +276,7 @@ ${button(siteConfig.phoneHref, `Call ${siteConfig.phone}`)}`;
     ...rows.map(([label, value]) => `${label}: ${value}`),
     "",
     `Estimated total: ${formatPrice(estimate.total)}`,
-    "Starting price. Your final quote is confirmed on site after a quick inspection, before any work begins.",
+    getEstimateNote(booking.service, booking.size),
     "",
     "WHAT HAPPENS NEXT",
     ...steps.map(([title, body], i) => `${i + 1}. ${title}: ${body}`),
@@ -286,7 +292,10 @@ ${button(siteConfig.phoneHref, `Call ${siteConfig.phone}`)}`;
 
   return {
     subject,
-    html: layout({ preheader: `Reference ${reference}. We confirm within the hour.`, body }),
+    html: layout({
+      preheader: `Reference ${reference}. ${bookingContactName} confirms within the hour.`,
+      body,
+    }),
     text,
   };
 }
@@ -310,7 +319,7 @@ ${heading(`${booking.name}, ${service?.name ?? booking.service}`)}
 ${paragraph(`${escapeHtml(when)}. ${escapeHtml(confirmAction)}`)}
 ${referenceBlock(reference)}
 ${detailsTable(rows)}
-${totalBlock(estimate)}
+${totalBlock(estimate, getEstimateNote(booking.service, booking.size))}
 ${button(`tel:${toE164(booking.phone) ?? booking.phone}`, `Call ${firstName(booking.name)}`)}`;
 
   const text = [

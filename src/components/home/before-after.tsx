@@ -6,10 +6,11 @@ import { getService } from "@/data/services";
 import { cn, formatPrice } from "@/lib/utils";
 import { Reveal } from "./reveal";
 import { WipeIn } from "./wipe-in";
+import { startingPrice, typicalDuration } from "./pricing";
 
 const JOB = {
-  serviceSlug: "signature-wash",
-  caption: "Shelby GT350, mobile Signature Wash, customer's driveway",
+  serviceSlug: "premium-detail",
+  caption: "Shelby GT350, mobile Premium Exterior Detail, customer's driveway",
   midWash: {
     src: "/images/work/shelby-gt350-rinse-wide.jpg",
     alt: "Ruby Red Shelby GT350 beaded with water after the rinse stage, parked in a residential driveway",
@@ -57,7 +58,7 @@ export function BeforeAfter() {
                 Real driveway. <span className="text-gradient-brand">Real results.</span>
               </span>
             }
-            description="No staged lighting, no filters. This is a client's Shelby GT350 photographed by our detailer mid-wash and again at handover, right where it lives."
+            description="No staged lighting, no filters. This is a customer's Shelby GT350, photographed mid-wash and again at handover, right where it lives."
           />
 
           {service && (
@@ -67,9 +68,11 @@ export function BeforeAfter() {
                 <p className="text-sm text-ink-muted">
                   from{" "}
                   <span className="font-display text-base font-semibold text-ink">
-                    {formatPrice(service.price.sedan)}
+                    {formatPrice(startingPrice(service))}
                   </span>
-                  <span className="text-ink-subtle"> · {service.duration.sedan}</span>
+                  {typicalDuration(service) && (
+                    <span className="text-ink-subtle"> · {typicalDuration(service)}</span>
+                  )}
                 </p>
               </div>
               <ul className="mt-4 space-y-2.5">
@@ -84,7 +87,7 @@ export function BeforeAfter() {
                 href={`${bookingHref}?service=${service.slug}`}
                 className="group mt-6 w-full sm:w-auto"
               >
-                Book this wash
+                Book this detail
                 <ArrowRight
                   className="size-4 transition-transform group-hover:translate-x-0.5"
                   aria-hidden="true"

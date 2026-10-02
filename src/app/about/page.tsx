@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { BadgeCheck, Check, MapPin, Quote, ShieldCheck } from "lucide-react";
+import { Check, MapPin } from "lucide-react";
 import { PageHero } from "@/components/layout/page-hero";
 import { CtaBanner } from "@/components/layout/cta-banner";
 import {
@@ -14,14 +14,16 @@ import {
 } from "@/components/ui";
 import { Reveal } from "@/components/about/reveal";
 import { InitialsAvatar } from "@/components/about/initials-avatar";
-import { credentials, founder, standards, team, values } from "@/components/about/content";
+import { standards, values } from "@/components/about/content";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { absoluteUrl } from "@/lib/utils";
 import { bookingHref, siteConfig } from "@/config/site";
 
+const { founder } = siteConfig;
+
 const title = "About";
-const description = `Meet the team behind ${siteConfig.name}: IDA-certified detailers serving ${siteConfig.address.city} since ${siteConfig.founded}, with ${siteConfig.stats.vehiclesDetailed.toLocaleString("en-US")}+ vehicles detailed and a ${siteConfig.stats.googleRating}-star rating.`;
+const description = `${siteConfig.name} is owner-operated by ${founder.name}, known as ${founder.nickname}. Founded in ${siteConfig.address.city} in ${founder.since}, fully mobile across the ${siteConfig.region}, with every car detailed by ${founder.name} personally.`;
 
 export const metadata: Metadata = buildMetadata({
   title,
@@ -29,34 +31,53 @@ export const metadata: Metadata = buildMetadata({
   path: "/about",
 });
 
-const stats = [
+const facts = [
+  { value: `${founder.since}`, label: "Founded" },
+  { value: `${founder.startedAtAge}`, label: "Age he started" },
+  { value: "100%", label: "Mobile" },
+  { value: "1", label: "Owner on every job" },
+];
+
+const aboutJsonLd = [
   {
-    value: `${siteConfig.stats.vehiclesDetailed.toLocaleString("en-US")}+`,
-    label: "Vehicles detailed",
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    name: `About ${siteConfig.name}`,
+    url: absoluteUrl("/about"),
+    description,
+    mainEntity: {
+      "@type": "AutoWash",
+      name: siteConfig.name,
+      url: absoluteUrl("/"),
+      foundingDate: String(founder.since),
+      founder: {
+        "@type": "Person",
+        name: founder.name,
+        alternateName: founder.nickname,
+        jobTitle: founder.title,
+        image: absoluteUrl(founder.photo),
+      },
+    },
   },
-  { value: `${siteConfig.stats.yearsInBusiness}`, label: "Years in business" },
-  { value: siteConfig.stats.googleRating.toFixed(1), label: "Average Google rating" },
-  { value: `${siteConfig.stats.reviewCount}`, label: "Verified reviews" },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+      { "@type": "ListItem", position: 2, name: "About", item: absoluteUrl("/about") },
+    ],
+  },
 ];
 
 export default function AboutPage() {
   return (
     <>
-      <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
-            { "@type": "ListItem", position: 2, name: "About", item: absoluteUrl("/about") },
-          ],
-        }}
-      />
+      <JsonLd data={aboutJsonLd} />
 
       <PageHero
         eyebrow={`About ${siteConfig.name}`}
-        title={`Obsessed with the details since ${siteConfig.founded}`}
-        description={`A fully mobile team of certified detailers in the ${siteConfig.region}. We measure paint, sweat the edges and treat a family SUV with the same care as a supercar, right in your driveway.`}
+        title={`Obsessed with the details since ${founder.since}`}
+        description={`An owner-operated, fully mobile detailing business in the ${siteConfig.region}. One detailer, one standard, right in your driveway.`}
         image="/images/hero-aston-sunset.jpg"
         imageAlt="Aston Martin parked beneath a concrete overpass at golden hour"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "About" }]}
@@ -75,23 +96,20 @@ export default function AboutPage() {
             </h2>
             <div className="mt-6 space-y-5 text-base text-pretty text-ink-muted sm:text-lg">
               <p>
-                In {siteConfig.founded}, {founder.name} was washing cars on weekends around{" "}
-                {siteConfig.address.city} and noticing the same thing on almost every one: swirl
-                marks from automatic washes and quick-detail shops. Damage done by people who were
-                supposed to be helping.
+                In {founder.since}, at {founder.startedAtAge} years old, {founder.name} started
+                washing cars in {siteConfig.address.city} driveways. Neighbors noticed the
+                difference, told their friends, and the weekend washes turned into {siteConfig.name}
+                .
               </p>
               <p>
-                So he did it the slow way, and he did it at the customer&rsquo;s house. Two buckets
-                and grit guards. A paint-depth gauge before any polisher. Inspection lights that
-                show every flaw. Word spread from one driveway to the next, and {siteConfig.name}{" "}
-                grew into a fully mobile team covering the {siteConfig.region}.
+                It is still owner-operated, on purpose. Every car is detailed by {founder.name}{" "}
+                personally, start to finish. No crews you have never met and no hand-offs: the
+                person who looks at your car is the person who does the work.
               </p>
               <p>
-                We still have no shop, on purpose. We roll out early to beat the desert heat, carry
-                our own water and power, and do paint correction and ceramic coatings in your
-                garage, out of the sun and wind.{" "}
-                {siteConfig.stats.vehiclesDetailed.toLocaleString("en-US")} cars later, the rule has
-                not changed: we only hand back a car we would be proud to drive ourselves.
+                The business is fully mobile: every package is done wherever your car is parked.
+                Days start early to beat the desert heat, every wash uses the two-bucket method and
+                pH-neutral soap, and every car is dried with clean microfiber only.
               </p>
             </div>
           </Reveal>
@@ -113,27 +131,23 @@ export default function AboutPage() {
                 <p className="text-sm text-ink">The two-bucket method, on a real client job.</p>
               </div>
             </div>
-            <div
-              aria-hidden
-              className="absolute -right-4 -bottom-4 -z-10 hidden size-40 rounded-lg border border-brand-500/30 bg-brand-500/10 blur-[1px] lg:block"
-            />
           </Reveal>
         </Container>
       </Section>
 
-      {/* Stats */}
-      <section aria-label="By the numbers" className="border-y border-border bg-bg-elevated">
+      {/* Facts */}
+      <section aria-label="At a glance" className="border-y border-border bg-bg-elevated">
         <Container>
           <dl className="grid grid-cols-2 divide-border lg:grid-cols-4 lg:divide-x">
-            {stats.map((stat, i) => (
+            {facts.map((fact, i) => (
               <Reveal
-                key={stat.label}
+                key={fact.label}
                 delay={i * 0.06}
                 className="flex flex-col-reverse px-4 py-10 text-center sm:py-12"
               >
-                <dt className="mt-2 text-sm text-ink-muted">{stat.label}</dt>
+                <dt className="mt-2 text-sm text-ink-muted">{fact.label}</dt>
                 <dd className="text-gradient-brand font-display text-4xl font-semibold tracking-tight sm:text-5xl">
-                  {stat.value}
+                  {fact.value}
                 </dd>
               </Reveal>
             ))}
@@ -141,49 +155,95 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      {/* Founder note */}
+      {/* Meet Kevin */}
       <Section aria-labelledby="founder-heading">
-        <Container>
-          <Card className="relative overflow-hidden p-8 sm:p-12 lg:p-16">
+        <Container className="grid items-center gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+          <Reveal className="relative mx-auto w-full max-w-sm lg:max-w-none">
             <div
               aria-hidden
-              className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-brand-500/15 blur-3xl"
+              className="absolute -inset-4 rounded-[2rem] bg-brand-500/20 blur-2xl"
             />
-            <div className="relative grid items-center gap-10 lg:grid-cols-[1fr_auto]">
-              <figure>
-                <h2 id="founder-heading" className="sr-only">
-                  A note from our founder
-                </h2>
-                <Quote className="size-10 text-brand-400" aria-hidden />
-                <blockquote className="mt-6 font-display text-2xl leading-snug font-medium text-balance text-ink sm:text-3xl">
-                  &ldquo;Most paint damage I see was done by someone trying to clean it. Our whole
-                  business is built around not being that someone. If we would not put the towel on
-                  our own car, it does not touch yours.&rdquo;
-                </blockquote>
-                <figcaption className="mt-8 flex items-center gap-4">
-                  <InitialsAvatar name={founder.name} className="size-14 text-lg" />
-                  <div>
-                    <p className="font-display font-semibold text-ink">{founder.name}</p>
-                    <p className="text-sm text-ink-muted">
-                      {founder.role}, {founder.credential}
-                    </p>
-                  </div>
-                </figcaption>
-              </figure>
-              <div className="mx-auto w-48 sm:w-56 lg:w-64">
-                <Image
-                  src={siteConfig.logoTransparent}
-                  alt={`${siteConfig.name} logo`}
-                  width={947}
-                  height={929}
-                  sizes="(min-width: 1024px) 256px, 224px"
-                  className="h-auto w-full drop-shadow-[0_20px_40px_rgba(0,0,0,.6)]"
-                />
-              </div>
+            <div className="relative aspect-[4/5] overflow-hidden rounded-xl border border-brand-500/40 shadow-glow">
+              <Image
+                src={founder.photo}
+                alt={`${founder.name}, known as ${founder.nickname}, founder of ${siteConfig.name}`}
+                fill
+                sizes="(min-width: 1280px) 500px, (min-width: 1024px) 40vw, 384px"
+                className="object-cover object-top"
+              />
             </div>
-          </Card>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <Eyebrow className="mb-4">The detailer</Eyebrow>
+            <h2
+              id="founder-heading"
+              className="text-3xl font-semibold text-balance sm:text-4xl lg:text-5xl"
+            >
+              Meet {founder.name}, aka {founder.nickname}
+            </h2>
+            <p className="mt-6 text-lg text-pretty text-ink-muted">{founder.bio}</p>
+            <ul className="mt-8 space-y-3">
+              {[
+                `Started in ${founder.since} at ${founder.startedAtAge}`,
+                "Details every car himself, start to finish",
+                `Fully mobile across ${siteConfig.address.city} and the ${siteConfig.region}`,
+                "Walks every finished car with you before he leaves",
+              ].map((line) => (
+                <li key={line} className="flex items-start gap-3 text-ink">
+                  <Check className="mt-1 size-4 shrink-0 text-brand-400" aria-hidden />
+                  {line}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <ButtonLink href={bookingHref}>Book with {founder.name}</ButtonLink>
+              <ButtonLink href="/contact" variant="outline">
+                Ask a question
+              </ButtonLink>
+            </div>
+          </Reveal>
         </Container>
       </Section>
+
+      {/* Team: real people only, from siteConfig */}
+      {siteConfig.team.length > 0 && (
+        <Section size="sm" aria-labelledby="team-heading" className="pt-0 sm:pt-0">
+          <Container>
+            <h2
+              id="team-heading"
+              className="font-display text-xs font-semibold tracking-[0.2em] text-brand-400 uppercase"
+            >
+              The team
+            </h2>
+            <ul className="mt-6 grid gap-4 md:grid-cols-2">
+              {siteConfig.team.map((member, i) => (
+                <Reveal as="li" key={member.name} delay={i * 0.08}>
+                  <Card className="flex h-full flex-col gap-5 p-6 sm:flex-row sm:items-start sm:p-8">
+                    {member.photo ? (
+                      <span className="relative size-16 shrink-0 overflow-hidden rounded-full border border-brand-500/40 shadow-glow">
+                        <Image
+                          src={member.photo}
+                          alt=""
+                          fill
+                          sizes="64px"
+                          className="object-cover object-top"
+                        />
+                      </span>
+                    ) : (
+                      <InitialsAvatar name={member.name} />
+                    )}
+                    <div>
+                      <h3 className="text-lg font-semibold">{member.name}</h3>
+                      <p className="text-sm text-brand-300">{member.role}</p>
+                      <p className="mt-3 text-sm text-pretty text-ink-muted">{member.bio}</p>
+                    </div>
+                  </Card>
+                </Reveal>
+              ))}
+            </ul>
+          </Container>
+        </Section>
+      )}
 
       {/* Values */}
       <Section tone="elevated" aria-labelledby="values-heading" className="border-y border-border">
@@ -244,68 +304,6 @@ export default function AboutPage() {
         </Container>
       </Section>
 
-      {/* Team */}
-      <Section tone="elevated" aria-labelledby="team-heading" className="border-y border-border">
-        <Container>
-          <SectionHeading
-            eyebrow="The team"
-            title={<span id="team-heading">The people on your car.</span>}
-            description="No subcontractors and no trainees practicing on your paint. Every technician is certified, insured and background checked."
-          />
-          <ul className="mt-12 grid gap-4 md:grid-cols-3">
-            {team.map((member, i) => (
-              <Reveal as="li" key={member.name} delay={i * 0.08}>
-                <Card className="flex h-full flex-col p-6 sm:p-8">
-                  <div className="flex items-center gap-4">
-                    <InitialsAvatar name={member.name} />
-                    <div>
-                      <h3 className="text-lg font-semibold">{member.name}</h3>
-                      <p className="text-sm text-brand-300">{member.role}</p>
-                    </div>
-                  </div>
-                  <p className="mt-5 flex-1 text-sm text-pretty text-ink-muted">{member.bio}</p>
-                  <ul
-                    className="mt-6 flex flex-wrap gap-2"
-                    aria-label={`${member.name} credentials`}
-                  >
-                    {member.credentials.map((credential) => (
-                      <li key={credential}>
-                        <Badge tone="neutral">{credential}</Badge>
-                      </li>
-                    ))}
-                  </ul>
-                </Card>
-              </Reveal>
-            ))}
-          </ul>
-        </Container>
-      </Section>
-
-      {/* Certifications and insurance */}
-      <section aria-labelledby="credentials-heading" className="py-12 sm:py-16">
-        <Container>
-          <h2
-            id="credentials-heading"
-            className="flex items-center justify-center gap-2 text-center font-display text-xs font-semibold tracking-[0.2em] text-ink-subtle uppercase"
-          >
-            <ShieldCheck className="size-4 text-brand-400" aria-hidden />
-            Certified, insured and accountable
-          </h2>
-          <ul className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3 lg:grid-cols-5">
-            {credentials.map((item, i) => (
-              <li
-                key={item.label}
-                className={`flex flex-col items-center gap-1 bg-bg px-4 py-6 text-center${i === credentials.length - 1 ? "col-span-2 sm:col-span-1" : ""}`}
-              >
-                <BadgeCheck className="size-5 text-brand-400" aria-hidden />
-                <span className="mt-1 font-display font-semibold text-ink">{item.label}</span>
-                <span className="text-xs text-ink-muted">{item.detail}</span>
-              </li>
-            ))}
-          </ul>
-        </Container>
-      </section>
-
       {/* Community */}
       <Section size="sm" className="border-t border-border">
         <Container className="flex flex-col items-start gap-6 lg:flex-row lg:items-center lg:justify-between">
@@ -315,21 +313,21 @@ export default function AboutPage() {
               Mobile across the {siteConfig.region}
             </p>
             <p className="mt-3 text-lg text-pretty text-ink-muted">
-              Based in {siteConfig.address.city} and on the road every day across{" "}
+              Based in {siteConfig.address.city} and on the road across{" "}
               {siteConfig.serviceArea.slice(0, -1).join(", ")} and{" "}
-              {siteConfig.serviceArea[siteConfig.serviceArea.length - 1]}. We sponsor local
-              cars-and-coffee meets and offer discounted details to school and nonprofit fleets.
+              {siteConfig.serviceArea[siteConfig.serviceArea.length - 1]}. Local, owner-operated and
+              easy to reach.
             </p>
           </div>
           <ButtonLink href={bookingHref} size="lg" className="shrink-0">
-            Book with our team
+            Book your detail
           </ButtonLink>
         </Container>
       </Section>
 
       <CtaBanner
-        title="Put our standards to work on your car."
-        description="Transparent pricing, certified technicians and a satisfaction guarantee on every appointment."
+        title="Put these standards to work on your car."
+        description={`Transparent pricing and one detailer who cares about the result: ${founder.name}.`}
       />
     </>
   );

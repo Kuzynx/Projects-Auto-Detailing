@@ -45,18 +45,16 @@ const sections: LegalSection[] = [
         <ul>
           <li>
             <strong>Booking form:</strong> your name, email address, mobile number, the address
-            where we should perform the work, vehicle year, make, model and size, the services and
-            add-ons you choose, your preferred date and time, and any notes you add about the
-            vehicle.
+            where we should perform the work, vehicle year, make, model and size, the package you
+            choose, your preferred date and time, and any notes you add about the vehicle.
           </li>
           <li>
             <strong>Contact form, email and phone:</strong> your name, contact details and whatever
             you choose to tell us in your message.
           </li>
           <li>
-            <strong>At your appointment:</strong> before-and-after photos of your vehicle, a record
-            of its condition at inspection, paint-depth readings for correction work and, for
-            ceramic coatings, the details we need to honor your warranty.
+            <strong>At your appointment:</strong> before-and-after photos of your vehicle, and a
+            record of its condition at inspection.
           </li>
           <li>
             <strong>Payments:</strong> we record the amount, date and method. Card payments are
@@ -92,16 +90,13 @@ const sections: LegalSection[] = [
           To send appointment confirmations, reminders, on-the-way notices, invoices and receipts.
         </li>
         <li>To answer questions and prepare estimates.</li>
-        <li>
-          To document vehicle condition before and after service, and to administer coating
-          warranties.
-        </li>
+        <li>To document vehicle condition before and after service.</li>
         <li>To understand which pages are useful and improve the website.</li>
         <li>To protect our customers, staff and website against fraud, spam and abuse.</li>
         <li>To meet tax, accounting and other legal obligations.</li>
         <li>
-          To send occasional offers or maintenance reminders, only if you opt in. Every marketing
-          email has an unsubscribe link.
+          To send occasional offers or reminders that your vehicle is due for a wash, only if you
+          opt in. Every marketing email has an unsubscribe link.
         </li>
       </ul>
     ),
@@ -194,8 +189,7 @@ const sections: LegalSection[] = [
       <ul>
         <li>
           <strong>Booking and service records</strong>, including condition photos: three years
-          after your last service, or for the length of any coating warranty plus one year,
-          whichever is longer.
+          after your last service.
         </li>
         <li>
           <strong>Contact inquiries</strong> that do not become a booking: 12 months.
@@ -271,8 +265,8 @@ const sections: LegalSection[] = [
             collected from you to book, perform and invoice services and to contact you about them.
           </li>
           <li>
-            <strong>Commercial information</strong> (services booked, vehicle details, invoices,
-            warranty records): to perform services, honor warranties and keep tax records.
+            <strong>Commercial information</strong> (services booked, vehicle details, invoices): to
+            perform services and keep tax records.
           </li>
           <li>
             <strong>Photos and condition records</strong> of your vehicle: to document its condition
@@ -345,8 +339,8 @@ const sections: LegalSection[] = [
     title: "Other websites",
     content: (
       <p>
-        Our site links to social media profiles, Google reviews and maps. Those services have their
-        own privacy policies, and we are not responsible for how they handle your information.
+        Our site links to social media profiles and our Google Business Profile. Those services have
+        their own privacy policies, and we are not responsible for how they handle your information.
       </p>
     ),
   },

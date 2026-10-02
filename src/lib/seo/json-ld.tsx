@@ -145,7 +145,7 @@ function categoryLabel(service: Service) {
  * parser (and other pages' `provider` references by `@id`) resolves it.
  */
 export function localBusinessJsonLd(services: readonly Service[] = []): JsonLdNode {
-  const { stats, social } = siteConfig;
+  const { social } = siteConfig;
   const node: JsonLdNode = {
     "@context": CONTEXT,
     "@type": ["AutoWash", "AutomotiveBusiness", "LocalBusiness"],
@@ -162,17 +162,11 @@ export function localBusinessJsonLd(services: readonly Service[] = []): JsonLdNo
     priceRange: "$$",
     currenciesAccepted: "USD",
     foundingDate: String(siteConfig.founded),
+    founder: { "@type": "Person", name: siteConfig.founder.name },
     address: postalAddress(),
     geo: { "@type": "GeoCoordinates", latitude: siteConfig.geo.lat, longitude: siteConfig.geo.lng },
     areaServed: areaServed(),
     openingHoursSpecification: openingHoursSpecification(),
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: stats.googleRating,
-      reviewCount: stats.reviewCount,
-      bestRating: 5,
-      worstRating: 1,
-    },
     sameAs: Object.values(social),
   };
 

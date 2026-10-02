@@ -1,19 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, ShieldCheck } from "lucide-react";
+import { ArrowRight, CalendarCheck, MapPin, UserCheck } from "lucide-react";
 import { ButtonLink, Container, Eyebrow } from "@/components/ui";
 import { bookingHref, siteConfig } from "@/config/site";
-import { services } from "@/data/services";
+import { getService, services } from "@/data/services";
 import { heroUnderlapClass } from "@/components/layout/nav-utils";
 import { cn, formatPrice } from "@/lib/utils";
-import { RatingStars } from "./rating-stars";
 import styles from "./home.module.css";
+import { startingPrice } from "./pricing";
 
-const { googleRating, reviewCount } = siteConfig.stats;
+const { founder } = siteConfig;
 
 export function Hero() {
-  const spotlight =
-    services.find((s) => s.badge === "Most popular") ?? services.find((s) => s.featured);
+  const spotlight = getService("full-deluxe") ?? services.find((s) => s.featured);
 
   return (
     <section
@@ -63,9 +62,9 @@ export function Hero() {
 
           <div className="[animation-delay:340ms] motion-safe:animate-fade-up">
             <p className="mt-6 max-w-xl text-base leading-relaxed text-pretty text-ink-muted sm:text-lg">
-              {siteConfig.name} brings certified detailers, professional-grade products and a
-              checklist for every panel to your home or office. Ceramic coatings and paint
-              correction are done right in your garage.
+              {founder.name} details every car himself, at your home or office: proper hand washes,
+              exterior details and full inside-and-out cleans, with pH-neutral products and the
+              two-bucket method.
             </p>
           </div>
 
@@ -89,27 +88,24 @@ export function Hero() {
 
           <div className="[animation-delay:580ms] motion-safe:animate-fade-up">
             <ul className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-ink-muted">
-              <li className="flex items-center gap-2.5">
-                <RatingStars rating={googleRating} />
-                <span>
-                  <span className="font-semibold text-ink">{googleRating.toFixed(1)}</span> from{" "}
-                  {reviewCount} Google reviews
-                </span>
+              <li className="flex items-center gap-2">
+                <UserCheck className="size-4 text-brand-400" aria-hidden="true" />
+                Owner-operated
               </li>
               <li className="flex items-center gap-2">
-                <ShieldCheck className="size-4 text-brand-400" aria-hidden="true" />
-                Fully insured
+                <CalendarCheck className="size-4 text-brand-400" aria-hidden="true" />
+                Since {founder.since}
               </li>
               <li className="flex items-center gap-2">
-                <BadgeCheck className="size-4 text-brand-400" aria-hidden="true" />
-                3-year coating warranty
+                <MapPin className="size-4 text-brand-400" aria-hidden="true" />
+                We come to you
               </li>
             </ul>
           </div>
         </div>
       </Container>
 
-      {/* Most-booked package callout, desktop only. */}
+      {/* Package callout, desktop only. */}
       {spotlight && (
         <div className="absolute right-8 bottom-24 hidden xl:block 2xl:right-[max(2rem,calc((100vw-80rem)/2+2rem))]">
           <div className="[animation-delay:800ms] motion-safe:animate-fade-up">
@@ -118,15 +114,17 @@ export function Hero() {
               className="group block w-72 rounded-lg border border-white/10 bg-bg/55 p-5 shadow-card backdrop-blur-xl transition-colors hover:border-brand-500/50"
             >
               <p className="font-display text-[11px] font-semibold tracking-[0.2em] text-brand-300 uppercase">
-                Most booked
+                Inside and out
               </p>
               <p className="mt-2 font-display text-lg font-semibold text-ink">{spotlight.name}</p>
-              <p className="mt-1 text-sm text-ink-muted">{spotlight.tagline}</p>
+              {spotlight.highlights[0] && (
+                <p className="mt-1 text-sm text-ink-muted">{spotlight.highlights[0]}</p>
+              )}
               <p className="mt-4 flex items-center justify-between text-sm">
                 <span className="text-ink-muted">
                   from{" "}
                   <span className="font-display text-base font-semibold text-ink">
-                    {formatPrice(spotlight.price.sedan)}
+                    {formatPrice(startingPrice(spotlight))}
                   </span>
                 </span>
                 <span className="inline-flex items-center gap-1 font-display font-semibold text-brand-300">
@@ -144,7 +142,7 @@ export function Hero() {
 
       {/* Scroll cue. */}
       <a
-        href="#home-stats"
+        href="#home-facts"
         aria-label="Scroll to explore"
         className="group absolute bottom-6 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-[10px] font-semibold tracking-[0.3em] text-ink-subtle uppercase transition-colors hover:text-ink sm:flex"
       >

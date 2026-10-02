@@ -1,5 +1,5 @@
 import { useId } from "react";
-import { ArrowRight, BadgeCheck, MapPin, Phone, ShieldCheck, Star } from "lucide-react";
+import { ArrowRight, CalendarDays, MapPin, Phone, ShieldCheck, UserRound } from "lucide-react";
 import { ButtonLink, Container, Eyebrow, buttonClasses } from "@/components/ui";
 import { bookingHref, siteConfig } from "@/config/site";
 import { hasStorefront } from "./location";
@@ -11,7 +11,18 @@ export interface CtaBannerProps {
   primaryHref?: string;
 }
 
-const { googleRating, reviewCount } = siteConfig.stats;
+const { claims, founder } = siteConfig;
+
+/**
+ * Trust points. Only verifiable facts; insurance appears only when
+ * `siteConfig.claims` says they are true.
+ */
+const trustPoints = [
+  { label: "Owner-operated", Icon: UserRound },
+  { label: `Since ${founder.since}`, Icon: CalendarDays },
+  { label: "We come to you", Icon: MapPin },
+  ...(claims.insured ? [{ label: "Insured", Icon: ShieldCheck }] : []),
+];
 
 /** Closing call to action used at the foot of most pages, just above the footer. */
 export function CtaBanner({
@@ -79,32 +90,12 @@ export function CtaBanner({
         </div>
 
         <ul className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm text-ink-muted">
-          <li className="flex items-center gap-2.5">
-            <span className="flex gap-0.5 text-amber-400" aria-hidden="true">
-              {Array.from({ length: 5 }, (_, i) => (
-                <Star key={i} className="size-4 fill-current" strokeWidth={0} />
-              ))}
-            </span>
-            <span>
-              <span className="font-display font-semibold text-ink">{googleRating.toFixed(1)}</span>
-              <span className="sr-only"> out of 5</span> from {reviewCount.toLocaleString("en-US")}{" "}
-              Google reviews
-            </span>
-          </li>
-          {!hasStorefront && (
-            <li className="flex items-center gap-2">
-              <MapPin className="size-4 text-brand-400" aria-hidden="true" />
-              We come to you
+          {trustPoints.map(({ label, Icon }) => (
+            <li key={label} className="flex items-center gap-2">
+              <Icon className="size-4 text-brand-400" aria-hidden="true" />
+              {label}
             </li>
-          )}
-          <li className="flex items-center gap-2">
-            <ShieldCheck className="size-4 text-brand-400" aria-hidden="true" />
-            Fully insured
-          </li>
-          <li className="flex items-center gap-2">
-            <BadgeCheck className="size-4 text-brand-400" aria-hidden="true" />
-            3-year coating warranty
-          </li>
+          ))}
         </ul>
       </Container>
     </section>

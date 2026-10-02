@@ -4,14 +4,24 @@ import { siteConfig } from "@/config/site";
 import { faqs, type FaqItem } from "@/data/faq";
 import { Reveal, RevealGroup, RevealItem } from "./reveal";
 
-/** One question per topic, in the order a first-time customer tends to ask them. */
-const TOPICS: FaqItem["category"][] = ["mobile", "booking", "coatings", "services"];
+/**
+ * One question per topic, in the order a first-time customer tends to ask them. Chosen by
+ * category (never by question text) so it survives FAQ rewrites; topics that no longer exist
+ * are skipped and the list is topped up from the remaining questions.
+ */
+const TOPICS: string[] = ["mobile", "booking", "services", "general"];
+const COUNT = 4;
 
-function pickFaqs() {
-  const picked = TOPICS.map((topic) => faqs.find((f) => f.category === topic)).filter(
+/** Skip answers that state claims the business has not confirmed (see `siteConfig.claims`). */
+const UNVERIFIED = /insur|warrant|certif/i;
+
+function pickFaqs(): FaqItem[] {
+  const usable = faqs.filter((f) => !UNVERIFIED.test(f.answer));
+  const picked = TOPICS.map((topic) => usable.find((f) => f.category === topic)).filter(
     (f) => f !== undefined,
   );
-  return picked.length === TOPICS.length ? picked : faqs.slice(0, 4);
+  const extra = usable.filter((f) => !picked.includes(f));
+  return [...picked, ...extra].slice(0, COUNT);
 }
 
 export function FaqTeaser() {

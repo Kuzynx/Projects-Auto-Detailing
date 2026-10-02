@@ -63,10 +63,10 @@ export function Footer() {
             </p>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-ink-muted">
               {hasStorefront
-                ? "Mobile and in-shop detailing"
-                : "Mobile detailing at your home or office"}{" "}
-              across the {siteConfig.region}. Paint correction, ceramic coatings and interiors, done
-              by hand and backed in writing.
+                ? "Hand washes and full inside-and-out details, mobile or in-shop,"
+                : "Hand washes and full inside-and-out details at your home or office"}{" "}
+              across the {siteConfig.region}. Done by hand by the owner. Founded{" "}
+              {siteConfig.founder.since} by {siteConfig.founder.name}.
             </p>
             <SocialLinks className="mt-7" />
           </div>

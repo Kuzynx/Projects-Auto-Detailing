@@ -1,128 +1,143 @@
 import { siteConfig } from "@/config/site";
+import { getService } from "@/data/services";
+import { formatPrice } from "@/lib/utils";
 
 export interface FaqItem {
   question: string;
   answer: string;
-  category: "general" | "booking" | "services" | "coatings" | "mobile";
+  category: "general" | "booking" | "services" | "mobile";
 }
+
+const { founder } = siteConfig;
+const manager = siteConfig.team[0];
+/**
+ * Starting price for a package and vehicle class, read from the service catalog.
+ * The fallback mirrors docs/SERVICES-SPEC.md so copy stays correct while the catalog evolves.
+ */
+function priceFor(slug: string, vehicleClass: string, fallback: number) {
+  const prices = getService(slug)?.price as Partial<Record<string, number>> | undefined;
+  return formatPrice(prices?.[vehicleClass] ?? fallback);
+}
+
+const paymentsBy = manager
+  ? `${manager.name} handles payments and booking`
+  : `${founder.name} handles payments`;
 
 export const faqs: FaqItem[] = [
   {
     category: "general",
     question: "What is the difference between a car wash and a detail?",
     answer:
-      "A car wash removes surface dirt. A detail restores and protects the vehicle: decontaminating paint, correcting defects, deep cleaning every interior surface and applying long-term protection. Our Signature Wash is the entry point; everything above it is restoration work.",
+      "A wash gets the dirt off. A detail goes further: deep-cleaned wheels and wheel wells, door jambs, bug removal and a layer of spray wax or sealant, and on the Full Deluxe Package, the whole interior too. Our Basic Package is a careful hand wash; Premium and Full Deluxe are the detail.",
+  },
+  {
+    category: "services",
+    question: "What is included in each package?",
+    answer:
+      "Basic Package (exterior wash): hand wash, wheels and tires, tire shine, windows, dry and a basic exterior wipe-down. Premium Package (exterior detail): everything in Basic plus deep wheel cleaning, wheel wells, door jambs, bug removal, spray wax or sealant and a more detailed dry. Full Deluxe Package (inside and outside): everything in Premium plus a full interior vacuum, dash, console and doors, seats, mats, interior windows and deeper stain cleaning. Working Truck: exterior hand wash, wheels and tires, wheel wells, bug and grime removal, door jambs and tire dressing.",
+  },
+  {
+    category: "services",
+    question: "How long does each package take?",
+    answer:
+      "Roughly: Basic about 1 hour, Premium 1.5 to 2 hours, Full Deluxe 2.5 to 3.5 hours, and Working Truck 1 to 1.5 hours. These are estimates. Larger vehicles, exotics and heavier dirt take longer, and you will get a time estimate when you book.",
+  },
+  {
+    category: "services",
+    question: "Is there an extra charge for really dirty work trucks?",
+    answer:
+      "Sometimes. The Working Truck package covers normal work grime. Extremely dirty construction, farm or work vehicles (thick mud, caked dust, heavy grime) can add $15 to $30. That is quoted on site, before any work starts, so you always know the price first.",
+  },
+  {
+    category: "general",
+    question: "How is pricing decided?",
+    answer: `By package and vehicle class: car, SUV, truck, sports car, exotic or motorcycle. A Basic Package starts at ${priceFor("basic-wash", "car", 50)} for a car, and every price is listed on the pricing page. Exotics start at the listed price and are confirmed once we see the car. Working vehicles start at ${priceFor("working-truck", "truck", 75)}, plus $15 to $30 if a construction, farm or work vehicle is extremely dirty. Any extra is quoted on site before work starts, never after.`,
+  },
+  {
+    category: "services",
+    question: "Do you detail motorcycles?",
+    answer: `Yes. Motorcycles have their own pricing: Basic Package ${priceFor("basic-wash", "motorcycle", 40)}, Premium Package ${priceFor("premium-detail", "motorcycle", 65)} and Full Deluxe Package ${priceFor("full-deluxe", "motorcycle", 100)}. Cruisers and sport bikes are both welcome, and we come to you like any other appointment.`,
   },
   {
     category: "mobile",
     question: "Do you come to me or do I drop the car off?",
-    answer: `We come to you. ${siteConfig.name} is fully mobile, so there is nothing to drop off and no shop to visit. Washes, interiors and the Full Detail happen in your driveway, at the office or wherever the car is parked anywhere in the ${siteConfig.region}. Paint correction and ceramic coatings are done in your garage or another covered space, because they need shade, still air and controlled lighting, which we bring with us.`,
+    answer: `We come to you. ${siteConfig.name} is fully mobile, so there is nothing to drop off and no shop to visit. Every package is done in your driveway, at work or wherever the car is parked, anywhere in the ${siteConfig.region}.`,
   },
   {
     category: "mobile",
     question: "What do you need from me for a mobile appointment?",
     answer:
-      "Just a parking spot with about three feet of clearance around the vehicle. Driveways, apartment lots and office parking all work. For paint correction and ceramic coatings we also need a garage or covered space for the day. You do not need to provide water or power: our rig carries its own water, generator and lighting, and we are fully insured.",
+      "Just a parking spot with about three feet of clearance around the vehicle. Driveways, apartment lots and office parking all work. You do not need to provide water or power: we bring our own.",
   },
   {
-    category: "booking",
-    question: "How far in advance should I book?",
+    category: "mobile",
+    question: "Do I need to be home during the appointment?",
     answer:
-      "Mobile washes and interiors usually have availability within 2–4 days. Paint correction and coatings book 1–2 weeks out. Maintenance plan members get priority scheduling.",
-  },
-  {
-    category: "booking",
-    question: "What is your cancellation policy?",
-    answer:
-      "Reschedule or cancel free up to 24 hours before your appointment. Inside 24 hours we charge a $50 fee, which is credited toward your next booking. Weather cancellations on our side are always free.",
-  },
-  {
-    category: "booking",
-    question: "Do you take a deposit?",
-    answer:
-      "No deposit for washes, interiors or the Full Detail. Paint correction and ceramic coatings require a $150 deposit to reserve the full day on our schedule, applied to your final invoice.",
-  },
-  {
-    category: "services",
-    question: "How long does a detail take?",
-    answer:
-      "A Signature Wash takes about 1.5 hours, an Interior Refresh around 2 hours, and the Full Detail is a 4–6 hour appointment. Paint correction is a full day and ceramic coatings take two days in your garage, so the coating can cure out of the sun and wind.",
-  },
-  {
-    category: "services",
-    question: "Can you remove scratches?",
-    answer:
-      "If your fingernail does not catch in the scratch, it is almost certainly in the clear coat and we can remove or dramatically reduce it with paint correction. Deeper scratches that reach primer or metal need touch-up paint or a body shop; we will tell you honestly during the inspection.",
-  },
-  {
-    category: "coatings",
-    question: "Is a ceramic coating worth it?",
-    answer:
-      "If you keep a car more than two years, yes. A coating replaces waxing, makes washing twice as fast, resists chemical etching from bird droppings and bugs, and keeps gloss at a level that noticeably raises resale value. Our coatings carry a three-year written warranty.",
-  },
-  {
-    category: "coatings",
-    question: "How do I care for a coated car?",
-    answer:
-      "Hand wash with pH-neutral soap every two to four weeks, avoid automatic brush washes, and let us apply a booster at your annual inspection. We provide a full aftercare kit and guide with every coating.",
-  },
-  {
-    category: "general",
-    question: "Are you insured?",
-    answer: `Yes. ${siteConfig.name} carries $2M in general liability and garage keepers coverage. Every technician is certified and background checked.`,
-  },
-  {
-    category: "general",
-    question: "What payment methods do you accept?",
-    answer:
-      "All major credit cards, Apple Pay, Google Pay, Zelle and cash. Invoices are sent by text and email when the job is complete.",
-  },
-  {
-    category: "general",
-    question: "What affects the price of my detail?",
-    answer:
-      "Three things: vehicle size, condition and the level of protection you want. Our published prices are starting points for a sedan, SUV or truck in normal condition. Heavy pet hair, sand, mold or smoke odor take extra time, and we quote that before we start, never after. Paint correction is priced after a paint-depth inspection so you only pay for the stages your paint actually needs.",
-  },
-  {
-    category: "booking",
-    question: "Do you offer gift cards?",
-    answer:
-      "Yes. Gift cards are available in any amount from $50, or for a specific service like the Full Detail. They are delivered by email with a printable card, never expire and can be applied to any service or maintenance plan. Call or send us a message and we will have one in your inbox the same day.",
-  },
-  {
-    category: "services",
-    question: "Do you detail fleets and commercial vehicles?",
-    answer: `We do. We maintain fleets for dealerships, realtors, property managers and executive car services across ${siteConfig.address.city} and the ${siteConfig.region}, on site and on a schedule that works around your operating hours. Fleet accounts get volume pricing, a single monthly invoice and a dedicated point of contact. Choose Fleet and commercial on our contact form and we will build you a quote within one business day.`,
+      "Only at the start and end. We do a quick walkaround with you on arrival and a final look when we finish. In between, you can work, run errands or head inside. For the Full Deluxe Package, leave the car unlocked or the keys with us and we will text you when we are done.",
   },
   {
     category: "mobile",
     question: "What happens if the weather turns on my appointment day?",
     answer:
-      "We watch the forecast for every booking. In summer we start as early as 7:00 AM to beat the desert heat, because hot panels make soap and polish flash before they can work. If high wind, blowing dust or the occasional storm is likely, we text you the day before with options: move into a garage or carport, or reschedule to the next open day at no charge. Interior-only services usually go ahead as planned.",
+      "We watch the forecast for every booking. In summer we start as early as 7:00 AM to beat the desert heat, because hot panels make soap dry before it can rinse clean. If high wind, blowing dust or the occasional storm is likely, we text you the day before and reschedule to the next open day at no charge.",
   },
   {
     category: "services",
-    question: "How often should I have my car detailed?",
+    question: "How often should I wash my car in the desert?",
     answer:
-      "For most daily drivers we recommend a full detail twice a year, spring and fall, with a maintenance wash every two to four weeks in between. Coated cars need even less: a maintenance wash and an annual inspection keep them at full gloss. Our Maintenance Plan puts this on autopilot at a lower per-visit price.",
+      "Every two weeks is a good rhythm for a daily driver in the High Desert. Sun, wind-blown dust and bugs bake onto paint quickly, and a regular hand wash keeps them from etching in. A Premium Package every couple of months refreshes the spray wax or sealant, and a Full Deluxe a few times a year keeps the interior from getting away from you.",
+  },
+  {
+    category: "services",
+    question: "Can you remove scratches?",
+    answer:
+      "Our packages are washes and details, not scratch repair. A fresh coat of spray wax or sealant can make very light marks less visible, but deeper scratches need a body shop or paint specialist. We will point out anything we notice during the walkaround.",
   },
   {
     category: "services",
     question: "Can you clean child car seats?",
     answer:
-      "Yes. We remove each seat, vacuum and steam the vehicle seat underneath, and clean the child seat shell and fabric with mild, fragrance-free products that follow manufacturer care guidance. We never machine-wash or chemically treat harness straps, since that can weaken the webbing, and we reinstall the seat exactly as we found it so you can verify the fit before we leave.",
+      "With the Full Deluxe Package, yes. We vacuum around and under the seat and wipe down the shell with mild, fragrance-free products. We do not machine-wash or chemically treat harness straps, since that can weaken the webbing, and we leave the seat installed exactly as we found it.",
   },
   {
-    category: "coatings",
-    question: "Should I coat a brand-new car?",
+    category: "general",
+    question: "Do you work on fleets and commercial vehicles?",
     answer:
-      "New is the best time. Most new cars arrive with light marring from transport and dealer washes, so we do a single-stage polish to perfect the paint, then coat it before the desert sun, wind-blown grit and road grime get a chance to do damage. You lock in a showroom finish from day one.",
+      "Yes. The Working Truck package is built for construction, farm and work vehicles, and we can line up several vehicles back to back at your yard or job site. Choose Fleet and commercial on our contact form and we will put a quote together.",
   },
   {
-    category: "mobile",
-    question: "Do I need to be home during a mobile appointment?",
+    category: "general",
+    question: "Are you insured?",
+    answer: siteConfig.claims.insured
+      ? `Yes. ${siteConfig.name} carries business insurance. Ask for proof of coverage when you book and we will send it over.`
+      : `${siteConfig.name} is a small, owner-operated business: ${founder.name} details every car himself. If your HOA, building or employer needs proof of coverage, ask us about it when you book and we will tell you exactly what we can provide.`,
+  },
+  {
+    category: "booking",
+    question: "What payment methods do you accept?",
+    answer: `${paymentsBy}. You can pay by card, cash, Zelle or Apple Pay; the options are confirmed when you book. Payment is due when the job is done.`,
+  },
+  {
+    category: "booking",
+    question: "Do you take a deposit?",
+    answer: "No. You pay when the job is finished and you are happy with it.",
+  },
+  {
+    category: "booking",
+    question: "How far in advance should I book?",
     answer:
-      "Only at the start and end. We do a quick walkaround with you on arrival and a final walkthrough when we finish. In between, you can work, run errands or head inside. For interior services, leave the keys with us or in a lockbox and we will text you when we are done.",
+      "Most weeks there is availability within a few days. Saturdays fill first, so book those a week or so ahead if you can.",
+  },
+  {
+    category: "booking",
+    question: "What is your cancellation policy?",
+    answer:
+      "Life happens. Let us know at least 24 hours before your appointment and rescheduling or cancelling is free. Weather cancellations on our side are always free.",
+  },
+  {
+    category: "booking",
+    question: "Do you offer gift cards?",
+    answer: `Ask us. Send a message or mention it when you book and ${manager ? manager.name : founder.name} will tell you what we can set up for the package you have in mind.`,
   },
 ];
 
@@ -132,6 +147,5 @@ export const faqCategories: { id: FaqCategory; label: string }[] = [
   { id: "general", label: "General" },
   { id: "booking", label: "Booking" },
   { id: "services", label: "Services" },
-  { id: "coatings", label: "Coatings" },
   { id: "mobile", label: "Mobile" },
 ];

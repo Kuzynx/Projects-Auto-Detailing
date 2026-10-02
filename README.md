@@ -1,8 +1,9 @@
 # Project's Auto Detailing — website
 
-Marketing and booking site for Project's Auto Detailing, a premium, fully mobile auto detailer: every
-service is performed at the customer's home or workplace. The home city, region and service area are
-set in `src/config/site.ts`. Every page is built to turn a visitor into a booking: services and transparent pricing, a
+Marketing and booking site for Project's Auto Detailing, an owner-operated, fully mobile auto
+detailer. Kevin (known to customers as "Project") founded the business in 2024 at sixteen, and does
+the work himself at the customer's home or workplace. The home city, region and service area are set
+in `src/config/site.ts`. Every page is built to turn a visitor into a booking: services and transparent pricing, a
 gallery of real work, FAQs, and an online booking flow that emails the shop.
 
 Business facts (name, phone, hours, prices, services) live in a handful of typed data files, so the
@@ -87,17 +88,50 @@ public/images/         Photography and logo (see CREDITS.md)
 
 Almost every change is a data edit. Pages, metadata, structured data and the sitemap update automatically.
 
-| To change                                                                                   | Edit                                                                                                                                                                                              |
-| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Business name, phone, email, address, hours, service area, social links, review stats, logo | `src/config/site.ts`                                                                                                                                                                              |
-| Main navigation                                                                             | `navigation` in `src/config/site.ts`                                                                                                                                                              |
-| Services, what each includes, prices by vehicle size, durations, add-ons                    | `src/data/services.ts`                                                                                                                                                                            |
-| FAQ questions and answers (also feeds the FAQ rich result)                                  | `src/data/faq.ts`                                                                                                                                                                                 |
-| Gallery photos, captions and filters                                                        | `src/data/gallery.ts`                                                                                                                                                                             |
-| Customer reviews                                                                            | `src/data/testimonials.ts`                                                                                                                                                                        |
-| "How it works" steps                                                                        | `src/data/process.ts`                                                                                                                                                                             |
-| Brand colors, radii, shadows, fonts                                                         | Tokens at the top of `src/app/globals.css`                                                                                                                                                        |
-| Privacy policy and terms                                                                    | `src/app/privacy/page.tsx`, `src/app/terms/page.tsx` (the cancellation fee, deposit and warranty figures sit in the `policy` object at the top of the terms page; keep them in step with the FAQ) |
+| To change                                                                     | Edit                                                                                                                                                                                           |
+| ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Business name, phone, email, address, hours, service area, social links, logo | `src/config/site.ts`                                                                                                                                                                           |
+| Main navigation                                                               | `navigation` in `src/config/site.ts`                                                                                                                                                           |
+| Service packages, what each includes, prices by vehicle class, durations      | `src/data/services.ts`                                                                                                                                                                         |
+| FAQ questions and answers (also feeds the FAQ rich result)                    | `src/data/faq.ts`                                                                                                                                                                              |
+| Gallery photos, captions and filters                                          | `src/data/gallery.ts`                                                                                                                                                                          |
+| Customer reviews (ships empty, see below)                                     | `src/data/testimonials.ts`                                                                                                                                                                     |
+| "How it works" steps                                                          | `src/data/process.ts`                                                                                                                                                                          |
+| Brand colors, radii, shadows, fonts                                           | Tokens at the top of `src/app/globals.css`                                                                                                                                                     |
+| Privacy policy and terms                                                      | `src/app/privacy/page.tsx`, `src/app/terms/page.tsx` (the cancellation fee and work-vehicle surcharge sit in the `policy` object at the top of the terms page; keep them in step with the FAQ) |
+
+### Services and prices
+
+The catalog is the client's, recorded in `docs/SERVICES-SPEC.md`: four packages, all performed on
+site (mobile), with no add-ons.
+
+| Slug             | Package                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------ |
+| `basic-wash`     | Basic Package — Exterior Wash                                                        |
+| `premium-detail` | Premium Package — Exterior Detail (everything in Basic, plus more)                   |
+| `full-deluxe`    | Full Deluxe Package — Inside + Outside (everything in Premium, plus the interior)    |
+| `working-truck`  | Working Truck (starting price; a surcharge applies to extremely dirty work vehicles) |
+
+Prices live per vehicle class in `src/data/services.ts`. **Any price marked `PLACEHOLDER` in that
+file was not supplied by the client and must be replaced with a real one before launch.** Keep
+`docs/SERVICES-SPEC.md`, `src/data/services.ts`, the FAQ and the `policy` object in the terms page in
+step when anything changes.
+
+### Founder and claims
+
+- `siteConfig.founder` holds the owner's `name`, `nickname`, `title`, `since`, `startedAtAge`,
+  `photo` / `photoSquare` (in `public/images/team/`) and `bio`. The About page and the JSON-LD
+  `founder` field read from it.
+- `siteConfig.claims` lists statements the site may make only when they are true and documented:
+  - `insured` (`false` today): set to `true` only once a current liability policy is in place. While
+    it is `false`, no page may say the business is insured.
+  - Any other flag in `claims` stays off (`false` / `null`) unless the client can document it.
+
+**Never fabricate ratings, reviews, review counts, vehicle counts or certifications.** Fake reviews
+break FTC rules and Google's policies and can get the business listing suspended. `src/data/testimonials.ts`
+ships empty, and any section that shows reviews must render nothing while it is empty. Add only real reviews, with
+the customer's permission, exactly as they were written. The structured data deliberately emits no
+`aggregateRating`.
 
 Adding a service: append an object to `services` in `src/data/services.ts`. It appears on the services,
 pricing and booking pages, gets its own `/services/<slug>` page, and is added to the sitemap.
@@ -128,7 +162,7 @@ build time by `src/lib/seo/og-image.tsx`, so replacing that file updates them to
 ## SEO and security
 
 - Per-page titles, descriptions, canonical URLs and Open Graph images via `buildMetadata()`.
-- JSON-LD for the local business (`AutoWash` / `LocalBusiness`, hours, geo, rating, `areaServed`
+- JSON-LD for the local business (`AutoWash` / `LocalBusiness`, hours, geo, founder, `areaServed`
   from the service area; no street address is emitted while `siteConfig.mobileOnly` is true), services,
   FAQ and breadcrumbs. Validate with Google's [Rich Results Test](https://search.google.com/test/rich-results).
 - `/sitemap.xml` (including image entries) and `/robots.txt`, both generated from code.
