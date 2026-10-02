@@ -10,8 +10,8 @@ export const siteConfig = {
   description:
     "Mobile auto detailing in Victorville and the High Desert. Hand washes, exterior details and full inside-and-out packages for cars, SUVs, trucks, sports cars, exotics and motorcycles, done at your home or office.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://projectsautodetailing.com",
-  phone: "(760) 555-0147",
-  phoneHref: "tel:+17605550147",
+  phone: "(840) 204-4176",
+  phoneHref: "tel:+18402044176",
   email: "hello@projectsautodetailing.com",
   /** Mobile-only business: no public street address. `street` stays empty on purpose. */
   address: {
