@@ -1,7 +1,8 @@
 import { useId } from "react";
-import { ArrowRight, BadgeCheck, Phone, ShieldCheck, Star } from "lucide-react";
+import { ArrowRight, BadgeCheck, MapPin, Phone, ShieldCheck, Star } from "lucide-react";
 import { ButtonLink, Container, Eyebrow, buttonClasses } from "@/components/ui";
 import { bookingHref, siteConfig } from "@/config/site";
+import { hasStorefront } from "./location";
 
 export interface CtaBannerProps {
   title?: React.ReactNode;
@@ -15,7 +16,9 @@ const { googleRating, reviewCount } = siteConfig.stats;
 /** Closing call to action used at the foot of most pages, just above the footer. */
 export function CtaBanner({
   title = "Ready for a showroom finish?",
-  description = `Pick your service and a time that suits you. We come to your home or office anywhere in greater ${siteConfig.address.city}, or you can drop the car at our studio.`,
+  description = hasStorefront
+    ? `Pick your service and a time that suits you. We come to your home or office anywhere in the ${siteConfig.region}, or you can bring the car to us.`
+    : `Pick your service and a time that suits you. We come to your home or office anywhere in the ${siteConfig.region}, so you never lose a morning to a waiting room.`,
   primaryLabel = "Book your detail",
   primaryHref = bookingHref,
 }: CtaBannerProps) {
@@ -88,6 +91,12 @@ export function CtaBanner({
               Google reviews
             </span>
           </li>
+          {!hasStorefront && (
+            <li className="flex items-center gap-2">
+              <MapPin className="size-4 text-brand-400" aria-hidden="true" />
+              We come to you
+            </li>
+          )}
           <li className="flex items-center gap-2">
             <ShieldCheck className="size-4 text-brand-400" aria-hidden="true" />
             Fully insured

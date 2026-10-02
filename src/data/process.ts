@@ -15,7 +15,7 @@ export const processSteps: ProcessStep[] = [
     step: 2,
     title: "We come to you",
     description:
-      "Our fully self-contained mobile unit arrives with water, power and lighting. Studio services get white-glove pickup.",
+      "Our fully self-contained mobile unit arrives with water, power and lighting. Paint correction and coatings are done in your garage or under cover.",
   },
   {
     step: 3,
@@ -55,7 +55,7 @@ export const differentiators = [
   {
     title: "Fully insured",
     description:
-      "$2M general liability and garage keepers coverage on every job, mobile or studio.",
+      "$2M general liability and garage keepers coverage on every job, at every address.",
   },
   {
     title: "Transparent pricing",

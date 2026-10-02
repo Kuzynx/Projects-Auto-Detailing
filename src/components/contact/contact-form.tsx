@@ -118,7 +118,7 @@ export function ContactForm() {
         )}
         <p className="mt-3 text-pretty text-ink-muted">
           A detailer, not a call center, will read it and reply by email. Typical reply within 1
-          business hour during studio hours. Anything after hours is answered first thing the next
+          business hour during business hours. Anything after hours is answered first thing the next
           morning.
         </p>
         <p className="mt-3 text-pretty text-ink-muted">
@@ -204,7 +204,7 @@ export function ContactForm() {
             inputMode="tel"
             autoComplete="tel"
             maxLength={CONTACT_LIMITS.phone}
-            placeholder="(512) 555-0100"
+            placeholder="(760) 555-0100"
             className={cn(inputClasses, "h-12")}
           />
         </Field>

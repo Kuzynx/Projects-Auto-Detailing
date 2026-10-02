@@ -14,7 +14,7 @@ export const testimonials: Testimonial[] = [
   {
     id: "t1",
     name: "Daniel R.",
-    location: "Westlake Hills",
+    location: "Apple Valley",
     vehicle: "2022 Porsche 911 Carrera",
     service: "Ceramic Coating",
     rating: 5,
@@ -26,7 +26,7 @@ export const testimonials: Testimonial[] = [
   {
     id: "t2",
     name: "Priya S.",
-    location: "Round Rock",
+    location: "Hesperia",
     vehicle: "2021 Toyota Highlander",
     service: "The Full Detail",
     rating: 5,
@@ -38,7 +38,7 @@ export const testimonials: Testimonial[] = [
   {
     id: "t3",
     name: "Marcus T.",
-    location: "South Austin",
+    location: "Victorville",
     vehicle: "2019 Tesla Model 3",
     service: "Paint Correction",
     rating: 5,
@@ -50,7 +50,7 @@ export const testimonials: Testimonial[] = [
   {
     id: "t4",
     name: "Elena V.",
-    location: "Cedar Park",
+    location: "Spring Valley Lake",
     vehicle: "2023 BMW X5",
     service: "Interior Refresh",
     rating: 5,
@@ -62,7 +62,7 @@ export const testimonials: Testimonial[] = [
   {
     id: "t5",
     name: "James K.",
-    location: "Lakeway",
+    location: "Phelan",
     vehicle: "2020 Ford F-150",
     service: "Signature Wash & Protect",
     rating: 5,
@@ -74,7 +74,7 @@ export const testimonials: Testimonial[] = [
   {
     id: "t6",
     name: "Sofia M.",
-    location: "Mueller",
+    location: "Adelanto",
     vehicle: "2018 Audi A4",
     service: "The Full Detail",
     rating: 5,

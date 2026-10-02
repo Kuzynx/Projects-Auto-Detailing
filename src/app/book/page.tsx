@@ -5,7 +5,7 @@ import { PageHero } from "@/components/layout/page-hero";
 import { Container, Section } from "@/components/ui";
 import { siteConfig } from "@/config/site";
 
-const description = `Book mobile or studio auto detailing with ${siteConfig.name} in ${siteConfig.address.city}, ${siteConfig.address.state}. Pick a service, see your price and choose a time in about 60 seconds.`;
+const description = `Book mobile auto detailing with ${siteConfig.name} in ${siteConfig.address.city} and the ${siteConfig.region}. Pick a service, see your price and choose a time in about 60 seconds. We come to you.`;
 
 export const metadata: Metadata = buildMetadata({
   title: "Book Your Detail",

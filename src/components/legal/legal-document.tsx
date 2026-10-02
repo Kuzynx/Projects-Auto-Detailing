@@ -145,9 +145,19 @@ export function LegalDocument({ lastUpdated, summary, sections, related }: Legal
                 <address className="text-ink-muted not-italic">
                   {siteConfig.legalName}
                   <br />
-                  {address.street}
-                  <br />
+                  {address.street ? (
+                    <>
+                      {address.street}
+                      <br />
+                    </>
+                  ) : null}
                   {address.city}, {address.state} {address.zip}
+                  {siteConfig.mobileOnly && (
+                    <>
+                      <br />
+                      Mobile service across the {siteConfig.region}
+                    </>
+                  )}
                 </address>
               </li>
             </ul>

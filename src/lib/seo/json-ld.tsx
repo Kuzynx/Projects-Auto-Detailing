@@ -104,11 +104,17 @@ export function openingHoursSpecification(
 /* Builders                                                            */
 /* ------------------------------------------------------------------ */
 
-function postalAddress() {
-  const { street, city, state, zip, country } = siteConfig.address;
+type Address = { street: string; city: string; state: string; zip: string; country: string };
+
+/**
+ * PostalAddress for the business. A mobile-only business has no public street address,
+ * so `streetAddress` is omitted when empty (Google treats it as a service-area business).
+ */
+export function postalAddress(address: Address = siteConfig.address) {
+  const { street, city, state, zip, country } = address;
   return {
     "@type": "PostalAddress",
-    streetAddress: street,
+    ...(street.trim() ? { streetAddress: street } : {}),
     addressLocality: city,
     addressRegion: state,
     postalCode: zip,
@@ -158,7 +164,6 @@ export function localBusinessJsonLd(services: readonly Service[] = []): JsonLdNo
     foundingDate: String(siteConfig.founded),
     address: postalAddress(),
     geo: { "@type": "GeoCoordinates", latitude: siteConfig.geo.lat, longitude: siteConfig.geo.lng },
-    hasMap: `https://www.google.com/maps/search/?api=1&query=${siteConfig.geo.lat},${siteConfig.geo.lng}`,
     areaServed: areaServed(),
     openingHoursSpecification: openingHoursSpecification(),
     aggregateRating: {
@@ -170,6 +175,11 @@ export function localBusinessJsonLd(services: readonly Service[] = []): JsonLdNo
     },
     sameAs: Object.values(social),
   };
+
+  // A map pin only makes sense when customers can visit a location.
+  if (!siteConfig.mobileOnly && siteConfig.address.street) {
+    node.hasMap = `https://www.google.com/maps/search/?api=1&query=${siteConfig.geo.lat},${siteConfig.geo.lng}`;
+  }
 
   if (services.length > 0) {
     node.hasOfferCatalog = {

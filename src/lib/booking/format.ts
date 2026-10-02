@@ -5,7 +5,8 @@ import { vehicleSizes, type VehicleSize } from "@/data/services";
 import { interiorConditions, OTHER_CITY, paintConditions, type BookingDraft } from "./schema";
 import { findTimeSlot, formatClock, formatDateLong, parseTimeValue } from "./slots";
 
-export const studioAddress = `${siteConfig.address.street}, ${siteConfig.address.city}, ${siteConfig.address.state} ${siteConfig.address.zip}`;
+/** "Victorville and the High Desert", from siteConfig. */
+export const serviceAreaLabel = `${siteConfig.address.city} and the ${siteConfig.region}`;
 
 export function getSizeLabel(size: VehicleSize): string {
   return vehicleSizes.find((s) => s.id === size)?.label ?? size;
@@ -35,11 +36,10 @@ export function getCityName(d: Pick<BookingDraft, "city" | "cityOther">): string
   return d.city === OTHER_CITY ? d.cityOther.trim() : d.city.trim();
 }
 
-/** "1200 Barton Hills Dr, Austin, TX 78704" for mobile, the studio address otherwise. */
+/** "14522 Bear Valley Rd, Victorville, CA 92392": where we'll do the work. */
 export function formatServiceAddress(
-  d: Pick<BookingDraft, "locationType" | "street" | "city" | "cityOther" | "zip">,
+  d: Pick<BookingDraft, "street" | "city" | "cityOther" | "zip">,
 ): string {
-  if (d.locationType === "studio") return studioAddress;
   const city = getCityName(d);
   const cityLine = [city, `${siteConfig.address.state} ${d.zip.trim()}`.trim()]
     .filter(Boolean)
@@ -47,11 +47,7 @@ export function formatServiceAddress(
   return [d.street.trim(), cityLine].filter(Boolean).join(", ");
 }
 
-export function getLocationTypeLabel(type: BookingDraft["locationType"]): string {
-  return type === "studio" ? "Studio drop-off" : "Mobile, we come to you";
-}
-
-/** "Saturday, October 10, 2026 at 9:00 AM" (or "... Drop-off 8:00 AM"). */
+/** "Saturday, October 10, 2026 at 9:00 AM" (or "..., arrival at 7:00 AM"). */
 export function formatAppointment(
   d: Pick<BookingDraft, "service" | "size" | "addOns" | "date" | "time">,
 ): string | null {
@@ -67,7 +63,7 @@ export function formatAppointment(
   });
   const minutes = parseTimeValue(d.time);
   const timeLabel = minutes === null ? d.time : formatClock(minutes);
-  if (slot?.kind === "drop-off") return `${dateLabel}, drop-off at ${timeLabel}`;
+  if (slot?.kind === "arrival") return `${dateLabel}, arrival at ${timeLabel}`;
   return `${dateLabel} at ${timeLabel}`;
 }
 
@@ -83,7 +79,7 @@ export function getCancellationPolicy(): string {
   );
 }
 
-/** Deposit policy for studio services, from the FAQ data. */
+/** Deposit policy for correction and coating services, from the FAQ data. */
 export function getDepositPolicy(): string | null {
   return findFaqAnswer(/deposit/i);
 }

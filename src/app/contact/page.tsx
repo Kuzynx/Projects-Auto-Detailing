@@ -5,7 +5,7 @@ import { CtaBanner } from "@/components/layout/cta-banner";
 import { Card, Container, Section } from "@/components/ui";
 import { ContactForm } from "@/components/contact/contact-form";
 import { ContactInfo, ContactQuickCards } from "@/components/contact/contact-details";
-import { MapCard } from "@/components/contact/map-card";
+import { ServiceAreaCard } from "@/components/contact/service-area-card";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { absoluteUrl } from "@/lib/utils";
@@ -35,10 +35,8 @@ const contactJsonLd = [
       email: siteConfig.email,
       address: {
         "@type": "PostalAddress",
-        streetAddress: siteConfig.address.street,
         addressLocality: siteConfig.address.city,
         addressRegion: siteConfig.address.state,
-        postalCode: siteConfig.address.zip,
         addressCountry: siteConfig.address.country,
       },
       areaServed: siteConfig.serviceArea.map((name) => ({ "@type": "City", name })),
@@ -105,7 +103,7 @@ export default function ContactPage() {
 
       <Section size="sm" className="pt-0 sm:pt-0">
         <Container>
-          <MapCard />
+          <ServiceAreaCard />
         </Container>
       </Section>
 

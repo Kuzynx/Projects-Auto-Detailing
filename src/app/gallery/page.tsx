@@ -27,7 +27,7 @@ export const metadata: Metadata = buildMetadata({
 
 const items = orderGalleryItems(galleryItems);
 
-/** Instagram strip: alternate client work with studio favorites (first three show on mobile). */
+/** Instagram strip: alternate client work with stock favorites (first three show on mobile). */
 const instagramIds = ["g00e", "g06", "g00b", "g04", "g00c", "g25"];
 const instagramItems = instagramIds.flatMap((id) => items.filter((item) => item.id === id));
 

@@ -59,6 +59,21 @@ export const standards: { title: string; description: string }[] = [
       "High-CRI lights reveal swirls and holograms that sunlight and garage bulbs hide. If we cannot see it, we cannot fix it.",
   },
   {
+    title: "Cool panels only",
+    description:
+      "Desert sun makes soap and polish dry before they can work. We start early, work in shade and check panel temperature before anything touches the paint.",
+  },
+  {
+    title: "Coatings in a garage, never in the open",
+    description:
+      "Correction and ceramic coatings happen in your garage or another covered space, under our portable lighting, so wind-blown dust never gets sealed in.",
+  },
+  {
+    title: "Self-contained rig",
+    description:
+      "We carry our own water, power and lighting. Nothing from your house, and nothing left behind but a clean car.",
+  },
+  {
     title: "Fresh microfiber, color-coded by task",
     description:
       "Paint, glass, wheels and interior each get their own towels. Towels are laundered after every job and retired early.",
@@ -74,19 +89,19 @@ export const team: { name: string; role: string; bio: string; credentials: strin
   {
     name: founder.name,
     role: founder.role,
-    bio: "Started with a pressure washer and a borrowed van. Still personally inspects every correction and coating before it leaves the studio.",
+    bio: "Started with a pressure washer and a borrowed van. Still personally inspects every correction and coating before we pack up and hand back the keys.",
     credentials: ["IDA Certified Detailer", "Coatings installer"],
   },
   {
     name: "Maya Okafor",
     role: "Correction and coatings specialist",
-    bio: "Runs the studio bay. Black paint, soft clear coats and fresh resprays are her favorite problems to solve.",
+    bio: "Runs our garage-day correction and coating jobs. Black paint, soft clear coats and fresh resprays are her favorite problems to solve.",
     credentials: ["IDA Certified Detailer", "Paint-depth specialist"],
   },
   {
     name: "Andre Castillo",
     role: "Mobile team lead",
-    bio: "Leads the mobile crew across the metro. Knows which apartment garages have clearance and which HOAs want a heads-up.",
+    bio: "Leads the daily wash and interior routes. Knows which HOAs want a heads-up and which streets get the morning shade.",
     credentials: ["IDA Certified Detailer", "Water-reclaim trained"],
   },
 ];

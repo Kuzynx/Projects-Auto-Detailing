@@ -4,7 +4,7 @@ import { Clock } from "lucide-react";
 import { Badge } from "@/components/ui";
 import { services } from "@/data/services";
 import { getSizeLabel } from "@/lib/booking/format";
-import { isStudioOnly } from "@/lib/booking/schema";
+import { requiresGarage } from "@/lib/booking/schema";
 import { formatPrice } from "@/lib/utils";
 import { errorId, FieldError, fieldId } from "./fields";
 import { OptionCard } from "./option-card";
@@ -60,7 +60,9 @@ export function ServiceStep({ draft, errors, update }: StepProps) {
                 <Clock aria-hidden className="size-3.5" />
                 {service.duration[draft.size]}
               </span>
-              {isStudioOnly(service.slug) && <span className="text-ink-subtle">Studio only</span>}
+              {requiresGarage(service.slug) && (
+                <span className="text-ink-subtle">Needs a garage or covered space</span>
+              )}
             </span>
           </OptionCard>
         ))}

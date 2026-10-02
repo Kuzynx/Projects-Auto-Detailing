@@ -46,7 +46,7 @@ describe("contactSchema", () => {
   });
 
   it("accepts a formatted US phone number", () => {
-    expect(contactSchema.safeParse({ ...valid, phone: "(512) 555-0100" }).success).toBe(true);
+    expect(contactSchema.safeParse({ ...valid, phone: "(760) 555-0100" }).success).toBe(true);
   });
 });
 

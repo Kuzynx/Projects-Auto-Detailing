@@ -1,16 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Building2, Info, MapPin, Truck } from "lucide-react";
+import { Info, Truck } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { getService } from "@/data/services";
-import { studioAddress } from "@/lib/booking/format";
-import { isStudioOnly, OTHER_CITY } from "@/lib/booking/schema";
+import { serviceAreaLabel } from "@/lib/booking/format";
+import { OTHER_CITY, requiresGarage } from "@/lib/booking/schema";
 import {
   formatClock,
   formatDateLong,
   formatHoursForDate,
   getBookingWindow,
+  getClosedWeekdays,
   getDateUnavailableReason,
   getJobDuration,
   getTimeSlots,
@@ -19,8 +20,7 @@ import {
 } from "@/lib/booking/slots";
 import { cn } from "@/lib/utils";
 import { Calendar } from "./calendar";
-import { errorId, FieldError, fieldId, SelectField, TextField } from "./fields";
-import { OptionCard } from "./option-card";
+import { CheckboxField, errorId, FieldError, fieldId, SelectField, TextField } from "./fields";
 import type { StepProps } from "./step-types";
 
 const cityOptions = [...siteConfig.serviceArea, OTHER_CITY].map((city) => ({
@@ -33,7 +33,6 @@ export function ScheduleStep({ draft, errors, update }: StepProps) {
   const [now] = useState(() => new Date());
   const bookingWindow = useMemo(() => getBookingWindow(now), [now]);
   const service = getService(draft.service);
-  const studioOnly = isStudioOnly(draft.service);
 
   const slots = useMemo(
     () =>
@@ -61,152 +60,93 @@ export function ScheduleStep({ draft, errors, update }: StepProps) {
     return null;
   }
 
-  const locationError = errors.locationType;
+  const needsGarage = requiresGarage(draft.service);
+  const closedDays = getClosedWeekdays();
 
   return (
     <div className="space-y-10">
-      {/* Location */}
-      <div>
-        <p id="bk-location-label" className="mb-3 text-sm font-medium text-ink">
-          Where should we detail it?
-        </p>
-        <div
-          role="radiogroup"
-          aria-labelledby="bk-location-label"
-          aria-describedby={locationError ? errorId("locationType") : undefined}
-          aria-invalid={locationError ? true : undefined}
-          className="grid gap-3 sm:grid-cols-2"
-        >
-          <OptionCard
-            type="radio"
-            name="locationType"
-            value="mobile"
-            id={draft.locationType === "mobile" ? fieldId("locationType") : undefined}
-            checked={draft.locationType === "mobile"}
-            onChange={() => update({ locationType: "mobile" })}
-            disabled={studioOnly}
-            invalid={Boolean(locationError)}
-          >
-            <Truck aria-hidden className="mb-3 size-5 text-brand-400" />
-            <span className="block font-display text-base font-semibold text-ink">
-              Mobile, we come to you
-            </span>
-            <span className="mt-1 block text-sm text-ink-muted">
-              Home, office or apartment lot. We bring water, power and lighting.
-            </span>
-          </OptionCard>
-          <OptionCard
-            type="radio"
-            name="locationType"
-            value="studio"
-            id={draft.locationType === "studio" ? fieldId("locationType") : undefined}
-            checked={draft.locationType === "studio"}
-            onChange={() => update({ locationType: "studio" })}
-            invalid={Boolean(locationError)}
-          >
-            <Building2 aria-hidden className="mb-3 size-5 text-brand-400" />
-            <span className="block font-display text-base font-semibold text-ink">
-              Studio drop-off
-            </span>
-            <span className="mt-1 block text-sm text-ink-muted">
-              Our climate-controlled {siteConfig.address.city} studio, with controlled lighting and
-              filtered air.
-            </span>
-          </OptionCard>
-        </div>
-        {studioOnly && service && (
-          <p className="mt-3 flex items-start gap-2.5 rounded-md border border-brand-500/30 bg-brand-500/[0.06] p-3.5 text-sm text-ink-muted">
-            <Info aria-hidden className="mt-0.5 size-4 shrink-0 text-brand-400" />
-            <span>
-              <span className="font-medium text-ink">{service.name} is studio only.</span> It needs
-              dust-free air and color-matched lighting to get a flawless result, so we&apos;ve
-              selected studio drop-off for you.
-            </span>
-          </p>
-        )}
-        <FieldError name="locationType" message={locationError} />
-      </div>
+      <p className="flex items-start gap-3 rounded-lg border border-border bg-bg-elevated p-4 text-sm text-ink-muted">
+        <Truck aria-hidden className="mt-0.5 size-5 shrink-0 text-brand-400" />
+        <span>
+          <span className="font-medium text-ink">We come to you.</span> Home, office or apartment
+          lot anywhere in {serviceAreaLabel}. We bring our own water, power and lighting.
+        </span>
+      </p>
 
-      {draft.locationType === "mobile" ? (
-        <fieldset>
-          <legend className="mb-3 text-sm font-medium text-ink">Service address</legend>
-          <div className="grid gap-4 sm:grid-cols-6">
+      <fieldset>
+        <legend className="mb-3 text-sm font-medium text-ink">Service address</legend>
+        <div className="grid gap-4 sm:grid-cols-6">
+          <TextField
+            className="sm:col-span-6"
+            name="street"
+            label="Street address"
+            value={draft.street}
+            onValueChange={(street) => update({ street })}
+            error={errors.street}
+            autoComplete="street-address"
+            placeholder="123 Main St"
+            maxLength={120}
+          />
+          <SelectField
+            className="sm:col-span-4"
+            name="city"
+            label="City"
+            value={draft.city}
+            onValueChange={(city) => update({ city })}
+            options={cityOptions}
+            placeholder="Choose your city"
+            error={errors.city}
+          />
+          <TextField
+            className="sm:col-span-2"
+            name="zip"
+            label="ZIP code"
+            value={draft.zip}
+            onValueChange={(zip) => update({ zip: zip.replace(/[^\d-]/g, "").slice(0, 10) })}
+            error={errors.zip}
+            autoComplete="postal-code"
+            inputMode="numeric"
+            placeholder={siteConfig.address.zip}
+            maxLength={10}
+          />
+          {draft.city === OTHER_CITY && (
             <TextField
               className="sm:col-span-6"
-              name="street"
-              label="Street address"
-              value={draft.street}
-              onValueChange={(street) => update({ street })}
-              error={errors.street}
-              autoComplete="street-address"
-              placeholder="1200 Barton Hills Dr"
-              maxLength={120}
+              name="cityOther"
+              label="Which city?"
+              value={draft.cityOther}
+              onValueChange={(cityOther) => update({ cityOther })}
+              error={errors.cityOther}
+              autoComplete="address-level2"
+              hint="Just outside our usual area? We often still make it work and will confirm by text."
+              maxLength={60}
             />
-            <SelectField
-              className="sm:col-span-4"
-              name="city"
-              label="City"
-              value={draft.city}
-              onValueChange={(city) => update({ city })}
-              options={cityOptions}
-              placeholder="Choose your city"
-              error={errors.city}
-            />
-            <TextField
-              className="sm:col-span-2"
-              name="zip"
-              label="ZIP code"
-              value={draft.zip}
-              onValueChange={(zip) => update({ zip: zip.replace(/[^\d-]/g, "").slice(0, 10) })}
-              error={errors.zip}
-              autoComplete="postal-code"
-              inputMode="numeric"
-              placeholder="78704"
-              maxLength={10}
-            />
-            {draft.city === OTHER_CITY && (
-              <TextField
-                className="sm:col-span-6"
-                name="cityOther"
-                label="Which city?"
-                value={draft.cityOther}
-                onValueChange={(cityOther) => update({ cityOther })}
-                error={errors.cityOther}
-                autoComplete="address-level2"
-                hint="Outside our usual area? We often still make it work and will confirm by text."
-                maxLength={60}
-              />
-            )}
-          </div>
-        </fieldset>
-      ) : (
-        <div className="flex items-start gap-4 rounded-lg border border-border bg-bg-elevated p-5">
-          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-500/10 text-brand-400">
-            <MapPin aria-hidden className="size-5" />
-          </span>
-          <div className="min-w-0 text-sm">
-            <p className="font-display text-base font-semibold text-ink">
-              {siteConfig.name} Studio
-            </p>
-            <p className="mt-1 text-ink-muted">{studioAddress}</p>
-            <ul className="mt-2 space-y-0.5 text-ink-subtle">
-              {siteConfig.hours.map((row) => (
-                <li key={row.days}>
-                  {row.days}: {row.close ? `${row.open} – ${row.close}` : row.open}
-                </li>
-              ))}
-            </ul>
-            <a
-              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(studioAddress)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 inline-flex text-brand-300 underline-offset-4 hover:underline"
-            >
-              Get directions<span className="sr-only"> (opens in a new tab)</span>
-            </a>
-          </div>
+          )}
         </div>
-      )}
+
+        {needsGarage && service && (
+          <div className="mt-6 space-y-3">
+            <p className="flex items-start gap-2.5 rounded-md border border-brand-500/30 bg-brand-500/[0.06] p-3.5 text-sm text-ink-muted">
+              <Info aria-hidden className="mt-0.5 size-4 shrink-0 text-brand-400" />
+              <span>
+                <span className="font-medium text-ink">
+                  {service.name} needs a garage or covered space.
+                </span>{" "}
+                We do the work at your address, out of direct sun and wind, so the finish cures
+                clean and even.
+              </span>
+            </p>
+            <CheckboxField
+              name="garageConfirmed"
+              checked={draft.garageConfirmed}
+              onCheckedChange={(garageConfirmed) => update({ garageConfirmed })}
+              error={errors.garageConfirmed}
+              label="I have a garage or covered space where the work can be done"
+              description={`No covered space? Call ${siteConfig.phone} and we'll talk through options.`}
+            />
+          </div>
+        )}
+      </fieldset>
 
       {/* Date and time */}
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
@@ -215,8 +155,8 @@ export function ScheduleStep({ draft, errors, update }: StepProps) {
             Date
           </p>
           <p id="bk-date-hint" className="mb-3 text-sm text-ink-subtle">
-            Book by {formatClock(NEXT_DAY_CUTOFF_HOUR * 60)} for next-day appointments. Closed
-            Sundays.
+            Book by {formatClock(NEXT_DAY_CUTOFF_HOUR * 60)} for next-day appointments.
+            {closedDays.length > 0 && ` Closed ${closedDays.join(" and ")}s.`}
           </p>
           <Calendar
             id={fieldId("date")}
@@ -234,13 +174,13 @@ export function ScheduleStep({ draft, errors, update }: StepProps) {
 
         <div>
           <p id="bk-time-label" className="mb-1 text-sm font-medium text-ink">
-            {job.dropOff ? "Drop-off time" : "Start time"}
+            {job.dayBased ? "Arrival time" : "Start time"}
           </p>
           <p id="bk-time-hint" className="mb-3 text-sm text-ink-subtle">
             {!draft.date
               ? "Choose a date to see open times."
-              : job.dropOff
-                ? `${service?.name ?? "This service"} takes ${service?.duration[draft.size] ?? "more than a day"}. Drop off at opening and we'll text you when it's ready.`
+              : job.dayBased
+                ? `${service?.name ?? "This service"} takes ${service?.duration[draft.size] ?? "a full day"}. We arrive at opening and work through to completion, and we'll confirm any follow-up days by text.`
                 : `${formatDateLong(draft.date)}${hoursForDate ? `, open ${hoursForDate}` : ""}. Times shown leave room to finish before close.`}
           </p>
           {draft.date && (

@@ -10,12 +10,15 @@ import {
   RefreshCw,
   ShieldCheck,
   Truck,
+  Warehouse,
+  Zap,
 } from "lucide-react";
 import { ButtonLink } from "@/components/ui";
 import { siteConfig } from "@/config/site";
 import {
   addOnMinutes,
   bookingUrl,
+  serviceLocations,
   vehicleSizes,
   type AddOn,
   type Service,
@@ -154,6 +157,16 @@ export function BookingSidebar({ service, recommended, more }: BookingSidebarPro
         </fieldset>
       )}
 
+      {service.location === "garage" && (
+        <p className="mt-6 flex gap-2.5 rounded-md border border-brand-500/30 bg-brand-500/[0.06] p-3 text-xs text-ink-muted">
+          <Warehouse aria-hidden className="mt-0.5 size-4 shrink-0 text-brand-300" />
+          <span>
+            <span className="font-semibold text-ink">Garage required.</span>{" "}
+            {serviceLocations.garage.description}
+          </span>
+        </p>
+      )}
+
       <ButtonLink href={href} size="lg" className="mt-6 w-full">
         <CalendarCheck aria-hidden className="size-5" />
         Book this service
@@ -168,18 +181,20 @@ export function BookingSidebar({ service, recommended, more }: BookingSidebarPro
 
       <ul className="mt-5 space-y-2.5 border-t border-border pt-5 text-xs text-ink-muted">
         <li className="flex items-center gap-2.5">
+          <Truck aria-hidden className="size-4 shrink-0 text-brand-400" />
+          We come to you anywhere in the {siteConfig.region}
+        </li>
+        <li className="flex items-center gap-2.5">
           <ShieldCheck aria-hidden className="size-4 shrink-0 text-brand-400" />
-          No deposit for mobile services
+          No deposit for washes and interiors
         </li>
         <li className="flex items-center gap-2.5">
           <RefreshCw aria-hidden className="size-4 shrink-0 text-brand-400" />
           Free reschedule up to 24h before
         </li>
         <li className="flex items-center gap-2.5">
-          <Truck aria-hidden className="size-4 shrink-0 text-brand-400" />
-          {service.location === "mobile"
-            ? "We bring water, power and lighting"
-            : "Free pickup and drop-off in our service area"}
+          <Zap aria-hidden className="size-4 shrink-0 text-brand-400" />
+          We bring water, power and lighting
         </li>
       </ul>
     </div>

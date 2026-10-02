@@ -3,15 +3,9 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { CalendarDays, Car, MapPin, Phone, Sparkles } from "lucide-react";
 import { siteConfig } from "@/config/site";
-import {
-  formatAppointment,
-  formatVehicle,
-  getCityName,
-  getLocationTypeLabel,
-  getSizeLabel,
-} from "@/lib/booking/format";
+import { formatAppointment, formatVehicle, getCityName, getSizeLabel } from "@/lib/booking/format";
 import { calculateEstimate } from "@/lib/booking/pricing";
-import type { BookingDraft } from "@/lib/booking/schema";
+import { requiresGarage, type BookingDraft } from "@/lib/booking/schema";
 import { cn, formatPrice } from "@/lib/utils";
 
 function Row({
@@ -46,7 +40,7 @@ export function BookingSummary({ draft, className }: { draft: BookingDraft; clas
   });
   const vehicle = formatVehicle(draft);
   const when = formatAppointment(draft);
-  const city = draft.locationType === "mobile" ? getCityName(draft) : siteConfig.address.city;
+  const city = getCityName(draft);
 
   return (
     <aside
@@ -98,8 +92,11 @@ export function BookingSummary({ draft, className }: { draft: BookingDraft; clas
           )}
         </Row>
         <Row icon={MapPin} label="Where">
-          {getLocationTypeLabel(draft.locationType)}
+          Mobile, we come to you
           {city && <span className="mt-0.5 block text-ink-muted">{city}</span>}
+          {requiresGarage(draft.service) && (
+            <span className="mt-0.5 block text-ink-muted">In your garage or covered space</span>
+          )}
         </Row>
       </dl>
 

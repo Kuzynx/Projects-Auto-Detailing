@@ -46,9 +46,7 @@ export function Hero() {
       <Container className="relative py-28 sm:py-32 lg:py-36">
         <div className="max-w-3xl">
           <div className="[animation-delay:100ms] motion-safe:animate-fade-up">
-            <Eyebrow>
-              {siteConfig.address.city}&apos;s premium mobile &amp; studio detailing
-            </Eyebrow>
+            <Eyebrow>The {siteConfig.region}&apos;s premium mobile detailing</Eyebrow>
           </div>
 
           <div className="[animation-delay:220ms] motion-safe:animate-fade-up">
@@ -66,9 +64,8 @@ export function Hero() {
           <div className="[animation-delay:340ms] motion-safe:animate-fade-up">
             <p className="mt-6 max-w-xl text-base leading-relaxed text-pretty text-ink-muted sm:text-lg">
               {siteConfig.name} brings certified detailers, professional-grade products and a
-              checklist for every panel to your home or office. Paint correction and ceramic
-              coatings are finished in our climate-controlled South {siteConfig.address.city}{" "}
-              studio.
+              checklist for every panel to your home or office. Ceramic coatings and paint
+              correction are done right in your garage.
             </p>
           </div>
 

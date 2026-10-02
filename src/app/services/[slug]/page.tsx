@@ -41,7 +41,7 @@ export async function generateMetadata({
   if (!service) return {};
 
   const { min } = priceRange(service);
-  const description = `${service.tagline} From ${formatPrice(min)}${service.priceSuffix ? ` ${service.priceSuffix}` : ""} in ${siteConfig.address.city}, ${siteConfig.address.state}. ${serviceLocations[service.location].label} service by certified detailers.`;
+  const description = `${service.tagline} From ${formatPrice(min)}${service.priceSuffix ? ` ${service.priceSuffix}` : ""} in ${siteConfig.address.city}, ${siteConfig.address.state}. ${service.location === "garage" ? "Mobile, done in your garage" : "Mobile service"} across the ${siteConfig.region} by certified detailers.`;
   const path = `/services/${service.slug}`;
 
   return {
@@ -148,7 +148,7 @@ export default async function ServiceDetailPage({ params }: PageProps<"/services
           </span>
           <span className="inline-flex items-center gap-1.5">
             <MapPin aria-hidden className="size-4 text-brand-400" />
-            {location.label} service
+            {location.shortLabel}
           </span>
         </div>
       </PageHero>

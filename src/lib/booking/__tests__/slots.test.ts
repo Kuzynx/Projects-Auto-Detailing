@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { siteConfig } from "@/config/site";
 import {
   addDays,
+  BUSINESS_TIME_ZONE,
   formatClock,
   getBookingWindow,
   getDateUnavailableReason,
@@ -17,14 +19,14 @@ import {
   weeklyHours,
 } from "../slots";
 
-// Wednesday 7 Oct 2026, 10:00 AM in Austin (CDT, UTC-5).
-const WED_MORNING = new Date("2026-10-07T15:00:00Z");
-// Same day, 3:00 PM in Austin: past the 2 PM next-day cutoff.
-const WED_AFTERNOON = new Date("2026-10-07T20:00:00Z");
+// Wednesday 7 Oct 2026, 10:00 AM local (PDT, UTC-7). Time zone comes from siteConfig.timeZone.
+const WED_MORNING = new Date("2026-10-07T17:00:00Z");
+// Same day, 3:00 PM local: past the 2 PM next-day cutoff.
+const WED_AFTERNOON = new Date("2026-10-07T22:00:00Z");
 
 describe("hours parsing", () => {
   it("parses 12-hour clock times", () => {
-    expect(parseClockTime("8:00 AM")).toBe(480);
+    expect(parseClockTime("7:00 AM")).toBe(420);
     expect(parseClockTime("6:00 PM")).toBe(1080);
     expect(parseClockTime("12:00 PM")).toBe(720);
     expect(parseClockTime("12:30 AM")).toBe(30);
@@ -41,8 +43,8 @@ describe("hours parsing", () => {
 
   it("derives the weekly schedule from siteConfig.hours", () => {
     expect(weeklyHours[0]).toBeNull();
-    for (const day of [1, 2, 3, 4, 5]) expect(weeklyHours[day]).toEqual({ open: 480, close: 1080 });
-    expect(weeklyHours[6]).toEqual({ open: 540, close: 960 });
+    for (const day of [1, 2, 3, 4, 5]) expect(weeklyHours[day]).toEqual({ open: 420, close: 1080 });
+    expect(weeklyHours[6]).toEqual({ open: 420, close: 960 });
   });
 
   it("treats closed rows and inverted windows as closed", () => {
@@ -69,15 +71,20 @@ describe("date helpers", () => {
     expect(weekdayOf("2026-10-10")).toBe(6); // Saturday
   });
 
-  it("reads the wall clock in Austin, not the server's zone", () => {
+  it("uses siteConfig.timeZone", () => {
+    expect(BUSINESS_TIME_ZONE).toBe(siteConfig.timeZone);
+  });
+
+  it("reads the wall clock in the business time zone, not the server's", () => {
+    // 03:30 UTC on 8 Oct is still the evening of 7 Oct in Pacific daylight time.
     expect(getZonedNow(new Date("2026-10-08T03:30:00Z"))).toEqual({
       date: "2026-10-07",
-      minutes: 22 * 60 + 30,
+      minutes: 20 * 60 + 30,
     });
-    // Standard time after the November DST change (UTC-6).
-    expect(getZonedNow(new Date("2026-11-02T14:00:00Z"))).toEqual({
+    // Standard time after the November DST change (UTC-8).
+    expect(getZonedNow(new Date("2026-11-02T15:00:00Z"))).toEqual({
       date: "2026-11-02",
-      minutes: 8 * 60,
+      minutes: 7 * 60,
     });
   });
 });
@@ -107,18 +114,18 @@ describe("booking window", () => {
   });
 
   it("skips Sundays when finding the first open date", () => {
-    // Saturday 10 Oct, 3 PM: earliest is Monday 12 Oct because Sunday is closed.
-    expect(getFirstBookableDate(new Date("2026-10-10T20:00:00Z"))).toBe("2026-10-12");
+    // Saturday 10 Oct, 3 PM local: earliest is Monday 12 Oct because Sunday is closed.
+    expect(getFirstBookableDate(new Date("2026-10-10T22:00:00Z"))).toBe("2026-10-12");
   });
 });
 
 describe("durations", () => {
   it("reads the first number of a duration label", () => {
-    expect(parseDuration("1.5 hrs")).toEqual({ minutes: 90, dropOff: false });
-    expect(parseDuration("4–5 hrs")).toEqual({ minutes: 240, dropOff: false });
-    expect(parseDuration("+45 min")).toEqual({ minutes: 45, dropOff: false });
-    expect(parseDuration("1 day")).toEqual({ minutes: 0, dropOff: true });
-    expect(parseDuration("2–3 days")).toEqual({ minutes: 0, dropOff: true });
+    expect(parseDuration("1.5 hrs")).toEqual({ minutes: 90, dayBased: false });
+    expect(parseDuration("4–5 hrs")).toEqual({ minutes: 240, dayBased: false });
+    expect(parseDuration("+45 min")).toEqual({ minutes: 45, dayBased: false });
+    expect(parseDuration("1 day")).toEqual({ minutes: 0, dayBased: true });
+    expect(parseDuration("2–3 days")).toEqual({ minutes: 0, dayBased: true });
   });
 
   it("adds add-on time to the service time", () => {
@@ -128,10 +135,7 @@ describe("durations", () => {
         size: "sedan",
         addOnSlugs: ["engine-bay", "odor-elimination"],
       }),
-    ).toEqual({
-      minutes: 90 + 30 + 60,
-      dropOff: false,
-    });
+    ).toEqual({ minutes: 90 + 30 + 60, dayBased: false });
   });
 
   it("counts a repeated add-on once", () => {
@@ -148,13 +152,14 @@ describe("durations", () => {
 describe("time slots", () => {
   const values = (slots: { value: string }[]) => slots.map((s) => s.value);
 
-  it("offers hourly starts that finish by closing on weekdays", () => {
+  it("offers hourly starts from 7 AM that finish by closing on weekdays", () => {
     const slots = getTimeSlots({
       date: "2026-10-14",
       serviceSlug: "signature-wash",
       size: "sedan",
     });
     expect(values(slots)).toEqual([
+      "07:00",
       "08:00",
       "09:00",
       "10:00",
@@ -165,12 +170,12 @@ describe("time slots", () => {
       "15:00",
       "16:00",
     ]);
-    expect(slots[0]).toEqual({ value: "08:00", label: "8:00 AM", kind: "start" });
+    expect(slots[0]).toEqual({ value: "07:00", label: "7:00 AM", kind: "start" });
   });
 
   it("uses Saturday hours", () => {
     const slots = getTimeSlots({ date: "2026-10-10", serviceSlug: "full-detail", size: "sedan" });
-    expect(values(slots)).toEqual(["09:00", "10:00", "11:00", "12:00"]);
+    expect(values(slots)).toEqual(["07:00", "08:00", "09:00", "10:00", "11:00", "12:00"]);
   });
 
   it("hides starts that would run past close once add-ons are included", () => {
@@ -180,7 +185,7 @@ describe("time slots", () => {
       size: "sedan",
       addOnSlugs: ["odor-elimination"],
     });
-    expect(values(slots)).toEqual(["09:00", "10:00", "11:00"]);
+    expect(values(slots)).toEqual(["07:00", "08:00", "09:00", "10:00", "11:00"]);
   });
 
   it("returns nothing on closed days", () => {
@@ -189,13 +194,13 @@ describe("time slots", () => {
     ).toEqual([]);
   });
 
-  it("gives multi-day studio services a single drop-off at opening", () => {
+  it("gives day-based services a single arrival at opening", () => {
     expect(
       getTimeSlots({ date: "2026-10-12", serviceSlug: "ceramic-coating", size: "suv" }),
-    ).toEqual([{ value: "08:00", label: "Drop-off 8:00 AM", kind: "drop-off" }]);
+    ).toEqual([{ value: "07:00", label: "Arrival 7:00 AM", kind: "arrival" }]);
     expect(
       getTimeSlots({ date: "2026-10-10", serviceSlug: "paint-correction", size: "sedan" })[0].label,
-    ).toBe("Drop-off 9:00 AM");
+    ).toBe("Arrival 7:00 AM");
   });
 
   it("falls back to one full-day start when the job is longer than the day", () => {
@@ -203,9 +208,9 @@ describe("time slots", () => {
       date: "2026-10-10",
       serviceSlug: "full-detail",
       size: "truck",
-      addOnSlugs: ["odor-elimination", "wheel-coating", "headlight-restoration"],
+      addOnSlugs: ["odor-elimination", "wheel-coating", "headlight-restoration", "engine-bay"],
     });
-    expect(slots).toEqual([{ value: "09:00", label: "9:00 AM (full day)", kind: "full-day" }]);
+    expect(slots).toEqual([{ value: "07:00", label: "7:00 AM (full day)", kind: "full-day" }]);
   });
 
   it("returns nothing for an unknown service or a bad date", () => {

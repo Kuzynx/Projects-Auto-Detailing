@@ -9,7 +9,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { siteConfig } from "@/config/site";
-import { socialImageSize } from "./social";
+import { socialImageSize, socialLocationLine } from "./social";
 
 /**
  * Brand colors for Satori, which cannot read CSS variables.
@@ -41,9 +41,8 @@ export async function readPublicPng(publicPath: string) {
 /** 1200x630 social card: real logo left; city, chrome tagline and proof points right; purple accents. */
 export async function renderSocialImage() {
   const logo = await readPublicPng(siteConfig.logoTransparent);
-  const { city, state } = siteConfig.address;
   const { googleRating, reviewCount, vehiclesDetailed } = siteConfig.stats;
-  const logoHeight = 440;
+  const logoHeight = 420;
   // "Showroom finish. Delivered to your driveway." -> one sentence per line.
   const taglineLines = siteConfig.tagline.match(/[^.]+\.?/g)?.map((line) => line.trim()) ?? [
     siteConfig.tagline,
@@ -81,17 +80,18 @@ export async function renderSocialImage() {
         height={logoHeight}
         style={{ flexShrink: 0 }}
       />
-      <div style={{ display: "flex", flexDirection: "column", marginLeft: 56, flex: 1 }}>
+      <div style={{ display: "flex", flexDirection: "column", marginLeft: 48, flex: 1 }}>
         <div
           style={{
             display: "flex",
-            fontSize: 20,
-            letterSpacing: 4,
+            fontSize: 18,
+            letterSpacing: 3,
+            whiteSpace: "nowrap",
             textTransform: "uppercase",
             color: ogColors.brand400,
           }}
         >
-          {`Auto detailing · ${city}, ${state}`}
+          {socialLocationLine}
         </div>
         {/* The logo carries the name, so the headline is the promise, in chrome. */}
         <div

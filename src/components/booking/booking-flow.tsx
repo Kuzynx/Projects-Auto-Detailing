@@ -9,7 +9,6 @@ import { calculateEstimate } from "@/lib/booking/pricing";
 import {
   bookingSteps,
   firstStepWithErrors,
-  isStudioOnly,
   validateAllSteps,
   validateStep,
   type BookingDraft,
@@ -53,7 +52,7 @@ const stepCopy: Record<
   },
   schedule: {
     title: "Choose a time and place",
-    description: "We come to you anywhere in our service area, or you can drop off at the studio.",
+    description: "Every appointment is mobile. Tell us where the car will be and pick a time.",
   },
   contact: {
     title: "Confirm your details",
@@ -94,8 +93,6 @@ type FlowAction =
 /** Keeps dependent fields consistent after any edit. */
 function reconcile(draft: BookingDraft): BookingDraft {
   let next = draft;
-  if (isStudioOnly(next.service) && next.locationType !== "studio")
-    next = { ...next, locationType: "studio" };
   if (next.date) {
     const slots = getTimeSlots({
       date: next.date,
@@ -104,7 +101,7 @@ function reconcile(draft: BookingDraft): BookingDraft {
       addOnSlugs: next.addOns,
     });
     if (next.time && !slots.some((slot) => slot.value === next.time)) next = { ...next, time: "" };
-    // A single drop-off or full-day slot is the only choice, so pick it.
+    // A single arrival or full-day slot is the only choice, so pick it.
     if (!next.time && slots.length === 1 && slots[0].kind !== "start")
       next = { ...next, time: slots[0].value };
   }

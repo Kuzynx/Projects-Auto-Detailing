@@ -1,21 +1,86 @@
-import { Navigation } from "lucide-react";
-import { buttonClasses } from "@/components/ui";
+import { Clock, MapPin, Truck } from "lucide-react";
+import { Badge } from "@/components/ui";
 import { siteConfig } from "@/config/site";
 
-export const fullAddress = `${siteConfig.address.street}, ${siteConfig.address.city}, ${siteConfig.address.state} ${siteConfig.address.zip}`;
-export const directionsHref = `https://maps.google.com/?q=${encodeURIComponent(`${siteConfig.name}, ${fullAddress}`)}`;
-
 /**
- * Stylized, static "map". No third-party iframe, tracking or API key: an abstract
- * street grid drawn in SVG with the studio pinned at the center.
+ * "We come to you" card. The business is mobile only, so instead of an address
+ * we show where we work and when. The street grid is an abstract,
+ * decorative SVG: no third-party iframe, tracking or API key.
  */
-export function MapCard() {
+export function ServiceAreaCard() {
   return (
     <section
-      aria-labelledby="studio-heading"
-      className="relative overflow-hidden rounded-lg border border-border bg-bg-elevated shadow-card"
+      id="service-area"
+      aria-labelledby="service-area-heading"
+      className="relative grid overflow-hidden rounded-lg border border-border bg-bg-elevated shadow-card lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]"
     >
-      <div className="relative h-72 sm:h-80 lg:h-96">
+      <div className="relative order-2 p-6 sm:p-8 lg:order-1 lg:p-10">
+        <p className="font-display text-xs font-semibold tracking-[0.2em] text-brand-400 uppercase">
+          Service area
+        </p>
+        <h2 id="service-area-heading" className="mt-2 text-2xl font-semibold sm:text-3xl">
+          We come to you
+        </h2>
+        <p className="mt-3 flex items-center gap-2 text-sm text-ink">
+          <MapPin className="size-4 text-brand-400" aria-hidden />
+          Based in {siteConfig.address.city}, {siteConfig.address.state}
+        </p>
+        <p className="mt-3 text-pretty text-ink-muted">
+          Fully mobile across the {siteConfig.region}. We bring our own water, power and lighting.
+          Paint correction and ceramic coatings are done in your garage or another covered space.
+        </p>
+
+        <ul className="mt-6 flex flex-wrap gap-2" aria-label="Towns we serve">
+          {siteConfig.serviceArea.map((area) => (
+            <li key={area}>
+              <Badge tone="neutral" className="text-xs font-medium tracking-normal normal-case">
+                {area}
+              </Badge>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 flex items-center gap-2 text-xs text-ink-subtle">
+          <Truck className="size-3.5" aria-hidden />
+          Just outside the list? Ask anyway. We often can for larger jobs.
+        </p>
+
+        <div className="mt-8 border-t border-border pt-6">
+          <h3 className="flex items-center gap-2 font-display text-sm font-semibold">
+            <Clock className="size-4 text-brand-400" aria-hidden />
+            Hours
+          </h3>
+          <table className="mt-3 w-full text-sm">
+            <caption className="sr-only">Appointment and phone hours</caption>
+            <tbody className="divide-y divide-border">
+              {siteConfig.hours.map((row) => {
+                const closed = row.open.toLowerCase() === "closed";
+                return (
+                  <tr key={row.days}>
+                    <th scope="row" className="py-2 pr-4 text-left font-normal text-ink-muted">
+                      {row.days}
+                    </th>
+                    <td
+                      className={
+                        closed
+                          ? "py-2 text-right text-ink-subtle"
+                          : "py-2 text-right font-medium text-ink tabular-nums"
+                      }
+                    >
+                      {closed ? "Closed" : `${row.open} – ${row.close}`}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <p className="mt-3 text-xs text-ink-subtle">
+            Early starts in summer to beat the desert heat. Messages sent after hours are answered
+            first thing the next business morning.
+          </p>
+        </div>
+      </div>
+
+      <div className="relative order-1 h-56 sm:h-72 lg:order-2 lg:h-auto lg:min-h-[28rem]">
         <svg
           aria-hidden
           viewBox="0 0 1200 480"
@@ -93,7 +158,7 @@ export function MapCard() {
             strokeLinecap="round"
           />
 
-          {/* Main avenue to the studio */}
+          {/* Main route */}
           <path
             d="M565 -10 L635 490"
             fill="none"
@@ -111,7 +176,19 @@ export function MapCard() {
             strokeDasharray="6 10"
           />
 
-          {/* Pin */}
+          {/* Service radius */}
+          <circle
+            cx="600"
+            cy="245"
+            r="205"
+            fill="none"
+            stroke="var(--color-brand-400)"
+            strokeOpacity="0.35"
+            strokeWidth="2"
+            strokeDasharray="4 10"
+          />
+
+          {/* Home base */}
           <circle cx="600" cy="245" r="150" fill="url(#map-glow)" />
           <circle
             className="motion-reduce:hidden"
@@ -141,35 +218,6 @@ export function MapCard() {
 
           <rect width="1200" height="480" fill="url(#map-vignette)" />
         </svg>
-      </div>
-
-      <div className="relative -mt-24 px-4 pb-4 sm:absolute sm:inset-x-auto sm:bottom-6 sm:left-6 sm:mt-0 sm:max-w-sm sm:p-0">
-        <div className="rounded-lg border border-border-strong bg-bg/85 p-5 backdrop-blur-md sm:p-6">
-          <p className="font-display text-xs font-semibold tracking-[0.2em] text-brand-400 uppercase">
-            Studio
-          </p>
-          <h2 id="studio-heading" className="mt-2 text-xl font-semibold">
-            {siteConfig.name}
-          </h2>
-          <address className="mt-2 text-sm leading-relaxed text-ink-muted not-italic">
-            {siteConfig.address.street}
-            <br />
-            {siteConfig.address.city}, {siteConfig.address.state} {siteConfig.address.zip}
-          </address>
-          <p className="mt-2 text-xs text-ink-subtle">
-            Studio visits by appointment. Mobile service comes to you.
-          </p>
-          <a
-            href={directionsHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={buttonClasses("primary", "sm", "mt-5")}
-          >
-            <Navigation className="size-4" aria-hidden />
-            Get directions
-            <span className="sr-only">(opens Google Maps in a new tab)</span>
-          </a>
-        </div>
       </div>
     </section>
   );

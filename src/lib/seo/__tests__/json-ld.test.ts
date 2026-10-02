@@ -11,6 +11,7 @@ import {
   jsonLdIds,
   localBusinessJsonLd,
   openingHoursSpecification,
+  postalAddress,
   serviceJsonLd,
   to24Hour,
   websiteJsonLd,
@@ -73,6 +74,27 @@ describe("opening hours helpers", () => {
   });
 });
 
+describe("postalAddress", () => {
+  const base = { city: "Springfield", state: "CA", zip: "90000", country: "US" };
+
+  it("omits streetAddress when the street is empty or blank", () => {
+    expect(postalAddress({ ...base, street: "" })).toEqual({
+      "@type": "PostalAddress",
+      addressLocality: "Springfield",
+      addressRegion: "CA",
+      postalCode: "90000",
+      addressCountry: "US",
+    });
+    expect(postalAddress({ ...base, street: "   " })).not.toHaveProperty("streetAddress");
+  });
+
+  it("includes streetAddress when present", () => {
+    expect(postalAddress({ ...base, street: "1 Main St" })).toMatchObject({
+      streetAddress: "1 Main St",
+    });
+  });
+});
+
 describe("localBusinessJsonLd", () => {
   const business = localBusinessJsonLd(services);
 
@@ -96,7 +118,6 @@ describe("localBusinessJsonLd", () => {
   it("includes address, geo, phone and rating from siteConfig", () => {
     expect(business.address).toMatchObject({
       "@type": "PostalAddress",
-      streetAddress: siteConfig.address.street,
       addressLocality: siteConfig.address.city,
       addressRegion: siteConfig.address.state,
       postalCode: siteConfig.address.zip,
@@ -112,6 +133,21 @@ describe("localBusinessJsonLd", () => {
     });
     expect(business.sameAs).toEqual(Object.values(siteConfig.social));
     expect(business.areaServed).toHaveLength(siteConfig.serviceArea.length);
+  });
+
+  it("serves every town in siteConfig.serviceArea as a City", () => {
+    const area = business.areaServed as { "@type": string; name: string }[];
+    expect(area.map((c) => c.name)).toEqual([...siteConfig.serviceArea]);
+    area.forEach((c) => expect(c["@type"]).toBe("City"));
+  });
+
+  it("omits streetAddress and the map pin for a mobile-only business", () => {
+    if (!siteConfig.address.street) {
+      expect(business.address).not.toHaveProperty("streetAddress");
+    }
+    if (siteConfig.mobileOnly) {
+      expect(business).not.toHaveProperty("hasMap");
+    }
   });
 
   it("lists every service in the offer catalog only when services are passed", () => {

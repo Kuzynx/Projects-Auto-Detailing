@@ -19,7 +19,7 @@ import { JsonLd } from "@/lib/seo/json-ld";
 import { formatPrice } from "@/lib/utils";
 
 const title = "Detailing Services";
-const description = `Hand washes, interior restoration, paint correction and ceramic coatings in ${siteConfig.address.city}. Published prices by vehicle size, mobile or studio, from certified detailers.`;
+const description = `Mobile hand washes, interior restoration, paint correction and ceramic coatings across ${siteConfig.address.city} and the ${siteConfig.region}. Published prices by vehicle size, done at your home by certified detailers.`;
 const ogImage = "/images/detail-foam-porsche.jpg";
 
 export const metadata: Metadata = {

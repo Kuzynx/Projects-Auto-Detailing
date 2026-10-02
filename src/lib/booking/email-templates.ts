@@ -13,13 +13,12 @@ import {
   getCancellationPolicy,
   getDepositPolicy,
   getInteriorConditionLabel,
-  getLocationTypeLabel,
   getPaintConditionLabel,
   getSizeLabel,
 } from "./format";
 import { toE164 } from "./phone";
 import type { Estimate } from "./pricing";
-import { isStudioOnly, type BookingData } from "./schema";
+import { requiresGarage, type BookingData } from "./schema";
 
 export interface BookingEmailInput {
   reference: string;
@@ -58,6 +57,11 @@ export function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
+/** "Mobile detailing in Victorville, CA and the High Desert" */
+function serviceAreaLine(): string {
+  return `Mobile detailing in ${siteConfig.address.city}, ${siteConfig.address.state} and the ${siteConfig.region}`;
+}
+
 function firstName(name: string): string {
   return name.trim().split(/\s+/)[0] ?? name;
 }
@@ -81,8 +85,10 @@ function bookingRows(input: BookingEmailInput, { internal }: { internal: boolean
         : "None",
     ],
     ["When", formatAppointment(booking) ?? booking.date],
-    ["Where", `${getLocationTypeLabel(booking.locationType)}: ${formatServiceAddress(booking)}`],
+    ["Where", formatServiceAddress(booking)],
   ];
+  if (requiresGarage(booking.service))
+    rows.push(["Workspace", "Garage or covered space confirmed"]);
   if (estimate.durationLabel) rows.push(["Time on site", `About ${estimate.durationLabel}`]);
 
   if (internal) {
@@ -112,7 +118,7 @@ function bookingRows(input: BookingEmailInput, { internal }: { internal: boolean
 
 function layout({ preheader, body }: { preheader: string; body: string }): string {
   const logo = absoluteUrl(siteConfig.logo);
-  const address = `${siteConfig.address.street}, ${siteConfig.address.city}, ${siteConfig.address.state} ${siteConfig.address.zip}`;
+  const address = serviceAreaLine();
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -204,10 +210,9 @@ function nextSteps(booking: BookingData): [string, string][] {
   const contactLine = booking.smsConsent
     ? `We text ${booking.phone} within the hour (during business hours) to lock in your slot.`
     : `We call ${booking.phone} within the hour (during business hours) to lock in your slot.`;
-  const dayBefore =
-    booking.locationType === "mobile"
-      ? "The day before, we send a reminder with your technician's arrival window. We need about three feet of clearance around the car; we bring our own water and power."
-      : `The day before, we send a reminder with studio directions. Drop the car at ${siteConfig.address.street}; we text you the moment it's ready.`;
+  const dayBefore = requiresGarage(booking.service)
+    ? "The day before, we send your arrival time. Clear the garage or covered space so we can work all the way around the car; we bring our own water, power and lighting."
+    : "The day before, we send a reminder with your technician's arrival window. We need about three feet of clearance around the car; we bring our own water and power.";
   return [
     ["We confirm your time", contactLine],
     ["Day-before reminder", dayBefore],
@@ -224,7 +229,7 @@ export function renderCustomerConfirmationEmail(input: BookingEmailInput): Rende
   const serviceName = service?.name ?? "your detail";
   const when = formatAppointment(booking) ?? booking.date;
   const policy = getCancellationPolicy();
-  const deposit = isStudioOnly(booking.service) ? getDepositPolicy() : null;
+  const deposit = requiresGarage(booking.service) ? getDepositPolicy() : null;
   const subject = `Request received: ${serviceName}, ${when} (${reference})`;
   const rows = bookingRows(input, { internal: false });
   const steps = nextSteps(booking);
@@ -275,7 +280,7 @@ ${button(siteConfig.phoneHref, `Call ${siteConfig.phone}`)}`;
     `${policy} Call or text ${siteConfig.phone} and quote ${reference}.`,
     "",
     `${siteConfig.name}`,
-    `${siteConfig.address.street}, ${siteConfig.address.city}, ${siteConfig.address.state} ${siteConfig.address.zip}`,
+    serviceAreaLine(),
     `${siteConfig.phone} · ${siteConfig.email}`,
   ].join("\n");
 

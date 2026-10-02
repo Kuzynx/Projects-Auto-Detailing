@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { siteConfig } from "@/config/site";
 import { formatPhoneAsYouType, formatUsPhone, isValidUsPhone, normalizeUsPhone } from "../phone";
 import {
   emptyDraft,
@@ -6,6 +7,7 @@ import {
   getCrossFieldErrors,
   getRecommendedAddOns,
   OTHER_CITY,
+  requiresGarage,
   stepIndexOf,
   validateAllSteps,
   validateBooking,
@@ -13,8 +15,8 @@ import {
   type BookingDraft,
 } from "../schema";
 
-// Wednesday 7 Oct 2026, 10:00 AM in Austin.
-const NOW = new Date("2026-10-07T15:00:00Z");
+// Wednesday 7 Oct 2026, 10:00 AM local (PDT).
+const NOW = new Date("2026-10-07T17:00:00Z");
 
 const validDraft: BookingDraft = {
   ...emptyDraft,
@@ -29,40 +31,40 @@ const validDraft: BookingDraft = {
   petHair: true,
   smoke: false,
   addOns: ["pet-hair-removal"],
-  locationType: "mobile",
-  street: "1200 Barton Hills Dr",
-  city: "Austin",
+  street: "123 Main St",
+  city: siteConfig.serviceArea[0],
   cityOther: "",
-  zip: "78704",
+  zip: siteConfig.address.zip,
+  garageConfirmed: false,
   date: "2026-10-14",
   time: "09:00",
   name: "Jordan Reyes",
   email: "Jordan@Example.com ",
-  phone: "512.555.0123",
+  phone: "760.555.0123",
   notes: "",
   smsConsent: true,
 };
 
 describe("phone helpers", () => {
   it("normalizes common US formats", () => {
-    expect(normalizeUsPhone("(512) 555-0123")).toBe("5125550123");
-    expect(normalizeUsPhone("+1 512 555 0123")).toBe("5125550123");
-    expect(normalizeUsPhone("1-512-555-0123")).toBe("5125550123");
-    expect(formatUsPhone("512.555.0123")).toBe("(512) 555-0123");
+    expect(normalizeUsPhone("(760) 555-0123")).toBe("7605550123");
+    expect(normalizeUsPhone("+1 760 555 0123")).toBe("7605550123");
+    expect(normalizeUsPhone("1-760-555-0123")).toBe("7605550123");
+    expect(formatUsPhone("760.555.0123")).toBe("(760) 555-0123");
   });
 
   it("rejects numbers that are not valid NANP numbers", () => {
     expect(isValidUsPhone("555-0123")).toBe(false);
     expect(isValidUsPhone("(012) 555-0123")).toBe(false);
-    expect(isValidUsPhone("(512) 155-0123")).toBe(false);
-    expect(isValidUsPhone("512555012345")).toBe(false);
+    expect(isValidUsPhone("(760) 155-0123")).toBe(false);
+    expect(isValidUsPhone("760555012345")).toBe(false);
   });
 
   it("formats progressively while typing", () => {
     expect(formatPhoneAsYouType("5")).toBe("(5");
-    expect(formatPhoneAsYouType("51255")).toBe("(512) 55");
-    expect(formatPhoneAsYouType("5125550123")).toBe("(512) 555-0123");
-    expect(formatPhoneAsYouType("+1 512 555 0123")).toBe("(512) 555-0123");
+    expect(formatPhoneAsYouType("76055")).toBe("(760) 55");
+    expect(formatPhoneAsYouType("7605550123")).toBe("(760) 555-0123");
+    expect(formatPhoneAsYouType("+1 760 555 0123")).toBe("(760) 555-0123");
     expect(formatPhoneAsYouType("")).toBe("");
   });
 });
@@ -103,19 +105,9 @@ describe("step validation", () => {
     expect(validateStep("addons", { ...validDraft, addOns: [] }, NOW)).toEqual({});
   });
 
-  it("requires a full address for mobile service", () => {
+  it("always requires a service address", () => {
     const errors = validateStep("schedule", { ...validDraft, street: "", city: "", zip: "" }, NOW);
     expect(Object.keys(errors).sort()).toEqual(["city", "street", "zip"]);
-  });
-
-  it("does not need an address for studio drop-off", () => {
-    expect(
-      validateStep(
-        "schedule",
-        { ...validDraft, locationType: "studio", street: "", city: "", zip: "" },
-        NOW,
-      ),
-    ).toEqual({});
   });
 
   it("asks which city when Other is chosen", () => {
@@ -123,18 +115,14 @@ describe("step validation", () => {
       validateStep("schedule", { ...validDraft, city: OTHER_CITY }, NOW).cityOther,
     ).toBeDefined();
     expect(
-      validateStep(
-        "schedule",
-        { ...validDraft, city: OTHER_CITY, cityOther: "Dripping Springs" },
-        NOW,
-      ),
+      validateStep("schedule", { ...validDraft, city: OTHER_CITY, cityOther: "Barstow" }, NOW),
     ).toEqual({});
     expect(validateStep("schedule", { ...validDraft, city: "Houston" }, NOW).city).toBeDefined();
   });
 
   it("rejects bad ZIP codes", () => {
-    expect(validateStep("schedule", { ...validDraft, zip: "7870" }, NOW).zip).toBeDefined();
-    expect(validateStep("schedule", { ...validDraft, zip: "78704-1234" }, NOW).zip).toBeUndefined();
+    expect(validateStep("schedule", { ...validDraft, zip: "9239" }, NOW).zip).toBeDefined();
+    expect(validateStep("schedule", { ...validDraft, zip: "92392-1234" }, NOW).zip).toBeUndefined();
   });
 
   it("validates contact details", () => {
@@ -149,12 +137,18 @@ describe("step validation", () => {
 });
 
 describe("cross-field rules", () => {
-  it("keeps studio-only services in the studio", () => {
-    const errors = getCrossFieldErrors(
-      { ...validDraft, service: "ceramic-coating", locationType: "mobile", time: "08:00" },
-      NOW,
-    );
-    expect(errors.locationType).toMatch(/studio only/i);
+  it("requires garage confirmation for correction and coatings", () => {
+    expect(requiresGarage("ceramic-coating")).toBe(true);
+    expect(requiresGarage("paint-correction")).toBe(true);
+    expect(requiresGarage("full-detail")).toBe(false);
+    const coating = { ...validDraft, service: "ceramic-coating", time: "07:00" };
+    expect(getCrossFieldErrors(coating, NOW).garageConfirmed).toMatch(/garage or covered space/i);
+    expect(getCrossFieldErrors(coating, NOW).garageConfirmed).toMatch(/shade and still air/);
+    expect(getCrossFieldErrors({ ...coating, garageConfirmed: true }, NOW)).toEqual({});
+  });
+
+  it("does not ask for a garage on regular mobile services", () => {
+    expect(getCrossFieldErrors(validDraft, NOW).garageConfirmed).toBeUndefined();
   });
 
   it("rejects Sundays, past dates and dates beyond the window", () => {
@@ -186,7 +180,7 @@ describe("validateBooking (server)", () => {
     expect(result.success).toBe(true);
     if (!result.success) return;
     expect(result.data.email).toBe("jordan@example.com");
-    expect(result.data.phone).toBe("(512) 555-0123");
+    expect(result.data.phone).toBe("(760) 555-0123");
   });
 
   it("rejects payloads that are not objects", () => {

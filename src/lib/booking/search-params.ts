@@ -4,7 +4,7 @@
  * Unknown values are ignored rather than erroring.
  */
 import { getAddOn, getService, type VehicleSize } from "@/data/services";
-import { emptyDraft, isStudioOnly, vehicleSizeIds, type BookingDraft } from "./schema";
+import { emptyDraft, vehicleSizeIds, type BookingDraft } from "./schema";
 
 type SearchParamValue = string | string[] | undefined;
 
@@ -24,10 +24,7 @@ export function parseBookingSearchParams(
   const draft: BookingDraft = { ...emptyDraft, addOns: [] };
 
   const service = getService(first(params.service)?.trim().toLowerCase() ?? "");
-  if (service) {
-    draft.service = service.slug;
-    if (isStudioOnly(service.slug)) draft.locationType = "studio";
-  }
+  if (service) draft.service = service.slug;
 
   const size = first(params.size)?.trim().toLowerCase();
   if (size && (vehicleSizeIds as readonly string[]).includes(size))

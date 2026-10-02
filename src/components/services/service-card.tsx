@@ -74,7 +74,7 @@ export function ServiceCard({
           <span className="font-display tracking-wider uppercase">{category}</span>
           <span className="inline-flex items-center gap-1">
             <MapPin aria-hidden className="size-3.5" />
-            {serviceLocations[service.location].label}
+            {serviceLocations[service.location].shortLabel}
           </span>
         </div>
       </div>

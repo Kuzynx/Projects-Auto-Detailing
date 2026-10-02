@@ -15,7 +15,7 @@ import { Testimonials } from "@/components/home/testimonials";
 import { siteConfig } from "@/config/site";
 
 const title = `${siteConfig.name} | Mobile Detailing, Paint Correction & Ceramic Coating in ${siteConfig.address.city}, ${siteConfig.address.state}`;
-const description = `${siteConfig.tagline} Mobile and studio detailing across greater ${siteConfig.address.city}: hand washes, interior resets, paint correction and ceramic coatings with a 3-year written warranty. Rated ${siteConfig.stats.googleRating} from ${siteConfig.stats.reviewCount} reviews.`;
+const description = `${siteConfig.tagline} Mobile detailing across ${siteConfig.address.city} and the ${siteConfig.region}: hand washes, interior resets, and paint correction and ceramic coatings done in your garage, with a 3-year written warranty. Rated ${siteConfig.stats.googleRating} from ${siteConfig.stats.reviewCount} reviews.`;
 
 export const metadata: Metadata = {
   title: { absolute: title },

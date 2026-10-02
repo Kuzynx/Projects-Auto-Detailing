@@ -1,32 +1,36 @@
 import Image from "next/image";
-import { ArrowUpRight, Clock, MapPin, Phone } from "lucide-react";
+import { Clock, MapPin, Phone } from "lucide-react";
 import { Container, Section, SectionHeading } from "@/components/ui";
 import { siteConfig } from "@/config/site";
 import { Reveal } from "./reveal";
 import styles from "./home.module.css";
 
+type LabelSide = "left" | "right" | "above" | "below";
+
 /**
- * Approximate city centers, used only to place dots on the stylized radar.
- * Names come from `siteConfig.serviceArea`; any city missing here still shows as a chip.
+ * Approximate town centers, used only to place dots on the stylized radar around
+ * `siteConfig.geo` (the home-base town, drawn as the pin). Names come from
+ * `siteConfig.serviceArea`; any town missing here still shows as a chip. `label` overrides
+ * the default left/right placement where neighbours or the edge of the map would collide.
  */
-const cityCoords: Record<string, { lat: number; lng: number }> = {
-  "Round Rock": { lat: 30.508, lng: -97.679 },
-  "Cedar Park": { lat: 30.505, lng: -97.82 },
-  Pflugerville: { lat: 30.439, lng: -97.62 },
-  Lakeway: { lat: 30.364, lng: -97.976 },
-  "Bee Cave": { lat: 30.308, lng: -97.945 },
-  Buda: { lat: 30.085, lng: -97.84 },
-  Kyle: { lat: 29.989, lng: -97.877 },
-  Georgetown: { lat: 30.633, lng: -97.677 },
-  Leander: { lat: 30.579, lng: -97.853 },
+const townCoords: Record<string, { lat: number; lng: number; label?: LabelSide }> = {
+  Adelanto: { lat: 34.5828, lng: -117.4092 },
+  Helendale: { lat: 34.7436, lng: -117.3248, label: "right" },
+  "Apple Valley": { lat: 34.5008, lng: -117.1859, label: "right" },
+  "Spring Valley Lake": { lat: 34.4936, lng: -117.2689, label: "below" },
+  Hesperia: { lat: 34.4264, lng: -117.3009, label: "right" },
+  "Oak Hills": { lat: 34.3836, lng: -117.3803 },
+  Phelan: { lat: 34.4261, lng: -117.5723, label: "above" },
+  "Pinon Hills": { lat: 34.4333, lng: -117.6467, label: "below" },
+  "Lucerne Valley": { lat: 34.4439, lng: -116.9675, label: "below" },
 };
 
 const SIZE = 400;
 const CENTER = SIZE / 2;
-/** SVG units per kilometre: keeps the farthest city (about 45 km) inside the outer ring. */
-const SCALE = 3.9;
+/** SVG units per kilometre: keeps the farthest town (about 34 km out) inside the outer ring. */
+const SCALE = 4.6;
 const KM_PER_MILE = 1.609;
-const RINGS_MILES = [10, 20, 30];
+const RINGS_MILES = [10, 20, 25];
 
 function project(lat: number, lng: number) {
   const { lat: lat0, lng: lng0 } = siteConfig.geo;
@@ -35,10 +39,28 @@ function project(lat: number, lng: number) {
   return { x: CENTER + kmX * SCALE, y: CENTER - kmY * SCALE };
 }
 
+function labelPosition(x: number, y: number, side: LabelSide) {
+  switch (side) {
+    case "left":
+      return { x: x - 11, y: y + 4, anchor: "end" as const };
+    case "right":
+      return { x: x + 11, y: y + 4, anchor: "start" as const };
+    case "above":
+      return { x, y: y - 12, anchor: "middle" as const };
+    case "below":
+      return { x, y: y + 20, anchor: "middle" as const };
+  }
+}
+
 function RadarMap() {
   const cities = siteConfig.serviceArea
-    .filter((name) => name in cityCoords)
-    .map((name) => ({ name, ...project(cityCoords[name].lat, cityCoords[name].lng) }));
+    .filter((name) => name in townCoords)
+    .map((name) => {
+      const town = townCoords[name];
+      const point = project(town.lat, town.lng);
+      const side = town.label ?? (point.x >= CENTER ? "right" : "left");
+      return { name, ...point, label: labelPosition(point.x, point.y, side) };
+    });
 
   return (
     <svg
@@ -47,7 +69,7 @@ function RadarMap() {
       aria-labelledby="radar-title"
       className="h-auto w-full"
     >
-      <title id="radar-title">{`Stylized map of our mobile service radius around the ${siteConfig.address.city} studio`}</title>
+      <title id="radar-title">{`Stylized map of the towns we cover around ${siteConfig.address.city}, across the ${siteConfig.region}`}</title>
       <defs>
         <radialGradient id="radar-fade" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="var(--color-brand-500)" stopOpacity="0.18" />
@@ -68,7 +90,7 @@ function RadarMap() {
         <line x1="8" y1={CENTER} x2={SIZE - 8} y2={CENTER} />
       </g>
 
-      {/* Distance rings, labelled along the south axis where no cities sit. */}
+      {/* Distance rings, labelled on the north-east diagonal where no towns sit. */}
       {RINGS_MILES.map((miles, i) => {
         const r = miles * KM_PER_MILE * SCALE;
         return (
@@ -87,8 +109,8 @@ function RadarMap() {
               strokeWidth="1"
             />
             <text
-              x={CENTER + 6}
-              y={CENTER + r - 6}
+              x={CENTER + r * Math.SQRT1_2 + 4}
+              y={CENTER - r * Math.SQRT1_2 - 4}
               fill="var(--color-ink-subtle)"
               fontSize="10"
               letterSpacing="1.5"
@@ -110,7 +132,6 @@ function RadarMap() {
 
       {/* Cities. */}
       {cities.map((city) => {
-        const right = city.x >= CENTER;
         return (
           <g key={city.name}>
             <circle cx={city.x} cy={city.y} r="3" fill="var(--color-ink)" />
@@ -123,9 +144,9 @@ function RadarMap() {
               strokeOpacity="0.6"
             />
             <text
-              x={city.x + (right ? 11 : -11)}
-              y={city.y + 4}
-              textAnchor={right ? "start" : "end"}
+              x={city.label.x}
+              y={city.label.y}
+              textAnchor={city.label.anchor}
               fill="var(--color-ink-muted)"
               fontSize="11"
               className="font-sans"
@@ -136,7 +157,7 @@ function RadarMap() {
         );
       })}
 
-      {/* Studio pin. */}
+      {/* Home-base pin. */}
       <g>
         <circle
           cx={CENTER}
@@ -157,15 +178,15 @@ function RadarMap() {
         <circle cx={CENTER} cy={CENTER} r="4" fill="var(--color-brand-400)" />
         <text
           x={CENTER}
-          y={CENTER + 28}
+          y={CENTER - 18}
           textAnchor="middle"
           fill="var(--color-brand-300)"
-          fontSize="11"
+          fontSize="10"
           fontWeight="600"
-          letterSpacing="1.5"
+          letterSpacing="1"
           className="font-display"
         >
-          STUDIO
+          {siteConfig.address.city.toUpperCase()}
         </text>
       </g>
     </svg>
@@ -173,9 +194,7 @@ function RadarMap() {
 }
 
 export function ServiceArea() {
-  const { address } = siteConfig;
-  const fullAddress = `${address.street}, ${address.city}, ${address.state} ${address.zip}`;
-  const directionsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${siteConfig.name}, ${fullAddress}`)}`;
+  const { address, region } = siteConfig;
 
   return (
     <Section tone="elevated" aria-labelledby="area-title" className="overflow-hidden">
@@ -185,11 +204,10 @@ export function ServiceArea() {
             eyebrow="Service area"
             title={
               <span id="area-title">
-                Mobile detailing across{" "}
-                <span className="text-gradient-brand">greater {address.city}.</span>
+                Mobile detailing across <span className="text-gradient-brand">the {region}.</span>
               </span>
             }
-            description="We work in your driveway, your office garage or your apartment lot. Our mobile unit carries its own water, power and lighting, so all we need is the car and a little room to walk around it."
+            description="We work in your driveway, your garage or your office lot. Our mobile unit carries its own water, power and lighting. Paint correction and ceramic coatings just need a garage or covered space to keep dust and sun off the paint."
           />
 
           <h3 className="mt-10 font-display text-xs font-semibold tracking-[0.2em] text-ink-subtle uppercase">
@@ -252,26 +270,11 @@ export function ServiceArea() {
                 <MapPin className="mt-0.5 size-4 shrink-0 text-brand-400" aria-hidden="true" />
                 <div className="text-sm">
                   <p className="font-display font-semibold text-ink">
-                    Studio, South {address.city}
+                    Based in {address.city}, serving the {region}
                   </p>
                   <p className="mt-0.5 text-ink-muted">
-                    {address.street}
-                    <br />
-                    {address.city}, {address.state} {address.zip}
+                    Fully mobile. We bring everything to your address.
                   </p>
-                  <a
-                    href={directionsHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group mt-2 inline-flex items-center gap-1 font-display text-sm font-semibold text-brand-300 hover:text-ink"
-                  >
-                    Get directions
-                    <ArrowUpRight
-                      className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                      aria-hidden="true"
-                    />
-                    <span className="sr-only">(opens Google Maps in a new tab)</span>
-                  </a>
                 </div>
               </div>
               <div className="flex gap-3">

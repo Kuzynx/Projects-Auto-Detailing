@@ -11,7 +11,7 @@ export function orderGalleryItems(items: GalleryItem[]) {
   return [...client, ...rest];
 }
 
-/** Portrait frames take two grid rows; wide studio originals span two columns. */
+/** Portrait frames take two grid rows; wide originals span two columns. */
 export function tileLayout(item: GalleryItem) {
   const ratio = item.height / item.width;
   const tall = ratio > 1.15;

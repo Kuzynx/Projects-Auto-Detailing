@@ -15,7 +15,7 @@ const LAST_UPDATED = "2026-10-02";
 const policy = {
   cancellationWindowHours: 24,
   lateCancellationFee: 50,
-  studioDeposit: 150,
+  correctionDeposit: 150,
   noShowGraceMinutes: 30,
   concernWindowHours: 48,
   coatingWarrantyYears: 3,
@@ -31,7 +31,7 @@ export const metadata = buildMetadata({
 
 const { name, legalName, email, phone, address } = siteConfig;
 const fee = formatPrice(policy.lateCancellationFee);
-const deposit = formatPrice(policy.studioDeposit);
+const deposit = formatPrice(policy.correctionDeposit);
 const hours = `${policy.cancellationWindowHours} hours`;
 
 const sections: LegalSection[] = [
@@ -42,9 +42,9 @@ const sections: LegalSection[] = [
       <>
         <p>
           These Terms of Service are an agreement between you and {legalName} (&ldquo;{name},&rdquo;
-          &ldquo;we,&rdquo; &ldquo;us&rdquo;), a Texas limited liability company. They apply when
-          you use this website, request an estimate or book any service with us, whether online, by
-          phone, by text or in person.
+          &ldquo;we,&rdquo; &ldquo;us&rdquo;), a California limited liability company. They apply
+          when you use this website, request an estimate or book any service with us, whether
+          online, by phone, by text or in person.
         </p>
         <p>
           By booking, you confirm that you are at least 18 years old and that you own the vehicle or
@@ -60,11 +60,13 @@ const sections: LegalSection[] = [
     content: (
       <>
         <p>
-          We provide exterior and interior detailing, paint correction, ceramic coatings and
-          recurring maintenance services, either at your location (mobile) or at our {address.city}{" "}
-          studio. What each service includes is described on our{" "}
-          <Link href="/services">services pages</Link>. Paint correction and ceramic coatings are
-          performed in our studio because they need controlled lighting and a dust-free environment.
+          We are a fully mobile business. We provide exterior and interior detailing, paint
+          correction, ceramic coatings and recurring maintenance services at your home or workplace
+          in {address.city} and across the {siteConfig.region}. What each service includes is
+          described on our <Link href="/services">services pages</Link>. Paint correction and
+          ceramic coatings need shade and protection from wind and dust, so they are performed in a
+          garage or covered space at your location (see{" "}
+          <a href="#your-responsibilities">Your responsibilities</a>).
         </p>
         <p>
           We may decline or stop work on a vehicle that is unsafe to work on, including vehicles
@@ -110,13 +112,15 @@ const sections: LegalSection[] = [
       <>
         <p>
           Washes, interior services and the Full Detail require no deposit. Paint correction and
-          ceramic coatings require a <strong>{deposit} deposit</strong> to reserve studio time. The
-          deposit is applied in full to your final invoice.
+          ceramic coatings take a full day or more, so they require a{" "}
+          <strong>{deposit} deposit</strong> to hold your appointment slot. The deposit is applied
+          in full to your final invoice.
         </p>
         <p>
-          If you cancel a studio booking at least {hours} before your appointment, we refund your
-          deposit in full. If you cancel later, or do not show, we keep the {fee} late-cancellation
-          fee from the deposit and refund the balance or hold it as credit, whichever you prefer.
+          If you cancel a deposit-backed booking at least {hours} before your appointment, we refund
+          your deposit in full. If you cancel later, or do not show, we keep the {fee}{" "}
+          late-cancellation fee from the deposit and refund the balance or hold it as credit,
+          whichever you prefer.
         </p>
       </>
     ),
@@ -157,6 +161,12 @@ const sections: LegalSection[] = [
           For mobile service, provide a safe, legal place to work with about three feet of clearance
           around the vehicle, and make sure you have the property owner&rsquo;s, HOA&rsquo;s or
           building&rsquo;s permission. We bring our own water and power.
+        </li>
+        <li>
+          For paint correction and ceramic coatings, provide a garage or covered space for the
+          length of the appointment (and overnight where a coating needs to cure), with access to it
+          for our team and equipment. If the space is not available or suitable on the day, we will
+          reschedule, and the appointment is treated as a late cancellation.
         </li>
         <li>
           Remove valuables, cash, documents and child seats before the appointment. We are not
@@ -242,7 +252,7 @@ const sections: LegalSection[] = [
           </li>
           <li>Avoid automatic car washes that use brushes or harsh chemicals.</li>
           <li>
-            Bring the vehicle to our studio for its included annual inspection and top-up within 30
+            Book the included annual inspection and top-up, performed at your location, within 30
             days of each anniversary of application.
           </li>
         </ul>
@@ -308,9 +318,9 @@ const sections: LegalSection[] = [
           service is limited to the amount you paid for that service.
         </p>
         <p>
-          Nothing in these terms limits liability for gross negligence or willful misconduct, or any
-          right you have that cannot be waived under Texas law, including under the Texas Deceptive
-          Trade Practices&ndash;Consumer Protection Act.
+          Nothing in these terms limits liability for fraud, gross negligence, willful misconduct or
+          violation of law, or any right you have that cannot be waived under California law,
+          including under the Consumers Legal Remedies Act and the Unfair Competition Law.
         </p>
       </>
     ),
@@ -334,15 +344,15 @@ const sections: LegalSection[] = [
     content: (
       <>
         <p>
-          These terms are governed by the laws of the State of Texas, without regard to its
+          These terms are governed by the laws of the State of California, without regard to its
           conflict-of-law rules.
         </p>
         <p>
           If something goes wrong, please contact us first. Most concerns are resolved with a phone
           call, and we ask that you give us 30 days to try to resolve a dispute informally before
           starting legal action. Any claim that is not resolved will be heard in the state or
-          federal courts located in Travis County, Texas, and you and we consent to their
-          jurisdiction. Either of us may bring a qualifying claim in justice (small claims) court.
+          federal courts located in San Bernardino County, California, and you and we consent to
+          their jurisdiction. Either of us may bring a qualifying claim in small claims court.
         </p>
       </>
     ),
@@ -363,8 +373,9 @@ const sections: LegalSection[] = [
     title: "Contact us",
     content: (
       <p>
-        {legalName}, {address.street}, {address.city}, {address.state} {address.zip}. Email{" "}
-        <a href={`mailto:${email}`}>{email}</a> or call <a href={siteConfig.phoneHref}>{phone}</a>.
+        {legalName}, {address.street ? <>{address.street}, </> : null}
+        {address.city}, {address.state} {address.zip}. Email <a href={`mailto:${email}`}>{email}</a>{" "}
+        or call <a href={siteConfig.phoneHref}>{phone}</a>.
       </p>
     ),
   },
@@ -392,8 +403,9 @@ export default function TermsPage() {
             <p className="text-ink-muted">
               Website prices are starting prices; we confirm the final price after inspection and
               never add charges without your OK. Cancel free up to {hours} ahead; later
-              cancellations cost {fee}. Studio services need a {deposit} deposit, applied to your
-              invoice. Ceramic coatings carry a {policy.coatingWarrantyYears}-year written warranty.
+              cancellations cost {fee}. Paint correction and coatings need a {deposit} deposit,
+              applied to your invoice. Ceramic coatings carry a {policy.coatingWarrantyYears}-year
+              written warranty.
             </p>
           </>
         }

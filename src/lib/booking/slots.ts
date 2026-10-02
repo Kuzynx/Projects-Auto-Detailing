@@ -4,12 +4,12 @@
  * the server action and the unit tests all agree.
  *
  * Dates are passed around as ISO calendar dates ("2026-10-10") and times as
- * 24-hour "HH:MM" strings, both interpreted in the studio's time zone.
+ * 24-hour "HH:MM" strings, both interpreted in the business's time zone.
  */
 import { siteConfig } from "@/config/site";
 import { getAddOn, getService, type VehicleSize } from "@/data/services";
 
-/** The studio is in Austin, TX. All appointment times are local to it. */
+/** All appointment times are local to the business (`siteConfig.timeZone`). */
 export const BUSINESS_TIME_ZONE = siteConfig.timeZone;
 /** How far ahead customers can book online. */
 export const BOOKING_WINDOW_DAYS = 60;
@@ -137,7 +137,7 @@ export function formatDateShort(iso: IsoDate): string {
   }).format(toUtcDate(iso));
 }
 
-/** Calendar date and minutes-past-midnight for `now` in the studio's time zone. */
+/** Calendar date and minutes-past-midnight for `now` in the business's time zone. */
 export function getZonedNow(
   now: Date,
   timeZone: string = BUSINESS_TIME_ZONE,
@@ -164,7 +164,7 @@ export function getZonedNow(
 /* ------------------------------------------------------------------ */
 
 export interface BookingWindow {
-  /** Today in the studio's time zone. */
+  /** Today in the business's time zone. */
   today: IsoDate;
   /** Earliest date a customer can pick (ignores closed days). */
   earliest: IsoDate;
@@ -211,23 +211,23 @@ export function getFirstBookableDate(now: Date, hours: WeeklyHours = weeklyHours
 /* ------------------------------------------------------------------ */
 
 export interface ParsedDuration {
-  /** Working minutes. 0 for day-based (drop-off) durations. */
+  /** Working minutes. 0 for day-based durations. */
   minutes: number;
-  /** True when the label is measured in days: a studio drop-off job. */
-  dropOff: boolean;
+  /** True when the label is measured in days: we arrive at opening and work all day. */
+  dayBased: boolean;
 }
 
 /**
  * Reads the first number in a duration label: "4–5 hrs" -> 240 minutes,
- * "1.5 hrs" -> 90, "+45 min" -> 45, "2–3 days" -> drop-off.
+ * "1.5 hrs" -> 90, "+45 min" -> 45, "2–3 days" -> day-based.
  */
 export function parseDuration(label: string): ParsedDuration {
   const match = /(\d+(?:\.\d+)?)/.exec(label);
-  if (!match) return { minutes: 0, dropOff: false };
+  if (!match) return { minutes: 0, dayBased: false };
   const value = Number(match[1]);
-  if (/day/i.test(label)) return { minutes: 0, dropOff: true };
-  if (/min/i.test(label)) return { minutes: Math.round(value), dropOff: false };
-  return { minutes: Math.round(value * 60), dropOff: false };
+  if (/day/i.test(label)) return { minutes: 0, dayBased: true };
+  if (/min/i.test(label)) return { minutes: Math.round(value), dayBased: false };
+  return { minutes: Math.round(value * 60), dayBased: false };
 }
 
 export interface JobInput {
@@ -239,26 +239,26 @@ export interface JobInput {
 /** Total on-site time for a service plus its add-ons. */
 export function getJobDuration({ serviceSlug, size, addOnSlugs = [] }: JobInput): ParsedDuration {
   const service = getService(serviceSlug);
-  if (!service) return { minutes: 0, dropOff: false };
+  if (!service) return { minutes: 0, dayBased: false };
   const base = parseDuration(service.duration[size]);
-  if (base.dropOff) return base;
+  if (base.dayBased) return base;
   const extra = [...new Set(addOnSlugs)].reduce((sum, slug) => {
     const addOn = getAddOn(slug);
     return sum + (addOn ? parseDuration(addOn.duration).minutes : 0);
   }, 0);
-  return { minutes: base.minutes + extra, dropOff: false };
+  return { minutes: base.minutes + extra, dayBased: false };
 }
 
 /* ------------------------------------------------------------------ */
 /* Time slots                                                          */
 /* ------------------------------------------------------------------ */
 
-export type TimeSlotKind = "start" | "drop-off" | "full-day";
+export type TimeSlotKind = "start" | "arrival" | "full-day";
 
 export interface TimeSlot {
   /** "09:00" */
   value: string;
-  /** "9:00 AM" or "Drop-off 8:00 AM" */
+  /** "9:00 AM" or "Arrival 7:00 AM" */
   label: string;
   kind: TimeSlotKind;
 }
@@ -288,7 +288,7 @@ export function parseTimeValue(value: string): number | null {
 
 /**
  * Appointment starts for a date. Hourly from opening, keeping only starts that
- * finish by closing. Day-based services get a single drop-off at opening; jobs
+ * finish by closing. Day-based services get a single arrival at opening; jobs
  * longer than the whole day get a single full-day start at opening.
  */
 export function getTimeSlots(
@@ -301,12 +301,12 @@ export function getTimeSlots(
   const job = getJobDuration(input);
   if (!getService(input.serviceSlug)) return [];
 
-  if (job.dropOff) {
+  if (job.dayBased) {
     return [
       {
         value: toTimeValue(day.open),
-        label: `Drop-off ${formatClock(day.open)}`,
-        kind: "drop-off",
+        label: `Arrival ${formatClock(day.open)}`,
+        kind: "arrival",
       },
     ];
   }
@@ -340,7 +340,7 @@ export function formatHoursForDate(iso: IsoDate, hours: WeeklyHours = weeklyHour
   return day ? `${formatClock(day.open)} – ${formatClock(day.close)}` : null;
 }
 
-/** Weekday names the studio is closed, e.g. ["Sunday"]. */
+/** Weekday names we're closed, e.g. ["Sunday"]. */
 export function getClosedWeekdays(hours: WeeklyHours = weeklyHours): string[] {
   const names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   return names.filter((_, i) => !hours[i]);

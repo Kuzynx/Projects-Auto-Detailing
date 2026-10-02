@@ -10,6 +10,7 @@ import { ButtonLink, Logo, buttonClasses } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { isActivePath } from "./nav-utils";
 import { SocialLinks } from "./social-icons";
+import { baseLocation, hasStorefront } from "./location";
 
 const MENU_ID = "site-mobile-menu";
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -239,13 +240,20 @@ export function MobileMenu({ className }: { className?: string }) {
                 <div>
                   <p className="flex items-center gap-2 font-display text-xs font-semibold tracking-[0.2em] text-ink-subtle uppercase">
                     <MapPin className="size-3.5" aria-hidden="true" />
-                    Studio
+                    {hasStorefront ? "Visit us" : "Service area"}
                   </p>
-                  <address className="mt-3 text-sm leading-relaxed text-ink-muted not-italic">
-                    {siteConfig.address.street}
-                    <br />
-                    {siteConfig.address.city}, {siteConfig.address.state} {siteConfig.address.zip}
-                  </address>
+                  {hasStorefront ? (
+                    <address className="mt-3 text-sm leading-relaxed text-ink-muted not-italic">
+                      {siteConfig.address.street}
+                      <br />
+                      {siteConfig.address.city}, {siteConfig.address.state} {siteConfig.address.zip}
+                    </address>
+                  ) : (
+                    <p className="mt-3 text-sm leading-relaxed text-ink-muted">
+                      <span className="text-ink">Mobile only.</span> We come to your home or office
+                      anywhere in the {siteConfig.region}, based in {baseLocation}.
+                    </p>
+                  )}
                   <SocialLinks className="mt-5" />
                 </div>
               </motion.div>

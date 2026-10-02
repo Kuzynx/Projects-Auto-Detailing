@@ -2,21 +2,21 @@ import { describe, expect, it } from "vitest";
 import { buildIcs, formatIcsDate, googleCalendarUrl, icsDataUrl, zonedDateTimeToUtc } from "../ics";
 
 describe("zonedDateTimeToUtc", () => {
-  it("converts Austin daylight time (UTC-5)", () => {
+  it("converts Pacific daylight time (UTC-7)", () => {
     expect(zonedDateTimeToUtc("2026-10-10", "09:00").toISOString()).toBe(
-      "2026-10-10T14:00:00.000Z",
+      "2026-10-10T16:00:00.000Z",
     );
   });
 
-  it("converts Austin standard time (UTC-6)", () => {
+  it("converts Pacific standard time (UTC-8)", () => {
     expect(zonedDateTimeToUtc("2026-12-05", "09:00").toISOString()).toBe(
-      "2026-12-05T15:00:00.000Z",
+      "2026-12-05T17:00:00.000Z",
     );
   });
 
   it("handles the day after the DST change", () => {
-    expect(zonedDateTimeToUtc("2026-11-02", "08:00").toISOString()).toBe(
-      "2026-11-02T14:00:00.000Z",
+    expect(zonedDateTimeToUtc("2026-11-02", "07:00").toISOString()).toBe(
+      "2026-11-02T15:00:00.000Z",
     );
   });
 });
@@ -31,8 +31,8 @@ describe("buildIcs", () => {
     stamp: new Date("2026-10-07T15:00:00Z"),
     title: "The Full Detail, mobile",
     description: "Reference: PAD-7F3K2Q\nQuestions; call us",
-    location: "1200 Barton Hills Dr, Austin, TX 78704",
-    organizerName: "Test Studio",
+    location: "123 Main St, Hesperia, CA 92345",
+    organizerName: "Test Detailing",
   });
   const lines = ics.split("\r\n");
 

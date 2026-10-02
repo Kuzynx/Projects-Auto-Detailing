@@ -57,7 +57,7 @@ export function BeforeAfter() {
                 Real driveway. <span className="text-gradient-brand">Real results.</span>
               </span>
             }
-            description="No studio lights, no filters. This is a client's Shelby GT350 photographed by our detailer mid-wash and again at handover, right where it lives."
+            description="No staged lighting, no filters. This is a client's Shelby GT350 photographed by our detailer mid-wash and again at handover, right where it lives."
           />
 
           {service && (

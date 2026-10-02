@@ -31,7 +31,7 @@ const stats = [
     value: reviewCount,
     suffix: "",
     label: "Owner reviews",
-    detail: `Written by ${siteConfig.address.city} drivers`,
+    detail: `Written by ${siteConfig.region} drivers`,
   },
 ];
 

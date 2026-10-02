@@ -68,7 +68,8 @@ export interface Service {
   recentJob?: { image: string; alt: string; caption: string; width: number; height: number };
 }
 
-export type ServiceLocation = "mobile" | "studio";
+/** Every service is mobile. "garage" work needs a garage or covered, enclosed space at your location. */
+export type ServiceLocation = "mobile" | "garage";
 
 export interface ServiceFaq {
   question: string;
@@ -113,7 +114,7 @@ export const services: Service[] = [
     aftercare: [
       "Wait 12 hours before driving in rain so the sealant fully bonds.",
       "Skip automatic car washes. The brushes reintroduce the swirls we avoid.",
-      "Rinse bird droppings and bug splatter within 48 hours; Texas sun bakes them into the clear coat.",
+      "Rinse bird droppings and bug splatter within 48 hours; desert sun bakes them into the clear coat.",
     ],
     faq: [
       {
@@ -174,7 +175,7 @@ export const services: Service[] = [
       {
         question: "Will my seats be wet when you leave?",
         answer:
-          "Leather and hard surfaces are dry on hand-off. Shampooed mats and carpets are damp to the touch and dry in two to four hours with the windows cracked, faster in Austin summer heat.",
+          "Leather and hard surfaces are dry on hand-off. Shampooed mats and carpets are damp to the touch and dry in two to four hours with the windows cracked, faster in dry desert heat.",
       },
       {
         question: "Do you remove stains from cloth seats?",
@@ -242,7 +243,7 @@ export const services: Service[] = [
     category: "correction",
     tagline: "Swirls, scratches and oxidation, permanently removed.",
     description:
-      "Multi-stage machine compounding and polishing that levels the clear coat to remove swirl marks, light scratches, water spots and oxidation. Measured with a paint-depth gauge at every panel. Finished with a sealant or paired with a ceramic coating.",
+      "Multi-stage machine compounding and polishing that levels the clear coat to remove swirl marks, light scratches, hard-water spots and sun oxidation. Done in your garage or covered space with our own lighting, power and water, and measured with a paint-depth gauge at every panel. Finished with a sealant or paired with a ceramic coating.",
     price: { sedan: 599, suv: 699, truck: 849 },
     duration: { sedan: "1 day", suv: "1 day", truck: "1–2 days" },
     includes: [
@@ -261,7 +262,7 @@ export const services: Service[] = [
       "Paint depth measured on every panel",
       "Photo documentation of every panel",
     ],
-    location: "studio",
+    location: "garage",
     recommendedAddOns: ["headlight-restoration", "trim-restoration", "wheel-coating"],
     aftercare: [
       "No washing for seven days while the sealant cures.",
@@ -281,9 +282,9 @@ export const services: Service[] = [
           "Anything that does not catch a fingernail usually can. Deeper scratches that go through the clear coat can be reduced and made far less visible, but removing them fully would mean touch-up or a repaint. We tell you which is which during the walkthrough.",
       },
       {
-        question: "Why does it have to be done in the studio?",
+        question: "Why do you need my garage?",
         answer:
-          "Correction needs controlled lighting to see every defect and a dust-free space so nothing settles on freshly polished paint. We offer white-glove pickup and drop-off anywhere in our service area.",
+          "Polishing in direct sun or wind is how dust gets ground into fresh paint. A garage or covered, enclosed space gives us shade and still air; we bring the color-matched lighting, power and water. No garage? Ask us about a Full Detail instead, which can be done in open shade.",
       },
     ],
   },
@@ -293,7 +294,7 @@ export const services: Service[] = [
     category: "protection",
     tagline: "Years of gloss and protection in a single application.",
     description:
-      "Professional-grade 9H ceramic coating applied in our climate-controlled studio. Includes a full paint correction prep stage so the coating locks in a flawless finish. Hydrophobic, chemical-resistant and backed by a written warranty.",
+      "Professional-grade 9H ceramic coating applied in your garage or covered, enclosed space, out of the sun and wind. Includes a full paint correction prep stage so the coating locks in a flawless finish, then cures overnight in your garage. Hydrophobic, UV and chemical-resistant, and backed by a written warranty.",
     price: { sedan: 1199, suv: 1399, truck: 1649 },
     duration: { sedan: "2 days", suv: "2 days", truck: "2–3 days" },
     includes: [
@@ -314,7 +315,7 @@ export const services: Service[] = [
       "Professional 9H ceramic on paint, trim and glass",
       "Three-year written warranty",
     ],
-    location: "studio",
+    location: "garage",
     recommendedAddOns: ["wheel-coating", "glass-coating", "trim-restoration"],
     aftercare: [
       "Keep the car dry for 48 hours and avoid washing for seven days while the coating cures.",
@@ -481,15 +482,21 @@ export function getAddOn(slug: string) {
 /* Extended catalog data (Services & Pricing pages).                   */
 /* ------------------------------------------------------------------ */
 
-export const serviceLocations: Record<ServiceLocation, { label: string; description: string }> = {
+export const serviceLocations: Record<
+  ServiceLocation,
+  { label: string; shortLabel: string; description: string }
+> = {
   mobile: {
     label: "Mobile",
-    description: "We come to your home or office with our own water, power and lighting.",
-  },
-  studio: {
-    label: "Studio",
+    shortLabel: "Mobile",
     description:
-      "Performed in our climate-controlled studio, with free pickup and drop-off in our service area.",
+      "We come to your home or office with our own water, power and lighting. Early starts are available to beat the afternoon heat.",
+  },
+  garage: {
+    label: "Mobile, garage required",
+    shortLabel: "Garage required",
+    description:
+      "Done at your location in a garage or covered, enclosed space: shade and still air keep desert dust and sun off fresh paint. We bring the lighting, power and water.",
   },
 };
 
@@ -601,12 +608,12 @@ export const serviceProcess: Record<ServiceCategory, ServiceProcessStep[]> = {
     {
       title: "Apply and level",
       description:
-        "The coating goes on panel by panel under controlled lighting, then is leveled by hand at the exact flash time.",
+        "The coating goes on panel by panel under our portable lighting, with the garage door down to keep dust out, then is leveled by hand at the exact flash time.",
     },
     {
       title: "Cure and hand-off",
       description:
-        "An overnight cure in the studio, a final inspection, and a walkthrough of your aftercare kit and warranty.",
+        "The coating cures overnight in your garage. We return for a final inspection and walk you through your aftercare kit and warranty.",
     },
   ],
 };
@@ -696,12 +703,14 @@ export const comparisonFeatures: ComparisonFeature[] = [
     values: { "ceramic-coating": "3-year written" },
   },
   {
-    label: "Done at your home",
+    label: "Where we work",
     values: {
-      "signature-wash": true,
-      "interior-refresh": true,
-      "full-detail": true,
-      "maintenance-plan": true,
+      "signature-wash": "Your driveway",
+      "interior-refresh": "Your driveway",
+      "full-detail": "Your driveway",
+      "paint-correction": "Your garage",
+      "ceramic-coating": "Your garage",
+      "maintenance-plan": "Your driveway",
     },
   },
 ];
@@ -715,7 +724,8 @@ export interface PriceFactor {
 export const priceFactors: PriceFactor[] = [
   {
     title: "Vehicle condition",
-    description: "Heavy oxidation, tree sap or neglected paint takes longer to bring back.",
+    description:
+      "Heavy sun oxidation, hard-water spots or neglected paint takes longer to bring back.",
   },
   {
     title: "Pet hair",
@@ -723,7 +733,8 @@ export const priceFactors: PriceFactor[] = [
   },
   {
     title: "Excessive soiling",
-    description: "Mud, sand, spills or biohazard clean-up beyond normal daily use.",
+    description:
+      "Caked mud, embedded desert sand, spills or biohazard clean-up beyond normal daily use.",
   },
 ];
 

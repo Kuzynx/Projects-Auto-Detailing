@@ -42,20 +42,21 @@ export const interiorConditions = [
 export type PaintCondition = (typeof paintConditions)[number]["value"];
 export type InteriorCondition = (typeof interiorConditions)[number]["value"];
 
-export const locationTypes = ["mobile", "studio"] as const;
-export type LocationType = (typeof locationTypes)[number];
-
 /** Select value for a city outside `siteConfig.serviceArea`. */
 export const OTHER_CITY = "Other";
 
 /**
- * Services whose catalog `location` is "studio" (paint correction, ceramic
- * coating) need dust-free air and color-matched lighting, so they cannot be
- * booked as mobile appointments.
+ * Every appointment is mobile. Services whose catalog `location` is not plain
+ * "mobile" (paint correction, ceramic coating) still happen at the customer's
+ * address but need a garage or covered, enclosed space.
  */
-export function isStudioOnly(serviceSlug: string): boolean {
-  return getService(serviceSlug)?.location === "studio";
+export function requiresGarage(serviceSlug: string): boolean {
+  const service = getService(serviceSlug);
+  return Boolean(service) && service?.location !== "mobile";
 }
+
+export const GARAGE_REQUIRED_MESSAGE =
+  "Confirm you have a garage or covered space. Correction and coatings need shade and still air: direct sun flashes the product before it levels, and wind blows dust into the finish.";
 
 /** Add-ons we suggest based on what the customer told us about the vehicle. */
 export function getRecommendedAddOns(draft: Pick<BookingDraft, "petHair" | "smoke">): string[] {
@@ -81,11 +82,12 @@ export interface BookingDraft {
   petHair: boolean;
   smoke: boolean;
   addOns: string[];
-  locationType: LocationType;
   street: string;
   city: string;
   cityOther: string;
   zip: string;
+  /** Required (true) only for services that need a garage or covered space. */
+  garageConfirmed: boolean;
   date: string;
   time: string;
   name: string;
@@ -110,11 +112,11 @@ export const emptyDraft: BookingDraft = {
   petHair: false,
   smoke: false,
   addOns: [],
-  locationType: "mobile",
   street: "",
   city: "",
   cityOther: "",
   zip: "",
+  garageConfirmed: false,
   date: "",
   time: "",
   name: "",
@@ -149,7 +151,7 @@ export const bookingSteps = [
   {
     id: "schedule",
     label: "Time & place",
-    fields: ["locationType", "street", "city", "cityOther", "zip", "date", "time"],
+    fields: ["street", "city", "cityOther", "zip", "garageConfirmed", "date", "time"],
   },
   { id: "contact", label: "Confirm", fields: ["name", "email", "phone", "notes", "smsConsent"] },
 ] as const satisfies readonly { id: string; label: string; fields: readonly BookingField[] }[];
@@ -231,14 +233,22 @@ export const addOnsStepSchema = z.object({
 });
 
 export const scheduleStepSchema = z.object({
-  locationType: z.enum(locationTypes, { error: "Choose mobile service or studio drop-off." }),
-  street: text(120),
-  city: text(60),
+  street: text(120).min(1, { error: "Enter the street address where the car will be parked." }),
+  city: text(60)
+    .min(1, { error: "Choose your city." })
+    .refine(
+      (city) =>
+        city === "" ||
+        city === OTHER_CITY ||
+        (siteConfig.serviceArea as readonly string[]).includes(city),
+      { error: "Choose a city from the list, or Other." },
+    ),
   cityOther: text(60),
   zip: z
     .string()
     .trim()
-    .refine((v) => v === "" || /^\d{5}(-\d{4})?$/.test(v), { error: "Enter a 5-digit ZIP code." }),
+    .regex(/^\d{5}(-\d{4})?$/, { error: "Enter a 5-digit ZIP code." }),
+  garageConfirmed: z.boolean(),
   date: z.string().min(1, { error: "Choose a date." }),
   time: z.string().min(1, { error: "Choose a time." }),
 });
@@ -284,41 +294,24 @@ const stepSchemas = {
 
 type CrossFieldInput = Pick<
   BookingDraft,
-  | "service"
-  | "size"
-  | "addOns"
-  | "locationType"
-  | "street"
-  | "city"
-  | "cityOther"
-  | "zip"
-  | "date"
-  | "time"
+  "service" | "size" | "addOns" | "city" | "cityOther" | "garageConfirmed" | "date" | "time"
 >;
 
 /**
- * Rules that depend on more than one field or on the clock: studio-only
- * services, mobile address, open days, lead time and time-slot fit.
+ * Rules that depend on more than one field or on the clock: the "Other" city,
+ * garage confirmation for correction and coatings, open days, lead time and
+ * time-slot fit.
  */
 export function getCrossFieldErrors(data: CrossFieldInput, now: Date): FieldErrors {
   const errors: FieldErrors = {};
   const service = getService(data.service);
 
-  if (service && isStudioOnly(service.slug) && data.locationType !== "studio") {
-    errors.locationType = `${service.name} is performed in our studio only. Choose studio drop-off.`;
+  if (data.city.trim() === OTHER_CITY && !data.cityOther.trim()) {
+    errors.cityOther = "Tell us which city the car is in.";
   }
 
-  if (data.locationType === "mobile") {
-    if (!data.street.trim())
-      errors.street = "Enter the street address where the car will be parked.";
-    const city = data.city.trim();
-    if (!city) errors.city = "Choose your city.";
-    else if (city !== OTHER_CITY && !(siteConfig.serviceArea as readonly string[]).includes(city)) {
-      errors.city = "Choose a city from the list, or Other.";
-    } else if (city === OTHER_CITY && !data.cityOther.trim()) {
-      errors.cityOther = "Tell us which city the car is in.";
-    }
-    if (!data.zip.trim()) errors.zip = "Enter a 5-digit ZIP code.";
+  if (service && requiresGarage(service.slug) && data.garageConfirmed !== true) {
+    errors.garageConfirmed = GARAGE_REQUIRED_MESSAGE;
   }
 
   if (data.date) {

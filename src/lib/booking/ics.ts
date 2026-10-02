@@ -1,11 +1,11 @@
 /**
  * Minimal RFC 5545 calendar file, generated client-side for the "Add to
- * calendar" button. Times are converted from studio-local to UTC so every
+ * calendar" button. Times are converted from business-local time to UTC so every
  * calendar app shows the right wall-clock time without a VTIMEZONE block.
  */
 import { BUSINESS_TIME_ZONE, parseTimeValue } from "./slots";
 
-/** Offset of `timeZone` from UTC at `instant`, in minutes (Chicago in October: -300). */
+/** Offset of `timeZone` from UTC at `instant`, in minutes (Los Angeles in October: -420). */
 function getTimeZoneOffsetMinutes(instant: Date, timeZone: string): number {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone,

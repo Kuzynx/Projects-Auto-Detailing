@@ -1,7 +1,8 @@
 # Project's Auto Detailing — website
 
-Marketing and booking site for Project's Auto Detailing, a premium mobile and studio auto detailer in
-Austin, TX. Every page is built to turn a visitor into a booking: services and transparent pricing, a
+Marketing and booking site for Project's Auto Detailing, a premium, fully mobile auto detailer: every
+service is performed at the customer's home or workplace. The home city, region and service area are
+set in `src/config/site.ts`. Every page is built to turn a visitor into a booking: services and transparent pricing, a
 gallery of real work, FAQs, and an online booking flow that emails the shop.
 
 Business facts (name, phone, hours, prices, services) live in a handful of typed data files, so the
@@ -127,7 +128,8 @@ build time by `src/lib/seo/og-image.tsx`, so replacing that file updates them to
 ## SEO and security
 
 - Per-page titles, descriptions, canonical URLs and Open Graph images via `buildMetadata()`.
-- JSON-LD for the local business (`AutoWash` / `LocalBusiness`, hours, geo, rating), services,
+- JSON-LD for the local business (`AutoWash` / `LocalBusiness`, hours, geo, rating, `areaServed`
+  from the service area; no street address is emitted while `siteConfig.mobileOnly` is true), services,
   FAQ and breadcrumbs. Validate with Google's [Rich Results Test](https://search.google.com/test/rich-results).
 - `/sitemap.xml` (including image entries) and `/robots.txt`, both generated from code.
 - Security headers in `next.config.ts`: a Content Security Policy, `X-Frame-Options: DENY`,

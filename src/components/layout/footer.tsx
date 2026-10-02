@@ -4,6 +4,7 @@ import { bookingHref, siteConfig } from "@/config/site";
 import { services } from "@/data/services";
 import { Container, Logo } from "@/components/ui";
 import { SocialLinks } from "./social-icons";
+import { baseLocation, hasStorefront, mapsHref } from "./location";
 
 const companyLinks = [
   { label: "About", href: "/about" },
@@ -15,8 +16,6 @@ const companyLinks = [
 ] as const;
 
 const { address } = siteConfig;
-const fullAddress = `${address.street}, ${address.city}, ${address.state} ${address.zip}`;
-const mapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${siteConfig.name}, ${fullAddress}`)}`;
 
 function ColumnHeading({ id, children }: { id?: string; children: React.ReactNode }) {
   return (
@@ -63,8 +62,11 @@ export function Footer() {
               {siteConfig.tagline}
             </p>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-ink-muted">
-              Mobile and studio detailing across greater {address.city}. Paint correction, ceramic
-              coatings and interiors, done by hand and backed in writing.
+              {hasStorefront
+                ? "Mobile and in-shop detailing"
+                : "Mobile detailing at your home or office"}{" "}
+              across the {siteConfig.region}. Paint correction, ceramic coatings and interiors, done
+              by hand and backed in writing.
             </p>
             <SocialLinks className="mt-7" />
           </div>
@@ -111,23 +113,34 @@ export function Footer() {
 
           {/* Contact */}
           <div className="sm:col-span-2 lg:col-span-3">
-            <ColumnHeading>Visit or call</ColumnHeading>
+            <ColumnHeading>{hasStorefront ? "Visit or call" : "Call or message"}</ColumnHeading>
             <ul className="mt-5 space-y-4 text-sm">
               <li>
-                <a
-                  href={mapsHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex gap-3 text-ink-muted transition-colors hover:text-ink"
-                >
-                  <MapPin className="mt-0.5 size-4 shrink-0 text-brand-400" aria-hidden="true" />
-                  <address className="leading-relaxed not-italic">
-                    {address.street}
-                    <br />
-                    {address.city}, {address.state} {address.zip}
-                    <span className="sr-only"> (opens Google Maps in a new tab)</span>
-                  </address>
-                </a>
+                {hasStorefront && mapsHref ? (
+                  <a
+                    href={mapsHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex gap-3 text-ink-muted transition-colors hover:text-ink"
+                  >
+                    <MapPin className="mt-0.5 size-4 shrink-0 text-brand-400" aria-hidden="true" />
+                    <address className="leading-relaxed not-italic">
+                      {address.street}
+                      <br />
+                      {address.city}, {address.state} {address.zip}
+                      <span className="sr-only"> (opens Google Maps in a new tab)</span>
+                    </address>
+                  </a>
+                ) : (
+                  <p className="flex gap-3 text-ink-muted">
+                    <MapPin className="mt-0.5 size-4 shrink-0 text-brand-400" aria-hidden="true" />
+                    <span className="leading-relaxed">
+                      Based in {baseLocation}
+                      <br />
+                      <span className="text-ink">Mobile only, we come to you</span>
+                    </span>
+                  </p>
+                )}
               </li>
               <li>
                 <a

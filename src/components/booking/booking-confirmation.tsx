@@ -11,9 +11,9 @@ import {
   formatServiceAddress,
   formatVehicle,
   getCancellationPolicy,
-  getLocationTypeLabel,
   getSizeLabel,
 } from "@/lib/booking/format";
+import { requiresGarage } from "@/lib/booking/schema";
 import { buildIcs, googleCalendarUrl, icsDataUrl, zonedDateTimeToUtc } from "@/lib/booking/ics";
 import {
   findTimeSlot,
@@ -29,7 +29,7 @@ function firstName(name: string) {
   return name.trim().split(/\s+/)[0] ?? name;
 }
 
-/** Calendar entry: the job length, or a 30-minute drop-off for multi-day studio work. */
+/** Calendar entry: the job length, or opening to close for day-based work. */
 function useCalendarEvent({ reference, booking }: BookingActionSuccess) {
   return useMemo(() => {
     const service = getService(booking.service);
@@ -48,11 +48,13 @@ function useCalendarEvent({ reference, booking }: BookingActionSuccess) {
     const startMinutes = parseTimeValue(booking.time) ?? 0;
     const close = weeklyHours[weekdayOf(booking.date)]?.close ?? startMinutes + 60;
     const lengthMinutes =
-      slot?.kind === "drop-off" ? 30 : Math.max(60, Math.min(job.minutes, close - startMinutes));
+      slot?.kind === "arrival"
+        ? Math.max(60, close - startMinutes)
+        : Math.max(60, Math.min(job.minutes, close - startMinutes));
 
     const start = zonedDateTimeToUtc(booking.date, booking.time);
     const end = new Date(start.getTime() + lengthMinutes * 60_000);
-    const title = `${slot?.kind === "drop-off" ? "Drop-off: " : ""}${service?.name ?? "Detail"} with ${siteConfig.name}`;
+    const title = `${service?.name ?? "Detail"} with ${siteConfig.name}`;
     const description = [
       `Booking reference: ${reference}`,
       `Vehicle: ${formatVehicle(booking) ?? getSizeLabel(booking.size)}`,
@@ -112,10 +114,9 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
     },
     {
       title: "Day-before reminder",
-      body:
-        booking.locationType === "mobile"
-          ? "You'll get your technician's arrival window. Leave about three feet of clearance around the car; we bring water and power."
-          : `You'll get studio directions. Drop the car at ${siteConfig.address.street} and we'll text you the moment it's ready.`,
+      body: requiresGarage(booking.service)
+        ? "You'll get your arrival time. Clear the garage or covered space so we can work all the way around the car; we bring water, power and lighting."
+        : "You'll get your technician's arrival window. Leave about three feet of clearance around the car; we bring water and power.",
     },
     {
       title: "Walkthrough, then the work",
@@ -213,10 +214,7 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
                 ],
                 ["Add-ons", estimate.addOns.map((a) => a.name).join(", ") || "None"],
                 ["When", when ?? booking.date],
-                [
-                  "Where",
-                  `${getLocationTypeLabel(booking.locationType)}: ${formatServiceAddress(booking)}`,
-                ],
+                ["Where", formatServiceAddress(booking)],
               ].map(([label, value]) => (
                 <div key={label} className="flex gap-4">
                   <dt className="w-20 shrink-0 text-ink-subtle">{label}</dt>

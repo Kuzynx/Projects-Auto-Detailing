@@ -12,7 +12,6 @@ describe("parseBookingSearchParams", () => {
     expect(draft.service).toBe("full-detail");
     expect(draft.size).toBe("truck");
     expect(draft.addOns).toEqual(["engine-bay", "headlight-restoration"]);
-    expect(draft.locationType).toBe("mobile");
   });
 
   it("ignores unknown values and de-duplicates add-ons", () => {
@@ -27,10 +26,11 @@ describe("parseBookingSearchParams", () => {
     expect(draft.addOns).toEqual(["engine-bay"]);
   });
 
-  it("moves studio-only services to studio drop-off", () => {
-    expect(parseBookingSearchParams({ service: "ceramic-coating" }).draft.locationType).toBe(
-      "studio",
-    );
+  it("pre-selects services that need a garage like any other", () => {
+    const { draft, hasService } = parseBookingSearchParams({ service: "ceramic-coating" });
+    expect(hasService).toBe(true);
+    expect(draft.service).toBe("ceramic-coating");
+    expect(draft.garageConfirmed).toBe(false);
   });
 
   it("is case and whitespace tolerant", () => {

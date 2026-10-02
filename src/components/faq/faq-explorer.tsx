@@ -118,7 +118,7 @@ export function FaqExplorer({ items }: { items: FaqItem[] }) {
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search: coatings, rain, deposit, pet hair..."
+            placeholder="Search: coatings, garage, deposit, pet hair..."
             autoComplete="off"
             className="h-14 w-full rounded-full border border-border-strong bg-surface pr-12 pl-12 text-base text-ink transition-colors placeholder:text-ink-subtle hover:border-white/25 focus:border-brand-500 [&::-webkit-search-cancel-button]:hidden"
           />

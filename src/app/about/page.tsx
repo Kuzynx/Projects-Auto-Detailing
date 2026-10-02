@@ -56,7 +56,7 @@ export default function AboutPage() {
       <PageHero
         eyebrow={`About ${siteConfig.name}`}
         title={`Obsessed with the details since ${siteConfig.founded}`}
-        description="A small team of certified detailers who measure paint, sweat the edges and treat a family SUV with the same care as a supercar."
+        description={`A fully mobile team of certified detailers in the ${siteConfig.region}. We measure paint, sweat the edges and treat a family SUV with the same care as a supercar, right in your driveway.`}
         image="/images/hero-aston-sunset.jpg"
         imageAlt="Aston Martin parked beneath a concrete overpass at golden hour"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "About" }]}
@@ -75,21 +75,23 @@ export default function AboutPage() {
             </h2>
             <div className="mt-6 space-y-5 text-base text-pretty text-ink-muted sm:text-lg">
               <p>
-                In {siteConfig.founded}, {founder.name} was washing cars on weekends in{" "}
+                In {siteConfig.founded}, {founder.name} was washing cars on weekends around{" "}
                 {siteConfig.address.city} and noticing the same thing on almost every one: swirl
                 marks from automatic washes and quick-detail shops. Damage done by people who were
                 supposed to be helping.
               </p>
               <p>
-                So he did it the slow way. Two buckets and grit guards. A paint-depth gauge before
-                any polisher. Inspection lights that show every flaw. Word spread from one neighbor
-                to the next, and {siteConfig.name} grew into a mobile fleet and a climate-controlled
-                studio on South Congress.
+                So he did it the slow way, and he did it at the customer&rsquo;s house. Two buckets
+                and grit guards. A paint-depth gauge before any polisher. Inspection lights that
+                show every flaw. Word spread from one driveway to the next, and {siteConfig.name}{" "}
+                grew into a fully mobile team covering the {siteConfig.region}.
               </p>
               <p>
-                {siteConfig.stats.vehiclesDetailed.toLocaleString("en-US")} cars later, the method
-                has not changed. Neither has the rule: we only hand back a car we would be proud to
-                drive ourselves.
+                We still have no shop, on purpose. We roll out early to beat the desert heat, carry
+                our own water and power, and do paint correction and ceramic coatings in your
+                garage, out of the sun and wind.{" "}
+                {siteConfig.stats.vehiclesDetailed.toLocaleString("en-US")} cars later, the rule has
+                not changed: we only hand back a car we would be proud to drive ourselves.
               </p>
             </div>
           </Reveal>
@@ -310,10 +312,10 @@ export default function AboutPage() {
           <div className="max-w-2xl">
             <p className="flex items-center gap-2 font-display text-sm font-semibold text-brand-300">
               <MapPin className="size-4" aria-hidden />
-              Local to {siteConfig.address.city}, {siteConfig.address.state}
+              Mobile across the {siteConfig.region}
             </p>
             <p className="mt-3 text-lg text-pretty text-ink-muted">
-              Based on South Congress and on the road every day across{" "}
+              Based in {siteConfig.address.city} and on the road every day across{" "}
               {siteConfig.serviceArea.slice(0, -1).join(", ")} and{" "}
               {siteConfig.serviceArea[siteConfig.serviceArea.length - 1]}. We sponsor local
               cars-and-coffee meets and offer discounted details to school and nonprofit fleets.

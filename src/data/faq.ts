@@ -16,14 +16,13 @@ export const faqs: FaqItem[] = [
   {
     category: "mobile",
     question: "Do you come to me or do I drop the car off?",
-    answer:
-      "Both. Washes, interior work and the Full Detail are available mobile anywhere in our service area. We bring our own water, power and lighting. Paint correction and ceramic coatings are done in our climate-controlled South Austin studio because they need dust-free conditions and controlled lighting.",
+    answer: `We come to you. ${siteConfig.name} is fully mobile, so there is nothing to drop off and no shop to visit. Washes, interiors and the Full Detail happen in your driveway, at the office or wherever the car is parked anywhere in the ${siteConfig.region}. Paint correction and ceramic coatings are done in your garage or another covered space, because they need shade, still air and controlled lighting, which we bring with us.`,
   },
   {
     category: "mobile",
     question: "What do you need from me for a mobile appointment?",
     answer:
-      "Just a parking spot with about three feet of clearance around the vehicle. Driveways, apartment lots and office garages all work. We are fully self-contained and insured.",
+      "Just a parking spot with about three feet of clearance around the vehicle. Driveways, apartment lots and office parking all work. For paint correction and ceramic coatings we also need a garage or covered space for the day. You do not need to provide water or power: our rig carries its own water, generator and lighting, and we are fully insured.",
   },
   {
     category: "booking",
@@ -41,13 +40,13 @@ export const faqs: FaqItem[] = [
     category: "booking",
     question: "Do you take a deposit?",
     answer:
-      "No deposit for washes, interiors or the Full Detail. Paint correction and ceramic coatings require a $150 deposit to hold the studio bay, applied to your final invoice.",
+      "No deposit for washes, interiors or the Full Detail. Paint correction and ceramic coatings require a $150 deposit to reserve the full day on our schedule, applied to your final invoice.",
   },
   {
     category: "services",
     question: "How long does a detail take?",
     answer:
-      "A Signature Wash takes about 1.5 hours, an Interior Refresh around 2 hours, and the Full Detail is a 4–6 hour appointment. Paint correction is a full day and ceramic coatings are a two-day studio service.",
+      "A Signature Wash takes about 1.5 hours, an Interior Refresh around 2 hours, and the Full Detail is a 4–6 hour appointment. Paint correction is a full day and ceramic coatings take two days in your garage, so the coating can cure out of the sun and wind.",
   },
   {
     category: "services",
@@ -93,14 +92,13 @@ export const faqs: FaqItem[] = [
   {
     category: "services",
     question: "Do you detail fleets and commercial vehicles?",
-    answer:
-      "We do. We maintain fleets for dealerships, realtors, property managers and executive car services across the Austin metro, on site and on a schedule that works around your operating hours. Fleet accounts get volume pricing, a single monthly invoice and a dedicated point of contact. Choose Fleet and commercial on our contact form and we will build you a quote within one business day.",
+    answer: `We do. We maintain fleets for dealerships, realtors, property managers and executive car services across ${siteConfig.address.city} and the ${siteConfig.region}, on site and on a schedule that works around your operating hours. Fleet accounts get volume pricing, a single monthly invoice and a dedicated point of contact. Choose Fleet and commercial on our contact form and we will build you a quote within one business day.`,
   },
   {
     category: "mobile",
-    question: "What happens if it rains on my appointment day?",
+    question: "What happens if the weather turns on my appointment day?",
     answer:
-      "We watch the forecast for every mobile booking. If rain is likely, we text you the day before with options: move to a covered spot like a garage or carport, switch to our studio, or reschedule to the next open day at no charge. Interior-only services usually go ahead as planned. Studio services are never affected by weather.",
+      "We watch the forecast for every booking. In summer we start as early as 7:00 AM to beat the desert heat, because hot panels make soap and polish flash before they can work. If high wind, blowing dust or the occasional storm is likely, we text you the day before with options: move into a garage or carport, or reschedule to the next open day at no charge. Interior-only services usually go ahead as planned.",
   },
   {
     category: "services",
@@ -118,7 +116,7 @@ export const faqs: FaqItem[] = [
     category: "coatings",
     question: "Should I coat a brand-new car?",
     answer:
-      "New is the best time. Most new cars arrive with light marring from transport and dealer washes, so we do a single-stage polish to perfect the paint, then coat it before the Texas sun and road grime get a chance to do damage. You lock in a showroom finish from day one.",
+      "New is the best time. Most new cars arrive with light marring from transport and dealer washes, so we do a single-stage polish to perfect the paint, then coat it before the desert sun, wind-blown grit and road grime get a chance to do damage. You lock in a showroom finish from day one.",
   },
   {
     category: "mobile",

@@ -9,11 +9,15 @@ import {
   formatVehicle,
   getCancellationPolicy,
   getDepositPolicy,
-  getLocationTypeLabel,
   getSizeLabel,
 } from "@/lib/booking/format";
 import { formatPhoneAsYouType } from "@/lib/booking/phone";
-import { bookingSteps, isStudioOnly, stepIndexOf, type BookingStepId } from "@/lib/booking/schema";
+import {
+  bookingSteps,
+  requiresGarage,
+  stepIndexOf,
+  type BookingStepId,
+} from "@/lib/booking/schema";
 import { CheckboxField, TextAreaField, TextField } from "./fields";
 import type { StepProps } from "./step-types";
 
@@ -23,7 +27,7 @@ interface ContactStepProps extends StepProps {
 
 export function ContactStep({ draft, errors, update, onEdit }: ContactStepProps) {
   const service = getService(draft.service);
-  const deposit = isStudioOnly(draft.service) ? getDepositPolicy() : null;
+  const deposit = requiresGarage(draft.service) ? getDepositPolicy() : null;
   const review: { step: BookingStepId; label: string; value: string }[] = [
     { step: "service", label: "Service", value: service?.name ?? "Not chosen" },
     {
@@ -44,7 +48,7 @@ export function ContactStep({ draft, errors, update, onEdit }: ContactStepProps)
     {
       step: "schedule",
       label: "Where",
-      value: `${getLocationTypeLabel(draft.locationType)}: ${formatServiceAddress(draft)}`,
+      value: formatServiceAddress(draft),
     },
   ];
 
@@ -85,7 +89,7 @@ export function ContactStep({ draft, errors, update, onEdit }: ContactStepProps)
             error={errors.phone}
             autoComplete="tel-national"
             inputMode="tel"
-            placeholder="(512) 555-0123"
+            placeholder={`${siteConfig.phone.slice(0, 6)}555-0123`}
             maxLength={16}
           />
           <TextAreaField

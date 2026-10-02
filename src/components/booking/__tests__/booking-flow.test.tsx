@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { submitBooking } from "@/app/book/actions";
+import { siteConfig } from "@/config/site";
 import { calculateEstimate } from "@/lib/booking/pricing";
 import { emptyDraft, validateBooking } from "@/lib/booking/schema";
 import type { BookingActionState } from "@/lib/booking/types";
@@ -23,6 +24,8 @@ vi.mock("@/app/book/actions", () => ({
   ),
 }));
 
+// Wednesday 7 Oct 2026, 10:00 AM local (PDT).
+const NOW = new Date("2026-10-07T17:00:00Z");
 const blank = () => ({ ...emptyDraft, addOns: [] });
 const continueButton = () => screen.getByRole("button", { name: /continue|skip add-ons/i });
 
@@ -67,7 +70,7 @@ describe("BookingFlow", () => {
     expect(within(summary).getAllByText("$399").length).toBeGreaterThan(0);
   });
 
-  it("opens on the vehicle step with a studio-only service pre-selected", () => {
+  it("opens on the vehicle step with a garage service pre-selected", () => {
     render(
       <BookingFlow initialDraft={{ ...blank(), service: "ceramic-coating" }} initialStep={1} />,
     );
@@ -75,13 +78,47 @@ describe("BookingFlow", () => {
       screen.getByRole("heading", { level: 2, name: "Tell us about your vehicle" }),
     ).toBeInTheDocument();
     const summary = screen.getByRole("complementary", { name: "Booking summary" });
-    expect(within(summary).getByText("Studio drop-off")).toBeInTheDocument();
+    expect(within(summary).getByText("In your garage or covered space")).toBeInTheDocument();
+  });
+
+  it("requires the garage checkbox for coatings and focuses it", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(NOW);
+    render(
+      <BookingFlow
+        initialDraft={{
+          ...blank(),
+          service: "ceramic-coating",
+          street: "123 Main St",
+          city: siteConfig.serviceArea[0],
+          zip: siteConfig.address.zip,
+          date: "2026-10-14",
+        }}
+        initialStep={3}
+      />,
+    );
+    // Day-based service: the single arrival slot is picked automatically.
+    expect(screen.getByRole("radio", { name: "Arrival 7:00 AM" })).toBeChecked();
+    expect(screen.queryByText(/drop-off/i)).not.toBeInTheDocument();
+
+    fireEvent.click(continueButton());
+    expect(await screen.findByText(/shade and still air/)).toBeInTheDocument();
+    const checkbox = screen.getByRole("checkbox", {
+      name: "I have a garage or covered space where the work can be done",
+    });
+    await waitFor(() => expect(document.activeElement).toBe(checkbox));
+
+    fireEvent.click(checkbox);
+    fireEvent.click(continueButton());
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "Confirm your details" }),
+    ).toBeInTheDocument();
   });
 
   it("completes a booking end to end and shows the confirmation", async () => {
-    // Wednesday 7 Oct 2026, 10:00 AM in Austin. Only Date is faked so animations still run.
+    // Only Date is faked so animations still run.
     vi.useFakeTimers({ toFake: ["Date"] });
-    vi.setSystemTime(new Date("2026-10-07T15:00:00Z"));
+    vi.setSystemTime(NOW);
 
     render(
       <BookingFlow
@@ -107,11 +144,16 @@ describe("BookingFlow", () => {
 
     // Schedule
     await screen.findByRole("heading", { level: 2, name: "Choose a time and place" });
+    expect(screen.queryByRole("checkbox", { name: /garage/i })).not.toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Street address"), {
-      target: { value: "1200 Barton Hills Dr" },
+      target: { value: "123 Main St" },
     });
-    fireEvent.change(screen.getByLabelText("City"), { target: { value: "Austin" } });
-    fireEvent.change(screen.getByLabelText("ZIP code"), { target: { value: "78704" } });
+    fireEvent.change(screen.getByLabelText("City"), {
+      target: { value: siteConfig.serviceArea[1] },
+    });
+    fireEvent.change(screen.getByLabelText("ZIP code"), {
+      target: { value: siteConfig.address.zip },
+    });
     expect(
       screen.getByRole("button", { name: /Sunday, October 11, 2026, closed/ }),
     ).toHaveAttribute("aria-disabled", "true");
@@ -123,8 +165,8 @@ describe("BookingFlow", () => {
     await screen.findByRole("heading", { level: 2, name: "Confirm your details" });
     fireEvent.change(screen.getByLabelText("Full name"), { target: { value: "Jordan Reyes" } });
     fireEvent.change(screen.getByLabelText("Email"), { target: { value: "jordan@example.com" } });
-    fireEvent.change(screen.getByLabelText("Mobile phone"), { target: { value: "5125550123" } });
-    expect(screen.getByLabelText("Mobile phone")).toHaveValue("(512) 555-0123");
+    fireEvent.change(screen.getByLabelText("Mobile phone"), { target: { value: "7605550123" } });
+    expect(screen.getByLabelText("Mobile phone")).toHaveValue("(760) 555-0123");
     fireEvent.click(screen.getByRole("button", { name: "Request booking" }));
 
     expect(
@@ -133,7 +175,7 @@ describe("BookingFlow", () => {
     expect(screen.getByText("PAD-7F3K2Q")).toBeInTheDocument();
     const ics = screen.getByRole("link", { name: /Add to calendar/ });
     expect(ics).toHaveAttribute("download", "pad-7f3k2q.ics");
-    expect(decodeURIComponent(ics.getAttribute("href")!)).toContain("DTSTART:20261014T140000Z");
+    expect(decodeURIComponent(ics.getAttribute("href")!)).toContain("DTSTART:20261014T160000Z");
     expect(vi.mocked(submitBooking)).toHaveBeenCalledTimes(1);
   });
 });

@@ -6,7 +6,7 @@ import { siteConfig } from "@/config/site";
 import { getAddOn, getService, vehicleSizes } from "@/data/services";
 import { calculateEstimate } from "@/lib/booking/pricing";
 import { generateBookingReference } from "@/lib/booking/reference";
-import { validateBooking, type BookingData } from "@/lib/booking/schema";
+import { requiresGarage, validateBooking, type BookingData } from "@/lib/booking/schema";
 import { BOOKING_FORM_FIELDS, type BookingActionState } from "@/lib/booking/types";
 import { formatPrice } from "@/lib/utils";
 import { buildMailto, formEndpoint, openMailto, postToFormEndpoint } from "./static-submit";
@@ -19,10 +19,7 @@ function summarize(reference: string, booking: BookingData, total: number) {
     .filter(Boolean)
     .join(" ");
   const city = booking.city === "Other" ? booking.cityOther : booking.city;
-  const where =
-    booking.locationType === "mobile"
-      ? `Mobile: ${[booking.street, city, booking.zip].filter(Boolean).join(", ")}`
-      : "Studio drop-off";
+  const where = [booking.street, city, booking.zip].filter(Boolean).join(", ");
   const lines = [
     `Booking request ${reference}`,
     "",
@@ -33,6 +30,7 @@ function summarize(reference: string, booking: BookingData, total: number) {
     `Pet hair: ${booking.petHair ? "yes" : "no"}; smoke: ${booking.smoke ? "yes" : "no"}`,
     `When: ${booking.date} at ${booking.time}`,
     `Where: ${where}`,
+    ...(requiresGarage(booking.service) ? ["Garage or covered space: confirmed"] : []),
     `Estimate: ${formatPrice(total)} (starting price)`,
     "",
     `Name: ${booking.name}`,

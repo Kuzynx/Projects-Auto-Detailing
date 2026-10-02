@@ -23,11 +23,11 @@ const sections: LegalSection[] = [
     content: (
       <>
         <p>
-          {legalName} (&ldquo;{name},&rdquo; &ldquo;we,&rdquo; &ldquo;us&rdquo;) is a Texas limited
-          liability company providing mobile and studio auto detailing from {address.street},{" "}
-          {address.city}, {address.state} {address.zip}. This policy explains what personal
-          information we collect through this website, our booking and contact forms, phone, email
-          and text messages, and how we use it.
+          {legalName} (&ldquo;{name},&rdquo; &ldquo;we,&rdquo; &ldquo;us&rdquo;) is a California
+          limited liability company providing mobile auto detailing at our customers&rsquo; homes
+          and workplaces in {address.city} and across the {siteConfig.region}. This policy explains
+          what personal information we collect through this website, our booking and contact forms,
+          phone, email and text messages, and how we use it.
         </p>
         <p>
           By using this website or booking a service, you agree to this policy. If you do not agree,
@@ -44,9 +44,10 @@ const sections: LegalSection[] = [
         <h3>Information you give us</h3>
         <ul>
           <li>
-            <strong>Booking form:</strong> your name, email address, mobile number, service address
-            (for mobile appointments), vehicle year, make, model and size, the services and add-ons
-            you choose, your preferred date and time, and any notes you add about the vehicle.
+            <strong>Booking form:</strong> your name, email address, mobile number, the address
+            where we should perform the work, vehicle year, make, model and size, the services and
+            add-ons you choose, your preferred date and time, and any notes you add about the
+            vehicle.
           </li>
           <li>
             <strong>Contact form, email and phone:</strong> your name, contact details and whatever
@@ -207,7 +208,8 @@ const sections: LegalSection[] = [
           <strong>Analytics data</strong>: 14 months. <strong>Server logs</strong>: up to 30 days.
         </li>
         <li>
-          <strong>Payment and tax records</strong>: as long as Texas and federal tax law requires.
+          <strong>Payment and tax records</strong>: as long as California and federal tax law
+          requires.
         </li>
       </ul>
     ),
@@ -221,7 +223,7 @@ const sections: LegalSection[] = [
         limited to the staff who need them to do their job, our accounts use multi-factor
         authentication where available, and card payments are handled by a PCI-compliant processor.
         No system is perfectly secure, so if we ever learn of a breach that affects your
-        information, we will notify you as required by Texas law.
+        information, we will notify you as required by California law.
       </p>
     ),
   },
@@ -230,11 +232,11 @@ const sections: LegalSection[] = [
     title: "Your choices and rights",
     content: (
       <>
-        <p>Whatever state you live in, you can ask us to:</p>
+        <p>Wherever you live, you can ask us to:</p>
         <ul>
           <li>
-            Confirm whether we hold personal information about you, and give you a copy in a
-            portable format.
+            Tell you what personal information we hold about you, and give you a copy in a portable
+            format.
           </li>
           <li>Correct information that is inaccurate.</li>
           <li>
@@ -243,20 +245,86 @@ const sections: LegalSection[] = [
           <li>Stop sending you marketing emails or texts.</li>
         </ul>
         <p>
-          Texas residents have these rights under the Texas Data Privacy and Security Act. To make a
-          request, email <a href={mailto}>{email}</a> or call{" "}
+          To make a request, email <a href={mailto}>{email}</a> or call{" "}
           <a href={siteConfig.phoneHref}>{phone}</a>. We will verify your identity using the contact
-          details on your booking and respond within 45 days. If we decline your request, you may
-          appeal by replying to our decision within 60 days; if you disagree with the outcome of the
-          appeal, you may contact the{" "}
-          <a
-            href="https://www.texasattorneygeneral.gov/consumer-protection"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Texas Attorney General
+          details on your booking, and we will never charge you or treat you differently for
+          exercising these rights.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "california",
+    title: "California privacy rights",
+    content: (
+      <>
+        <p>
+          The California Consumer Privacy Act, as amended by the California Privacy Rights Act
+          (together, the &ldquo;CCPA&rdquo;), applies to businesses above certain revenue and
+          data-volume thresholds, which a small local business like ours may not meet. We honor the
+          rights below for every customer anyway.
+        </p>
+        <h3>Notice at collection</h3>
+        <ul>
+          <li>
+            <strong>Identifiers and contact details</strong> (name, email, phone, service address):
+            collected from you to book, perform and invoice services and to contact you about them.
+          </li>
+          <li>
+            <strong>Commercial information</strong> (services booked, vehicle details, invoices,
+            warranty records): to perform services, honor warranties and keep tax records.
+          </li>
+          <li>
+            <strong>Photos and condition records</strong> of your vehicle: to document its condition
+            and our work.
+          </li>
+          <li>
+            <strong>Internet activity</strong> (pages viewed, device and browser data, approximate
+            location from IP address): to run, secure and improve the website.
+          </li>
+          <li>
+            <strong>Sensitive personal information:</strong> we do not collect it.
+          </li>
+        </ul>
+        <p>
+          We do not sell or &ldquo;share&rdquo; (for cross-context behavioral advertising) personal
+          information, including that of consumers under 16. How long we keep each category is set
+          out in <a href="#retention">How long we keep information</a>.
+        </p>
+        <h3>Your rights</h3>
+        <ul>
+          <li>
+            <strong>Know and access</strong> the categories and specific pieces of personal
+            information we have collected, its sources, our purposes and who we disclose it to.
+          </li>
+          <li>
+            <strong>Delete</strong> personal information we collected from you, subject to legal
+            exceptions.
+          </li>
+          <li>
+            <strong>Correct</strong> inaccurate personal information.
+          </li>
+          <li>
+            <strong>Opt out of sale or sharing.</strong> We do neither, and we treat a Global
+            Privacy Control signal from your browser as an opt-out request.
+          </li>
+          <li>
+            <strong>Non-discrimination:</strong> we will not deny service, charge a different price
+            or provide a different quality of service because you exercised a right.
+          </li>
+        </ul>
+        <p>
+          Send requests to <a href={mailto}>{email}</a> or call{" "}
+          <a href={siteConfig.phoneHref}>{phone}</a>. We confirm receipt within 10 business days and
+          respond within 45 days (we will tell you if we need up to 45 more). You may use an
+          authorized agent with your signed permission. Under California&rsquo;s &ldquo;Shine the
+          Light&rdquo; law, you may also ask whether we disclosed personal information to third
+          parties for their direct marketing; we do not. If you are not satisfied with our response,
+          you can contact the{" "}
+          <a href="https://cppa.ca.gov" rel="noopener noreferrer" target="_blank">
+            California Privacy Protection Agency
           </a>
-          . We will never charge you or treat you differently for exercising these rights.
+          .
         </p>
       </>
     ),
@@ -300,9 +368,10 @@ const sections: LegalSection[] = [
     content: (
       <p>
         Questions or requests about your privacy: email <a href={mailto}>{email}</a>, call{" "}
-        <a href={siteConfig.phoneHref}>{phone}</a> or write to {legalName}, {address.street},{" "}
-        {address.city}, {address.state} {address.zip}. You can also use our{" "}
-        <Link href="/contact">contact page</Link>.
+        <a href={siteConfig.phoneHref}>{phone}</a>, or use our{" "}
+        <Link href="/contact">contact page</Link>. {legalName} is based in {address.city},{" "}
+        {address.state} {address.zip}
+        {address.street ? <>, at {address.street}</> : null}.
       </p>
     ),
   },

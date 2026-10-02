@@ -1,4 +1,4 @@
-export type GalleryCategory = "exterior" | "interior" | "correction" | "coating" | "studio";
+export type GalleryCategory = "exterior" | "interior" | "correction" | "coating" | "exotic";
 
 export interface GalleryItem {
   id: string;
@@ -132,8 +132,8 @@ export const galleryItems: GalleryItem[] = [
     id: "g06",
     src: "/images/hero-ferrari-garage.jpg",
     alt: "Red Ferrari LaFerrari in a clean garage",
-    title: "LaFerrari, studio",
-    category: "studio",
+    title: "LaFerrari, coated",
+    category: "exotic",
     vehicle: "Ferrari LaFerrari",
     service: "Ceramic Coating",
     width: 2400,
@@ -253,8 +253,8 @@ export const galleryItems: GalleryItem[] = [
     id: "g17",
     src: "/images/car-mclaren-white.jpg",
     alt: "White McLaren 720S in a rural setting",
-    title: "720S, studio",
-    category: "studio",
+    title: "720S, coated",
+    category: "exotic",
     vehicle: "McLaren 720S",
     service: "Ceramic Coating",
     width: 1600,
@@ -298,7 +298,7 @@ export const galleryItems: GalleryItem[] = [
     src: "/images/car-tesla-roadster.jpg",
     alt: "White Tesla Roadster in a showroom",
     title: "Showroom finish",
-    category: "studio",
+    category: "exotic",
     vehicle: "Tesla Roadster",
     service: "Ceramic Coating",
     width: 1600,
@@ -331,7 +331,7 @@ export const galleryItems: GalleryItem[] = [
     src: "/images/car-purple-supercar.jpg",
     alt: "Color-shift purple Chevrolet Corvette with carbon aero on a rooftop",
     title: "Carbon and purple",
-    category: "studio",
+    category: "exotic",
     vehicle: "Chevrolet Corvette",
     service: "Paint Correction",
     width: 1600,
@@ -352,8 +352,8 @@ export const galleryItems: GalleryItem[] = [
     id: "g26",
     src: "/images/car-bugatti.jpg",
     alt: "White Bugatti Chiron front end with headlights on at night",
-    title: "Chiron, studio",
-    category: "studio",
+    title: "Chiron, coated",
+    category: "exotic",
     vehicle: "Bugatti Chiron",
     service: "Ceramic Coating",
     width: 1600,
@@ -396,8 +396,8 @@ export const galleryItems: GalleryItem[] = [
     id: "g30",
     src: "/images/hero-garage.jpg",
     alt: "White Chevrolet Camaro ZL1 under low light in a collector garage",
-    title: "ZL1, studio",
-    category: "studio",
+    title: "ZL1, coated",
+    category: "exotic",
     vehicle: "Chevrolet Camaro ZL1",
     service: "Ceramic Coating",
     width: 2400,
@@ -444,7 +444,7 @@ export const galleryCategories: { id: GalleryCategory | "all"; label: string }[]
   { id: "interior", label: "Interior" },
   { id: "correction", label: "Paint correction" },
   { id: "coating", label: "Ceramic coating" },
-  { id: "studio", label: "Studio" },
+  { id: "exotic", label: "Exotics & show cars" },
 ];
 
 export interface CompareImage {

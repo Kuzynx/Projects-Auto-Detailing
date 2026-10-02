@@ -27,9 +27,9 @@ export function InstagramStrip({ items }: { items: GalleryItem[] }) {
               Fresh work, every week, on Instagram.
             </h2>
             <p className="mt-3 text-ink-muted">
-              Paint readings, 50/50 shots and the cars that roll through the studio. Follow{" "}
-              <span className="font-semibold text-ink">{handle}</span> to see it before it hits the
-              gallery.
+              Paint readings, 50/50 shots and the cars we meet in driveways across the{" "}
+              {siteConfig.region}. Follow <span className="font-semibold text-ink">{handle}</span>{" "}
+              to see it before it hits the gallery.
             </p>
           </div>
           <a

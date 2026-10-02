@@ -27,7 +27,7 @@ export function PricingPlans({ services }: { services: Service[] }) {
             )}
             <div className="flex min-h-6 items-center justify-between gap-3">
               <p className="font-display text-xs font-semibold tracking-[0.2em] text-ink-subtle uppercase">
-                {serviceLocations[service.location].label}
+                {serviceLocations[service.location].shortLabel}
               </p>
               {service.badge && (
                 <Badge tone={featured ? "brand" : "neutral"}>{service.badge}</Badge>
