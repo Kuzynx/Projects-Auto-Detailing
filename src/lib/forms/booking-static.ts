@@ -19,7 +19,7 @@ import { requiresGarage, validateBooking, type BookingData } from "@/lib/booking
 import { isLikelyAutomated } from "@/lib/booking/spam";
 import { BOOKING_FORM_FIELDS, type BookingActionState } from "@/lib/booking/types";
 import { formatPrice } from "@/lib/utils";
-import { buildMailto, formEndpoint, openMailto, postToFormEndpoint } from "./static-submit";
+import { buildSmsHref, formEndpoint, openSms, postToFormEndpoint } from "./static-submit";
 
 function summarize(reference: string, booking: BookingData, totalLabel: string) {
   const service = getService(booking.service)?.name ?? booking.service;
@@ -48,7 +48,7 @@ function summarize(reference: string, booking: BookingData, totalLabel: string) 
     `Name: ${booking.name}`,
     `Phone: ${booking.phone}`,
     `Email: ${booking.email}`,
-    booking.notes ? `Notes: ${booking.notes}` : "",
+    ...(booking.notes ? [`Notes: ${booking.notes}`] : []),
   ];
   return { subject: `Booking request ${reference}: ${service}`, body: lines.join("\n") };
 }
@@ -86,8 +86,8 @@ export async function submitBooking(
 
   if (formEndpoint) {
     // Same heuristics as the server action. Bots get a convincing success and nothing is
-    // posted, so they don't use up the form provider's quota. (The mailto path below sends
-    // nothing by itself, so it needs no gate.)
+    // posted, so they don't use up the form provider's quota. (The text-message path below
+    // sends nothing by itself, so it needs no gate.)
     if (isLikelyAutomated(formData)) {
       return { ok: true, reference, estimate, booking, delivery: "endpoint" };
     }
@@ -103,7 +103,7 @@ export async function submitBooking(
     };
   }
 
-  const mailtoHref = buildMailto(siteConfig.email, subject, body);
-  openMailto(mailtoHref);
-  return { ok: true, reference, estimate, booking, delivery: "mailto", mailtoHref };
+  const smsHref = buildSmsHref(body);
+  openSms(smsHref);
+  return { ok: true, reference, estimate, booking, delivery: "sms", smsHref, smsBody: body };
 }

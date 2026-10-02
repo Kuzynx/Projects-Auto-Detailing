@@ -9,11 +9,13 @@ export type BookingActionSuccess = {
   booking: BookingData;
   /**
    * How the request reached the shop. "email" is the server action (default);
-   * "endpoint" and "mailto" are the static-export paths (see src/lib/forms).
+   * "endpoint" and "sms" are the static-export paths (see src/lib/forms).
    */
-  delivery?: "email" | "endpoint" | "mailto";
-  /** Set with delivery "mailto": a link the visitor can click if their mail app did not open. */
-  mailtoHref?: string;
+  delivery?: "email" | "endpoint" | "sms";
+  /** Set with delivery "sms": a link the visitor can tap if their messaging app did not open. */
+  smsHref?: string;
+  /** Set with delivery "sms": the pre-filled text, so it can be copied on a device without texting. */
+  smsBody?: string;
 };
 
 export type BookingActionFailure = {

@@ -158,7 +158,7 @@ export function localBusinessJsonLd(services: readonly Service[] = []): JsonLdNo
     logo: siteUrl(siteConfig.logo),
     image: siteUrl(siteConfig.logo),
     telephone: siteConfig.phoneHref.replace(/^tel:/, ""),
-    email: siteConfig.email,
+    ...(siteConfig.email ? { email: siteConfig.email } : {}),
     priceRange: "$$",
     currenciesAccepted: "USD",
     foundingDate: String(siteConfig.founded),

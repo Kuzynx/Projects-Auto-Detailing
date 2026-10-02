@@ -14,7 +14,14 @@ export const metadata = buildMetadata({
 });
 
 const { name, legalName, email, phone, address } = siteConfig;
-const mailto = `mailto:${email}`;
+/** How to reach us with a request: email when the business has an inbox, otherwise phone. */
+const requestBy = email ? (
+  <>
+    email <a href={`mailto:${email}`}>{email}</a> or call
+  </>
+) : (
+  <>call or text</>
+);
 
 const sections: LegalSection[] = [
   {
@@ -237,10 +244,9 @@ const sections: LegalSection[] = [
           <li>Stop sending you marketing emails or texts.</li>
         </ul>
         <p>
-          To make a request, email <a href={mailto}>{email}</a> or call{" "}
-          <a href={siteConfig.phoneHref}>{phone}</a>. We will verify your identity using the contact
-          details on your booking, and we will never charge you or treat you differently for
-          exercising these rights.
+          To make a request, {requestBy} <a href={siteConfig.phoneHref}>{phone}</a>. We will verify
+          your identity using the contact details on your booking, and we will never charge you or
+          treat you differently for exercising these rights.
         </p>
       </>
     ),
@@ -306,13 +312,12 @@ const sections: LegalSection[] = [
           </li>
         </ul>
         <p>
-          Send requests to <a href={mailto}>{email}</a> or call{" "}
-          <a href={siteConfig.phoneHref}>{phone}</a>. We confirm receipt within 10 business days and
-          respond within 45 days (we will tell you if we need up to 45 more). You may use an
-          authorized agent with your signed permission. Under California&rsquo;s &ldquo;Shine the
-          Light&rdquo; law, you may also ask whether we disclosed personal information to third
-          parties for their direct marketing; we do not. If you are not satisfied with our response,
-          you can contact the{" "}
+          To send a request, {requestBy} <a href={siteConfig.phoneHref}>{phone}</a>. We confirm
+          receipt within 10 business days and respond within 45 days (we will tell you if we need up
+          to 45 more). You may use an authorized agent with your signed permission. Under
+          California&rsquo;s &ldquo;Shine the Light&rdquo; law, you may also ask whether we
+          disclosed personal information to third parties for their direct marketing; we do not. If
+          you are not satisfied with our response, you can contact the{" "}
           <a href="https://cppa.ca.gov" rel="noopener noreferrer" target="_blank">
             California Privacy Protection Agency
           </a>
@@ -360,7 +365,7 @@ const sections: LegalSection[] = [
     title: "Contact us",
     content: (
       <p>
-        Questions or requests about your privacy: email <a href={mailto}>{email}</a>, call{" "}
+        Questions or requests about your privacy: {requestBy}{" "}
         <a href={siteConfig.phoneHref}>{phone}</a>, or use our{" "}
         <Link href="/contact">contact page</Link>. {legalName} is based in {address.city},{" "}
         {address.state} {address.zip}

@@ -153,7 +153,7 @@ ${body}
 </td></tr>
 <tr><td style="padding:24px 8px 0 8px;font-size:12px;line-height:18px;color:${color.subtle};text-align:center;">
 ${escapeHtml(siteConfig.legalName)} · ${escapeHtml(address)}<br>
-<a href="${siteConfig.phoneHref}" style="color:${color.muted};text-decoration:none;">${escapeHtml(siteConfig.phone)}</a> · <a href="mailto:${siteConfig.email}" style="color:${color.muted};text-decoration:none;">${escapeHtml(siteConfig.email)}</a>
+<a href="${siteConfig.phoneHref}" style="color:${color.muted};text-decoration:none;">${escapeHtml(siteConfig.phone)}</a>${siteConfig.email ? ` · <a href="mailto:${siteConfig.email}" style="color:${color.muted};text-decoration:none;">${escapeHtml(siteConfig.email)}</a>` : ""}
 </td></tr>
 </table>
 </td></tr>
@@ -307,7 +307,7 @@ ${button(siteConfig.phoneHref, `Call ${siteConfig.phone}`)}`;
     "",
     `${siteConfig.name}`,
     serviceAreaLine(),
-    `${siteConfig.phone} · ${siteConfig.email}`,
+    [siteConfig.phone, siteConfig.email].filter(Boolean).join(" · "),
   ].join("\n");
 
   return {

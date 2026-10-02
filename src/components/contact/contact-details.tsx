@@ -14,13 +14,17 @@ export function ContactQuickCards() {
       href: siteConfig.phoneHref,
       note: "Fastest for same-week appointments.",
     },
-    {
-      Icon: Mail,
-      label: "Email",
-      value: siteConfig.email,
-      href: `mailto:${siteConfig.email}`,
-      note: "Photos of the car help us quote.",
-    },
+    ...(siteConfig.email
+      ? [
+          {
+            Icon: Mail,
+            label: "Email",
+            value: siteConfig.email,
+            href: `mailto:${siteConfig.email}`,
+            note: "Photos of the car help us quote.",
+          },
+        ]
+      : []),
     {
       Icon: CalendarCheck,
       label: "Book online",

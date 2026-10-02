@@ -151,15 +151,17 @@ export function Footer() {
                   {siteConfig.phone}
                 </a>
               </li>
-              <li>
-                <a
-                  href={`mailto:${siteConfig.email}`}
-                  className="flex items-center gap-3 break-all text-ink-muted transition-colors hover:text-ink"
-                >
-                  <Mail className="size-4 shrink-0 text-brand-400" aria-hidden="true" />
-                  {siteConfig.email}
-                </a>
-              </li>
+              {siteConfig.email && (
+                <li>
+                  <a
+                    href={`mailto:${siteConfig.email}`}
+                    className="flex items-center gap-3 break-all text-ink-muted transition-colors hover:text-ink"
+                  >
+                    <Mail className="size-4 shrink-0 text-brand-400" aria-hidden="true" />
+                    {siteConfig.email}
+                  </a>
+                </li>
+              )}
               <li className="flex gap-3">
                 <Clock className="mt-0.5 size-4 shrink-0 text-brand-400" aria-hidden="true" />
                 <dl className="w-full max-w-64 space-y-1.5">

@@ -11,7 +11,7 @@ import {
   topicLabel,
   type ContactFormState,
 } from "@/lib/contact/schema";
-import { buildMailto, formEndpoint, openMailto, postToFormEndpoint } from "./static-submit";
+import { buildSmsHref, formEndpoint, openSms, postToFormEndpoint } from "./static-submit";
 
 export async function submitContact(
   _prev: ContactFormState,
@@ -35,17 +35,15 @@ export async function submitContact(
 
   const data = parsed.data;
   const subject = `${topicLabel(data.topic)} from ${data.name} via the website`;
-  const body = [
+  const details = [
     `Name: ${data.name}`,
     `Email: ${data.email}`,
     data.phone ? `Phone: ${data.phone}` : "",
     data.vehicle ? `Vehicle: ${data.vehicle}` : "",
     `Topic: ${topicLabel(data.topic)}`,
-    "",
-    data.message,
-  ]
-    .filter((line) => line !== "")
-    .join("\n");
+  ].filter(Boolean);
+  // A text has no subject line, so the subject leads the message.
+  const body = [subject, "", ...details, "", data.message].join("\n");
 
   if (formEndpoint) {
     const sent = await postToFormEndpoint({
@@ -56,12 +54,12 @@ export async function submitContact(
     if (sent) return { status: "success", submittedAt: Date.now(), delivery: "endpoint" };
     return {
       status: "error",
-      message: `We could not send your message just now. Please call us at ${siteConfig.phone} or email ${siteConfig.email}.`,
+      message: `We could not send your message just now. Please call or text us at ${siteConfig.phone}.`,
       values: raw,
     };
   }
 
-  const mailtoHref = buildMailto(siteConfig.email, subject, body);
-  openMailto(mailtoHref);
-  return { status: "success", submittedAt: Date.now(), delivery: "mailto", mailtoHref };
+  const smsHref = buildSmsHref(body);
+  openSms(smsHref);
+  return { status: "success", submittedAt: Date.now(), delivery: "sms", smsHref, smsBody: body };
 }

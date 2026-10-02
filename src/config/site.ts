@@ -12,7 +12,12 @@ export const siteConfig = {
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://projectsautodetailing.com",
   phone: "(840) 204-4176",
   phoneHref: "tel:+18402044176",
-  email: "hello@projectsautodetailing.com",
+  /**
+   * Public email address. null: the business has no email inbox yet, so the site shows no email
+   * and the static-hosting forms send a text to `phone` instead. Set a real, monitored address
+   * here and the footer, contact page, legal pages and structured data show it again.
+   */
+  email: null as string | null,
   /** Mobile-only business: no public street address. `street` stays empty on purpose. */
   address: {
     street: "",

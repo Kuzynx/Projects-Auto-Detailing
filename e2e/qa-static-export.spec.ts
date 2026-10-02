@@ -35,10 +35,10 @@ test.describe("static export (GitHub Pages)", () => {
     for (const { href, status } of results) expect(status, href).toBe(200);
   });
 
-  // Regression: with no form endpoint, the contact form opens a mailto: link and nothing has
+  // Regression: with no form endpoint, the contact form opens an sms: link and nothing has
   // been sent yet, but the success panel still says "Message received. Thank you." (the
   // booking confirmation was fixed to say "One more step: press Send"; contact was not).
-  test("contact mailto fallback does not claim the message was received", async ({ page }) => {
+  test("contact text fallback does not claim the message was received", async ({ page }) => {
     await page.goto(`${base}/contact/`);
     const form = page.locator("form").filter({ has: page.locator("[name=message]") });
     await form.locator("[name=name]").fill("Jordan Reyes");
@@ -46,7 +46,10 @@ test.describe("static export (GitHub Pages)", () => {
     await form.locator("[name=message]").fill("Please quote a full deluxe for my SUV.");
     await form.getByRole("button", { name: /send message/i }).click();
     const status = page.getByRole("status");
-    await expect(status.getByRole("link", { name: /open the email here/i })).toBeVisible();
+    await expect(status.getByRole("link", { name: /open the text here/i })).toHaveAttribute(
+      "href",
+      /^sms:\+18402044176\?&body=/,
+    );
     await expect(status).not.toContainText("Message received");
   });
 });
