@@ -23,3 +23,9 @@ Owned by Project's Auto Detailing. Shelby GT350 mobile wash job. License plates 
 before publishing. `*-wide.jpg` are 3:2 crops for hero/banner slots; the rest are portrait originals resized to 1600px.
 `shelby-gt350-team.jpg` shows team members (one shirtless) and is intentionally NOT used on the site; swap in a
 photo in uniform before using it.
+
+## Package illustrations (`/images/services/`)
+
+AI-generated with Higgsfield (gpt_image_2_5, 2K) at the client's request to illustrate each package: basic
+exterior wash, premium exterior detail, full deluxe interior + exterior, working truck. They are illustrative
+product imagery, not photos of real jobs, and are never shown in the gallery or captioned as our work.
