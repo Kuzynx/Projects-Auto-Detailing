@@ -18,6 +18,7 @@ import { ButtonLink } from "@/components/ui";
 import { siteConfig } from "@/config/site";
 import {
   addOnMinutes,
+  formatServicePrice,
   bookingUrl,
   serviceLocations,
   vehicleSizeIds,
@@ -58,7 +59,8 @@ export function BookingSidebar({ service, recommended, more }: BookingSidebarPro
   const addOnTotal = chosen.reduce((sum, a) => sum + a.price, 0);
   const extraMinutes = chosen.reduce((sum, a) => sum + addOnMinutes(a), 0);
   const base = service.price[size];
-  const openEnded = Boolean(service.priceNote?.[size]) || service.priceSuffix === "starting";
+  const hasNote = Boolean(service.priceNote?.[size]);
+  const startingPrice = hasNote || Boolean(service.priceSuffix);
   const total = base + addOnTotal;
   const sizeInfo = vehicleSizes.find((v) => v.id === size);
   const moreCount = more.filter((a) => selected.includes(a.slug)).length;
@@ -100,12 +102,16 @@ export function BookingSidebar({ service, recommended, more }: BookingSidebarPro
       >
         <div className="flex items-baseline justify-between gap-3">
           <p className="text-sm text-ink-muted">
-            {addOnTotal > 0 ? "Estimated total" : openEnded ? "Starting at" : "Your price"}
+            {addOnTotal > 0 ? "Estimated total" : startingPrice ? "Starting price" : "Your price"}
           </p>
           <p className="font-display text-3xl font-semibold tracking-tight text-ink tabular-nums">
-            {formatPrice(total)}
-            {openEnded && "+"}
-            {service.priceSuffix && !openEnded && (
+            {addOnTotal > 0
+              ? formatServicePrice(
+                  { price: { ...service.price, [size]: total }, priceNote: service.priceNote },
+                  size,
+                )
+              : formatServicePrice(service, size)}
+            {service.priceSuffix && !hasNote && (
               <span className="ml-1 font-sans text-xs font-normal tracking-normal text-ink-subtle">
                 {service.priceSuffix}
               </span>
@@ -114,7 +120,7 @@ export function BookingSidebar({ service, recommended, more }: BookingSidebarPro
         </div>
         {addOnTotal > 0 && (
           <p className="mt-1 text-right text-xs text-ink-subtle tabular-nums">
-            {formatPrice(base)} service + {formatPrice(addOnTotal)} add-ons
+            {formatServicePrice(service, size)} service + {formatPrice(addOnTotal)} add-ons
           </p>
         )}
         <p className="mt-3 flex items-center gap-2 border-t border-border pt-3 text-sm text-ink-muted">
@@ -197,7 +203,7 @@ export function BookingSidebar({ service, recommended, more }: BookingSidebarPro
         </li>
         <li className="flex items-center gap-2.5">
           <ShieldCheck aria-hidden className="size-4 shrink-0 text-brand-400" />
-          No deposit for washes and interiors
+          No deposit, ever
         </li>
         <li className="flex items-center gap-2.5">
           <RefreshCw aria-hidden className="size-4 shrink-0 text-brand-400" />

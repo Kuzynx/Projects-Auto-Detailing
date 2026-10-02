@@ -15,11 +15,46 @@ import { baseLocation, hasStorefront } from "./location";
 const MENU_ID = "site-mobile-menu";
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
 const EASE = [0.22, 1, 0.36, 1] as const;
+/** Never inert these: non-rendering tags, and Next's route announcer for screen readers. */
+const NEVER_INERT = new Set(["SCRIPT", "STYLE", "LINK", "TEMPLATE", "NEXT-ROUTE-ANNOUNCER"]);
+
+/**
+ * Marks everything outside `keep` inert (main, footer, the mobile CTA bar, the skip
+ * link and the header's other controls) by walking up to <body> and flagging the
+ * siblings at each level. Returns a function that undoes only what it changed.
+ */
+function inertOutside(keep: HTMLElement) {
+  const changed: Element[] = [];
+  let node: HTMLElement = keep;
+  while (node.parentElement && node !== document.body) {
+    const parent: HTMLElement = node.parentElement;
+    for (const sibling of Array.from(parent.children)) {
+      if (sibling === node || NEVER_INERT.has(sibling.tagName) || sibling.hasAttribute("inert"))
+        continue;
+      sibling.setAttribute("inert", "");
+      changed.push(sibling);
+    }
+    node = parent;
+  }
+  return () => changed.forEach((el) => el.removeAttribute("inert"));
+}
+
+/** Where focus goes after the menu closes on widening: the first desktop nav link, else <main>. */
+function desktopFocusTarget() {
+  return (
+    document.querySelector<HTMLElement>('nav[aria-label="Primary"] a[href]') ??
+    document.getElementById("main")
+  );
+}
+
+type FocusAfterClose = "toggle" | "desktop" | null;
 
 /**
  * Hamburger toggle plus a full-screen menu dialog for viewports below `lg`.
- * Locks page scroll, traps focus, closes on Escape, on navigation and when the
- * viewport grows past the desktop breakpoint, and returns focus to the toggle.
+ * Locks page scroll, makes the rest of the page inert, traps focus, and closes on
+ * Escape, on navigation and when the viewport grows past the desktop breakpoint.
+ * Focus returns to the toggle (Escape / close button) or, after widening, to the
+ * first desktop nav link, so it never drops to <body>.
  */
 export function MobileMenu({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
@@ -27,6 +62,7 @@ export function MobileMenu({ className }: { className?: string }) {
   const reduceMotion = useReducedMotion();
   const toggleRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const focusAfterClose = useRef<FocusAfterClose>(null);
 
   // Close when the route changes (covers browser back/forward while open).
   const [lastPathname, setLastPathname] = useState(pathname);
@@ -36,8 +72,8 @@ export function MobileMenu({ className }: { className?: string }) {
   }
 
   const close = useCallback((restoreFocus = true) => {
+    focusAfterClose.current = restoreFocus ? "toggle" : null;
     setOpen(false);
-    if (restoreFocus) requestAnimationFrame(() => toggleRef.current?.focus());
   }, []);
 
   useEffect(() => {
@@ -46,6 +82,9 @@ export function MobileMenu({ className }: { className?: string }) {
     const root = document.documentElement;
     const previousOverflow = root.style.overflow;
     root.style.overflow = "hidden";
+    focusAfterClose.current = null;
+    const toggle = toggleRef.current;
+    const releaseInert = panelRef.current ? inertOutside(panelRef.current) : () => {};
 
     const frame = requestAnimationFrame(() => {
       panelRef.current?.querySelector<HTMLElement>("[data-autofocus]")?.focus();
@@ -77,7 +116,9 @@ export function MobileMenu({ className }: { className?: string }) {
 
     const desktop = window.matchMedia("(min-width: 1024px)");
     function onBreakpoint() {
-      if (desktop.matches) setOpen(false);
+      if (!desktop.matches) return;
+      focusAfterClose.current = "desktop";
+      setOpen(false);
     }
 
     document.addEventListener("keydown", onKeyDown);
@@ -85,6 +126,12 @@ export function MobileMenu({ className }: { className?: string }) {
     return () => {
       cancelAnimationFrame(frame);
       root.style.overflow = previousOverflow;
+      // Inert must be lifted before focus can move back into the page.
+      releaseInert();
+      const target = focusAfterClose.current;
+      focusAfterClose.current = null;
+      if (target === "toggle") toggle?.focus();
+      else if (target === "desktop") desktopFocusTarget()?.focus();
       document.removeEventListener("keydown", onKeyDown);
       desktop.removeEventListener("change", onBreakpoint);
     };

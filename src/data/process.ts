@@ -1,3 +1,7 @@
+import { siteConfig } from "@/config/site";
+
+const { founder, region } = siteConfig;
+
 export interface ProcessStep {
   step: number;
   title: string;
@@ -13,8 +17,7 @@ export const processSteps: ProcessStep[] = [
   {
     step: 2,
     title: "We come to you",
-    description:
-      "Driveway, garage or office lot anywhere in the High Desert. You provide a hose spigot and an outlet; we bring the rest.",
+    description: `Driveway, garage or office lot anywhere in the ${region}. You provide a hose spigot and an outlet; we bring the rest.`,
   },
   {
     step: 3,
@@ -25,8 +28,7 @@ export const processSteps: ProcessStep[] = [
   {
     step: 4,
     title: "The work",
-    description:
-      "Kevin does the work himself: pH-neutral products, the two-bucket method, and a checklist for every panel and surface.",
+    description: `${founder.name} does the work himself: pH-neutral products, the two-bucket method, and a checklist for every panel and surface.`,
   },
   {
     step: 5,
@@ -40,13 +42,11 @@ export const processSteps: ProcessStep[] = [
 export const differentiators = [
   {
     title: "Owner-operated",
-    description:
-      "Kevin details every car himself. The person you book is the person who does the work, start to finish.",
+    description: `${founder.name} details every car himself. The person you book is the person who does the work, start to finish.`,
   },
   {
     title: "Fully mobile",
-    description:
-      "Driveway, garage or office lot anywhere in the High Desert. Book online and Kevin comes to you.",
+    description: `Driveway, garage or office lot anywhere in the ${region}. Book online and ${founder.name} comes to you.`,
   },
   {
     title: "Two-bucket method",

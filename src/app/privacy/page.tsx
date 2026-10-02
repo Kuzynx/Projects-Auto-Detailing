@@ -23,11 +23,11 @@ const sections: LegalSection[] = [
     content: (
       <>
         <p>
-          {legalName} (&ldquo;{name},&rdquo; &ldquo;we,&rdquo; &ldquo;us&rdquo;) is a California
-          limited liability company providing mobile auto detailing at our customers&rsquo; homes
-          and workplaces in {address.city} and across the {siteConfig.region}. This policy explains
-          what personal information we collect through this website, our booking and contact forms,
-          phone, email and text messages, and how we use it.
+          {legalName} (&ldquo;{name},&rdquo; &ldquo;we,&rdquo; &ldquo;us&rdquo;) is a mobile auto
+          detailing business working at our customers&rsquo; homes and workplaces in {address.city}{" "}
+          and across the {siteConfig.region}. This policy explains what personal information we
+          collect through this website, our booking and contact forms, phone, email and text
+          messages, and how we use it.
         </p>
         <p>
           By using this website or booking a service, you agree to this policy. If you do not agree,
@@ -107,10 +107,10 @@ const sections: LegalSection[] = [
     content: (
       <>
         <p>
-          When you give us your mobile number and opt in on our booking or contact form, you agree
-          to receive text messages from {name} about your appointments: confirmations, reminders,
-          arrival notices, completion photos and invoices. Promotional texts are sent only if you
-          separately opt in to them.
+          When you give us your mobile number and opt in on our booking form, you agree to receive
+          text messages from {name} about your appointments: confirmations, reminders, arrival
+          notices, completion photos and invoices. Promotional texts are sent only if you separately
+          opt in to them.
         </p>
         <ul>
           <li>Message frequency varies with your bookings. Message and data rates may apply.</li>
@@ -233,9 +233,7 @@ const sections: LegalSection[] = [
             format.
           </li>
           <li>Correct information that is inaccurate.</li>
-          <li>
-            Delete your information, unless we must keep it for legal, tax or warranty reasons.
-          </li>
+          <li>Delete your information, unless we must keep it for legal or tax reasons.</li>
           <li>Stop sending you marketing emails or texts.</li>
         </ul>
         <p>
@@ -339,8 +337,9 @@ const sections: LegalSection[] = [
     title: "Other websites",
     content: (
       <p>
-        Our site links to social media profiles and our Google Business Profile. Those services have
-        their own privacy policies, and we are not responsible for how they handle your information.
+        Our site links to our social media profiles
+        {siteConfig.social.google ? " and our Google listing" : ""}. Those services have their own
+        privacy policies, and we are not responsible for how they handle your information.
       </p>
     ),
   },

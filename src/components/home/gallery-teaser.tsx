@@ -2,9 +2,18 @@ import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { ButtonLink, Container, Section, SectionHeading } from "@/components/ui";
 import { galleryItems } from "@/data/gallery";
+import { cn } from "@/lib/utils";
 import { Reveal, RevealGroup, RevealItem } from "./reveal";
 
 const MAX_TILES = 4;
+
+/** Desktop column count matched to the number of photos, so no row ends with an empty cell. */
+const DESKTOP_COLUMNS: Record<number, string> = {
+  1: "lg:grid-cols-1",
+  2: "lg:grid-cols-2",
+  3: "lg:grid-cols-3",
+  4: "lg:grid-cols-4",
+};
 
 /**
  * Only the business's own job photos (`source: "client"`). Stock imagery is never captioned
@@ -44,7 +53,11 @@ export function GalleryTeaser() {
         <RevealGroup
           as="ul"
           stagger={0.08}
-          className="mt-12 grid grid-cols-2 gap-3 sm:mt-16 sm:gap-4 lg:grid-cols-4"
+          className={cn(
+            "mt-12 grid grid-cols-2 gap-3 sm:mt-16 sm:gap-4",
+            clientWork.length === 1 && "grid-cols-1",
+            DESKTOP_COLUMNS[clientWork.length],
+          )}
         >
           {clientWork.map((item) => (
             <RevealItem as="li" key={item.id} className="aspect-[3/4]">

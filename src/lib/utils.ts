@@ -25,12 +25,13 @@ export function joinUrl(base: string, path = "/") {
   if (/^[a-z][a-z0-9+.-]*:/i.test(path)) return path;
   const url = new URL(base);
   const prefix = url.pathname.replace(/\/+$/, "");
-  const suffix = path.startsWith("/") ? path : `/${path}`;
+  // Collapse leading slashes so "//evil.example/x" can never escape the base origin.
+  const suffix = `/${path.replace(/^\/+/, "")}`;
   return new URL(`${prefix}${suffix}`, url.origin).toString();
 }
 
 /** Build an absolute URL from the configured site origin. */
 export function absoluteUrl(path = "/") {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   return joinUrl(base, path);
 }

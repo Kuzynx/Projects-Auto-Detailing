@@ -21,9 +21,13 @@ export const CONTACT_LIMITS = {
   message: 2000,
 } as const;
 
+/** Collapse CR/LF to a space so single-line fields can never inject email headers. */
+export const stripLineBreaks = (value: string) => value.replace(/[\r\n]+/g, " ");
+
 const optionalText = (max: number, error: string) =>
   z
     .string()
+    .overwrite(stripLineBreaks)
     .trim()
     .max(max, { error })
     .optional()
@@ -33,6 +37,7 @@ const optionalText = (max: number, error: string) =>
 export const contactSchema = z.object({
   name: z
     .string({ error: "Please tell us your name." })
+    .overwrite(stripLineBreaks)
     .trim()
     .min(2, { error: "Please tell us your name." })
     .max(CONTACT_LIMITS.name, { error: `Keep your name under ${CONTACT_LIMITS.name} characters.` }),

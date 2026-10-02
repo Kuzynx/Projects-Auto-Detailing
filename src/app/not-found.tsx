@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Phone } from "lucide-react";
 import { bookingHref, siteConfig } from "@/config/site";
@@ -9,6 +10,11 @@ const suggestions = [
   ...services.filter((s) => s.featured),
   ...services.filter((s) => !s.featured),
 ].slice(0, 3);
+
+export const metadata: Metadata = {
+  title: "Page not found",
+  robots: { index: false, follow: true },
+};
 
 export default function NotFound() {
   return (

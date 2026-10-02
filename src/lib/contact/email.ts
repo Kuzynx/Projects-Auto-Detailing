@@ -1,5 +1,5 @@
 import { siteConfig } from "@/config/site";
-import { topicLabel, type ContactData } from "./schema";
+import { stripLineBreaks, topicLabel, type ContactData } from "./schema";
 
 function escapeHtml(value: string) {
   return value
@@ -13,7 +13,8 @@ function escapeHtml(value: string) {
 /** Builds the internal notification email for a contact form submission. */
 export function buildContactEmail(data: ContactData) {
   const topic = topicLabel(data.topic);
-  const subject = `[${siteConfig.name}] ${topic} inquiry from ${data.name}`;
+  // Defense in depth: the schema already strips line breaks, but never let one reach a header.
+  const subject = stripLineBreaks(`[${siteConfig.name}] ${topic} inquiry from ${data.name}`);
   const rows: [string, string][] = [
     ["Name", data.name],
     ["Email", data.email],

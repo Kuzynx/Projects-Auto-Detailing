@@ -24,7 +24,7 @@ export const values: { title: string; description: string; Icon: LucideIcon }[] 
     Icon: Timer,
     title: "Respect your time",
     description:
-      "Bookings are confirmed by text within the hour. We arrive when we say we will and keep the walkthrough short and clear.",
+      "We confirm every booking by text, arrive when we say we will and keep the walkthrough short and clear.",
   },
 ];
 

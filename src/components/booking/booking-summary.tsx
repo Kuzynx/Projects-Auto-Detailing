@@ -11,7 +11,7 @@ import {
   getSizeLabel,
 } from "@/lib/booking/format";
 import { formatServicePrice, getService } from "@/data/services";
-import { calculateEstimate } from "@/lib/booking/pricing";
+import { calculateEstimate, formatEstimateTotal } from "@/lib/booking/pricing";
 import { requiresGarage, type BookingDraft } from "@/lib/booking/schema";
 import { cn, formatPrice } from "@/lib/utils";
 
@@ -46,6 +46,7 @@ export function BookingSummary({ draft, className }: { draft: BookingDraft; clas
     addOnSlugs: draft.addOns,
   });
   const service = getService(draft.service);
+  const totalLabel = formatEstimateTotal(estimate);
   const vehicle = formatVehicle(draft);
   const when = formatAppointment(draft);
   const city = getCityName(draft);
@@ -69,11 +70,14 @@ export function BookingSummary({ draft, className }: { draft: BookingDraft; clas
           {estimate.service ? (
             <span className="flex items-baseline justify-between gap-3">
               <span>{estimate.service.name}</span>
-              <span className="font-display tabular-nums">
-                {service
-                  ? formatServicePrice(service, draft.size)
-                  : formatPrice(estimate.service.price)}
-              </span>
+              {/* Line prices only when there is a breakdown; otherwise the total is the price. */}
+              {estimate.addOns.length > 0 && (
+                <span className="font-display tabular-nums">
+                  {service
+                    ? formatServicePrice(service, draft.size)
+                    : formatPrice(estimate.service.price)}
+                </span>
+              )}
             </span>
           ) : (
             "Choose a service"
@@ -123,14 +127,16 @@ export function BookingSummary({ draft, className }: { draft: BookingDraft; clas
           >
             <AnimatePresence mode="popLayout" initial={false}>
               <motion.span
-                key={estimate.total}
+                key={totalLabel ?? "none"}
                 className="inline-block"
                 initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -10 }}
                 transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
               >
-                {formatPrice(estimate.total)}
+                {totalLabel ?? (
+                  <span className="text-base font-normal text-ink-subtle">Choose a service</span>
+                )}
               </motion.span>
             </AnimatePresence>
           </p>

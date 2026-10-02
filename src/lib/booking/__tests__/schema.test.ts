@@ -202,13 +202,14 @@ describe("cross-field rules", () => {
   });
 
   it("rejects a time that doesn't fit the service on that day", () => {
-    // Fixture Full on an SUV is 5 hours; Saturday closes at 4 PM, so 1 PM is too late.
+    // Fixture Full on an SUV is "5–6 hrs", fitted on the upper bound (6 h). Saturday closes
+    // at 4 PM, so 11 AM is now too late and 10 AM is the last start.
     expect(
-      getCrossFieldErrors({ ...validDraft, date: "2026-10-10", time: "13:00", addOns: [] }, NOW)
+      getCrossFieldErrors({ ...validDraft, date: "2026-10-10", time: "11:00", addOns: [] }, NOW)
         .time,
     ).toBeDefined();
     expect(
-      getCrossFieldErrors({ ...validDraft, date: "2026-10-10", time: "11:00", addOns: [] }, NOW)
+      getCrossFieldErrors({ ...validDraft, date: "2026-10-10", time: "10:00", addOns: [] }, NOW)
         .time,
     ).toBeUndefined();
   });

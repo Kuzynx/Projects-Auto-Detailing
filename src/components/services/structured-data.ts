@@ -7,54 +7,30 @@ import {
   type Service,
   type VehicleSize,
 } from "@/data/services";
+import { breadcrumbJsonLd, jsonLdIds } from "@/lib/seo/json-ld";
+import { siteUrl } from "@/lib/seo/url";
 
-/** Absolute URL on the canonical site origin. */
-export function siteUrl(path = "/") {
-  return new URL(path, siteConfig.url).toString();
-}
+export { breadcrumbJsonLd, siteUrl };
 
-export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: items.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: item.name,
-      item: siteUrl(item.path),
-    })),
-  };
-}
-
-/** Reference to the business node (the SEO agent's LocalBusiness uses the same @id). */
+/** Provider reference: only the `@id` of the site-wide LocalBusiness node from `@/lib/seo/json-ld`. */
 export function providerJsonLd() {
-  return {
-    "@type": "AutomotiveBusiness",
-    "@id": siteUrl("/#business"),
-    name: siteConfig.name,
-    url: siteConfig.url,
-    telephone: siteConfig.phone,
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: siteConfig.address.street,
-      addressLocality: siteConfig.address.city,
-      addressRegion: siteConfig.address.state,
-      postalCode: siteConfig.address.zip,
-      addressCountry: siteConfig.address.country,
-    },
-  };
+  return { "@id": jsonLdIds.business };
+}
+
+function isOpenEnded(service: Pick<Service, "priceNote" | "priceSuffix">, size: VehicleSize) {
+  return Boolean(service.priceNote?.[size]) || service.priceSuffix === "starting";
 }
 
 /**
- * Price fields for one Offer. Open-ended prices ("from $100", "$150+") are
- * expressed as a minimum price rather than a fixed one.
+ * Price fields for one Offer. Open-ended prices ("from $100", "$150+", "$75 starting")
+ * are expressed as a minimum price rather than a fixed one.
  */
 export function offerPriceJsonLd(
   service: Pick<Service, "price" | "priceNote" | "priceSuffix">,
   size: VehicleSize,
 ) {
   const amount = service.price[size];
-  if (service.priceNote?.[size] || service.priceSuffix === "starting") {
+  if (isOpenEnded(service, size)) {
     return {
       priceCurrency: "USD",
       priceSpecification: { "@type": "PriceSpecification", minPrice: amount, priceCurrency: "USD" },
@@ -89,20 +65,24 @@ export function serviceJsonLd(service: Service) {
   };
 }
 
-/** Compact Service node with an AggregateOffer, for list pages. */
+/**
+ * Compact Service node with an AggregateOffer, for list pages. `highPrice` is only reported
+ * when every price is fixed; an open-ended top price ("$250+") is not a real maximum.
+ */
 export function serviceSummaryJsonLd(service: Service) {
   const { min, max } = priceRange(service);
+  const anyOpenEnded = vehicleSizes.some((size) => isOpenEnded(service, size.id));
   return {
     "@type": "Service",
     name: service.name,
     description: service.tagline,
     url: siteUrl(`/services/${service.slug}`),
     image: siteUrl(service.image),
-    provider: { "@id": siteUrl("/#business"), name: siteConfig.name },
+    provider: providerJsonLd(),
     offers: {
       "@type": "AggregateOffer",
       lowPrice: min,
-      highPrice: max,
+      ...(anyOpenEnded ? {} : { highPrice: max }),
       priceCurrency: "USD",
       offerCount: vehicleSizes.length,
     },

@@ -15,9 +15,9 @@ import {
 import { Reveal } from "@/components/about/reveal";
 import { InitialsAvatar } from "@/components/about/initials-avatar";
 import { standards, values } from "@/components/about/content";
-import { JsonLd } from "@/lib/seo/json-ld";
+import { JsonLd, breadcrumbJsonLd, jsonLdIds } from "@/lib/seo/json-ld";
+import { siteUrl } from "@/lib/seo/url";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { absoluteUrl } from "@/lib/utils";
 import { bookingHref, siteConfig } from "@/config/site";
 
 const { founder } = siteConfig;
@@ -43,30 +43,21 @@ const aboutJsonLd = [
     "@context": "https://schema.org",
     "@type": "AboutPage",
     name: `About ${siteConfig.name}`,
-    url: absoluteUrl("/about"),
+    url: siteUrl("/about"),
     description,
-    mainEntity: {
-      "@type": "AutoWash",
-      name: siteConfig.name,
-      url: absoluteUrl("/"),
-      foundingDate: String(founder.since),
-      founder: {
-        "@type": "Person",
-        name: founder.name,
-        alternateName: founder.nickname,
-        jobTitle: founder.title,
-        image: absoluteUrl(founder.photo),
-      },
-    },
+    mainEntity: { "@id": jsonLdIds.business },
   },
   {
     "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
-      { "@type": "ListItem", position: 2, name: "About", item: absoluteUrl("/about") },
-    ],
+    "@type": "Person",
+    "@id": siteUrl("/about#founder"),
+    name: founder.name,
+    alternateName: founder.nickname,
+    jobTitle: founder.title,
+    image: siteUrl(founder.photo),
+    worksFor: { "@id": jsonLdIds.business },
   },
+  breadcrumbJsonLd([{ label: "About", href: "/about" }]),
 ];
 
 export default function AboutPage() {

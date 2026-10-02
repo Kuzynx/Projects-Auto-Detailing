@@ -120,8 +120,8 @@ export function ContactForm() {
           {siteConfig.team[0]
             ? `${siteConfig.team[0].name}, who handles booking and messages, will reply by email, and anything about your car goes straight to ${siteConfig.founder.name}.`
             : `${siteConfig.founder.name} will read it and reply by email.`}{" "}
-          Typical reply within 1 business hour during business hours. Anything after hours is
-          answered first thing the next morning.
+          We reply fast, usually the same day. Anything sent after hours is answered the next
+          business day.
         </p>
         <p className="mt-3 text-pretty text-ink-muted">
           Need us sooner?{" "}
@@ -318,7 +318,7 @@ export function ContactForm() {
         </Button>
         <p className="flex items-center gap-2 text-sm text-ink-muted">
           <Phone className="size-4 text-brand-400" aria-hidden />
-          Typical reply within 1 business hour
+          We reply fast, usually the same day
         </p>
       </div>
     </form>

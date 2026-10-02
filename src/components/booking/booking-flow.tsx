@@ -6,7 +6,7 @@ import { AlertCircle, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { submitBooking } from "@/app/book/actions";
 import { siteConfig } from "@/config/site";
 import { bookingContactName } from "@/lib/booking/format";
-import { calculateEstimate } from "@/lib/booking/pricing";
+import { calculateEstimate, formatEstimateTotal } from "@/lib/booking/pricing";
 import {
   bookingSteps,
   firstStepWithErrors,
@@ -21,7 +21,7 @@ import {
 import { getTimeSlots } from "@/lib/booking/slots";
 import { BOOKING_FORM_FIELDS, type BookingActionState } from "@/lib/booking/types";
 import { Button } from "@/components/ui";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { AddOnsStep } from "./addons-step";
 import { BookingConfirmation } from "./booking-confirmation";
 import { BookingSummary } from "./booking-summary";
@@ -83,12 +83,24 @@ interface FlowState {
   errors: FieldErrors;
   /** Element to focus after the next render of the active step. */
   focus: { target: string; nonce: number } | null;
+  /**
+   * Form-level message from the last submission. Kept here, not read from the action
+   * result, so it clears as soon as the visitor edits anything or changes step.
+   */
+  formMessage: string | null;
 }
 
 type FlowAction =
   | { type: "update"; patch: Partial<BookingDraft> }
-  | { type: "go"; step: number; errors?: FieldErrors; focusTarget?: string }
-  | { type: "invalid"; errors: FieldErrors };
+  | {
+      type: "go";
+      step: number;
+      errors?: FieldErrors;
+      focusTarget?: string;
+      formMessage?: string | null;
+    }
+  | { type: "invalid"; errors: FieldErrors }
+  | { type: "message"; formMessage: string | null };
 
 /** Keeps dependent fields consistent after any edit. */
 function reconcile(draft: BookingDraft): BookingDraft {
@@ -120,7 +132,7 @@ function reducer(state: FlowState, action: FlowAction): FlowState {
       for (const key of Object.keys(draft) as BookingField[]) {
         if (key in action.patch || draft[key] !== state.draft[key]) delete errors[key];
       }
-      return { ...state, draft, errors };
+      return { ...state, draft, errors, formMessage: null };
     }
     case "go": {
       const step = Math.max(0, Math.min(LAST_STEP, action.step));
@@ -130,15 +142,19 @@ function reducer(state: FlowState, action: FlowAction): FlowState {
         reached: Math.max(state.reached, step),
         direction: step >= state.step ? 1 : -1,
         errors: action.errors ?? {},
+        formMessage: action.formMessage ?? null,
         focus: {
           target: action.focusTarget ?? headingId(step),
           nonce: (state.focus?.nonce ?? 0) + 1,
         },
       };
     }
+    case "message":
+      return { ...state, formMessage: action.formMessage };
     case "invalid":
       return {
         ...state,
+        formMessage: null,
         errors: action.errors,
         focus: {
           target: firstErrorTarget(state.step, action.errors),
@@ -214,13 +230,16 @@ export function BookingFlow({ initialDraft, initialStep = 0 }: BookingFlowProps)
     draft: reconcile(initialDraft),
     errors: {},
     focus: null,
+    formMessage: null,
   }));
   const { step, draft, errors } = state;
 
-  const startedAt = useRef(0);
+  // Fill time is measured with the monotonic performance clock, not Date.now(), so a
+  // device clock that disagrees with the server can't make a real booking look automated.
+  const startedAt = useRef<number | null>(null);
   const honeypotRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    startedAt.current = Date.now();
+    startedAt.current = performance.now();
   }, []);
 
   const [result, submitAction, pending] = useActionState<BookingActionState, FormData>(
@@ -234,15 +253,18 @@ export function BookingFlow({ initialDraft, initialStep = 0 }: BookingFlowProps)
           message: `We couldn't reach our booking system. Check your connection and try again, or call ${siteConfig.phone}.`,
         };
       }
-      if (response && !response.ok && response.fieldErrors) {
-        const target = firstStepWithErrors(response.fieldErrors);
-        if (target !== -1) {
+      if (response && !response.ok) {
+        const target = response.fieldErrors ? firstStepWithErrors(response.fieldErrors) : -1;
+        if (response.fieldErrors && target !== -1) {
           dispatch({
             type: "go",
             step: target,
             errors: response.fieldErrors,
             focusTarget: firstErrorTarget(target, response.fieldErrors),
+            formMessage: response.message ?? null,
           });
+        } else {
+          dispatch({ type: "message", formMessage: response.message ?? null });
         }
       }
       return response;
@@ -283,7 +305,8 @@ export function BookingFlow({ initialDraft, initialStep = 0 }: BookingFlowProps)
 
     const formData = new FormData();
     formData.set(BOOKING_FORM_FIELDS.payload, JSON.stringify(draft));
-    formData.set(BOOKING_FORM_FIELDS.startedAt, String(startedAt.current));
+    const elapsed = startedAt.current === null ? 0 : performance.now() - startedAt.current;
+    formData.set(BOOKING_FORM_FIELDS.elapsedMs, String(Math.round(elapsed)));
     formData.set(BOOKING_FORM_FIELDS.honeypot, honeypotRef.current?.value ?? "");
     startTransition(() => submitAction(formData));
   }
@@ -295,7 +318,8 @@ export function BookingFlow({ initialDraft, initialStep = 0 }: BookingFlowProps)
     size: draft.size,
     addOnSlugs: draft.addOns,
   });
-  const formMessage = result && !result.ok ? result.message : undefined;
+  const { formMessage } = state;
+  const totalLabel = formatEstimateTotal(estimate);
   const offset = reduceMotion ? 0 : 28;
   const variants: Variants = {
     enter: (dir: number) => ({ opacity: 0, x: dir * offset }),
@@ -352,7 +376,7 @@ export function BookingFlow({ initialDraft, initialStep = 0 }: BookingFlowProps)
             />
           </div>
 
-          {formMessage && step === LAST_STEP && (
+          {formMessage && (
             <p
               role="alert"
               className="mt-8 flex items-start gap-2 rounded-md border border-danger/40 bg-danger/10 p-4 text-sm text-ink"
@@ -377,12 +401,14 @@ export function BookingFlow({ initialDraft, initialStep = 0 }: BookingFlowProps)
               </Button>
             )}
             <div className="ml-auto flex items-center gap-4">
-              <p className="text-right text-xs text-ink-subtle lg:hidden">
-                Estimate
-                <span className="block font-display text-base font-semibold text-ink tabular-nums">
-                  {formatPrice(estimate.total)}
-                </span>
-              </p>
+              {totalLabel && (
+                <p className="text-right text-xs text-ink-subtle lg:hidden">
+                  Estimate
+                  <span className="block font-display text-base font-semibold text-ink tabular-nums">
+                    {totalLabel}
+                  </span>
+                </p>
+              )}
               <Button
                 type="submit"
                 size="lg"

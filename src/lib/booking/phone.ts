@@ -1,5 +1,12 @@
 /** US phone helpers. Accepts any punctuation and an optional leading +1. */
 
+/**
+ * maxLength for the phone input. Generous on purpose: autofill and pastes like
+ * "+1 (760) 555-0147" (17 characters) must arrive whole; formatPhoneAsYouType
+ * caps the digits anyway.
+ */
+export const PHONE_INPUT_MAX_LENGTH = 25;
+
 /** Returns the 10 significant digits, or null if it is not a valid NANP number. */
 export function normalizeUsPhone(value: string): string | null {
   let digits = value.replace(/\D/g, "");

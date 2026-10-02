@@ -3,6 +3,7 @@
  * server action, which always recomputes the estimate itself.
  */
 import { getAddOn, getService, type VehicleSize } from "@/data/services";
+import { formatPrice } from "@/lib/utils";
 
 export interface EstimateInput {
   serviceSlug: string;
@@ -25,6 +26,20 @@ export interface Estimate {
   total: number;
   /** Duration label for the chosen size, e.g. "4–5 hrs". */
   durationLabel: string | null;
+  /** Open-ended pricing for this vehicle type ("from" $100, $150 "plus"), else null. */
+  priceNote: "from" | "plus" | null;
+}
+
+/**
+ * The total as customers should read it, honouring open-ended prices:
+ * "$50", "from $100", "$150+". Null until a service is chosen, so nothing shows "$0".
+ */
+export function formatEstimateTotal(estimate: Pick<Estimate, "service" | "total" | "priceNote">) {
+  if (!estimate.service) return null;
+  const amount = formatPrice(estimate.total);
+  if (estimate.priceNote === "from") return `from ${amount}`;
+  if (estimate.priceNote === "plus") return `${amount}+`;
+  return amount;
 }
 
 /**
@@ -51,5 +66,6 @@ export function calculateEstimate({ serviceSlug, size, addOnSlugs = [] }: Estima
     addOnsTotal,
     total: (serviceLine?.price ?? 0) + addOnsTotal,
     durationLabel: service ? service.duration[size] : null,
+    priceNote: service?.priceNote?.[size] ?? null,
   };
 }

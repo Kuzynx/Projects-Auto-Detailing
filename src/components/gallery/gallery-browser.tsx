@@ -5,12 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { galleryCategories, type GalleryCategory, type GalleryItem } from "@/data/gallery";
 import { cn } from "@/lib/utils";
-import {
-  GalleryTileContent,
-  availableCategories,
-  gridClasses,
-  tileSpanClasses,
-} from "./gallery-tile";
+import { GalleryTileContent, availableCategories, gridLayout } from "./gallery-tile";
 import { Lightbox } from "./lightbox";
 
 type FilterId = GalleryCategory | "all";
@@ -54,6 +49,8 @@ export function GalleryBrowser({ items }: { items: GalleryItem[] }) {
     [pathname, router, searchParams],
   );
 
+  const grid = useMemo(() => gridLayout(visible), [visible]);
+
   const activeLabel = galleryCategories.find((c) => c.id === active)?.label ?? "All work";
 
   return (
@@ -63,7 +60,7 @@ export function GalleryBrowser({ items }: { items: GalleryItem[] }) {
           <div
             role="group"
             aria-label="Filter projects by category"
-            className="-mx-4 flex [scrollbar-width:none] gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0"
+            className="-mx-4 -my-1 flex [scrollbar-width:none] gap-2 overflow-x-auto px-4 py-1 sm:mx-0 sm:my-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:py-0"
           >
             {categories.map((category) => {
               const isActive = category.id === active;
@@ -105,7 +102,7 @@ export function GalleryBrowser({ items }: { items: GalleryItem[] }) {
       </div>
 
       <LayoutGroup>
-        <motion.ul layout={!reduceMotion} className={gridClasses}>
+        <motion.ul layout={!reduceMotion} className={grid.className}>
           <AnimatePresence mode="popLayout" initial={false}>
             {visible.map((item, index) => (
               <motion.li
@@ -119,7 +116,7 @@ export function GalleryBrowser({ items }: { items: GalleryItem[] }) {
                     : { opacity: 0, scale: 0.96 }
                 }
                 transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                className={cn("relative", tileSpanClasses(item))}
+                className={cn("relative", grid.span(item))}
               >
                 <button
                   type="button"

@@ -4,9 +4,8 @@ import { CtaBanner } from "@/components/layout/cta-banner";
 import { Container, Section } from "@/components/ui";
 import { FaqExplorer } from "@/components/faq/faq-explorer";
 import { StillHaveQuestions } from "@/components/faq/still-have-questions";
-import { JsonLd } from "@/lib/seo/json-ld";
+import { JsonLd, breadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { absoluteUrl } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { faqs } from "@/data/faq";
 
@@ -29,14 +28,7 @@ const faqJsonLd = [
       acceptedAnswer: { "@type": "Answer", text: item.answer },
     })),
   },
-  {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
-      { "@type": "ListItem", position: 2, name: "FAQ", item: absoluteUrl("/faq") },
-    ],
-  },
+  breadcrumbJsonLd([{ label: "FAQ", href: "/faq" }]),
 ];
 
 export default function FaqPage() {

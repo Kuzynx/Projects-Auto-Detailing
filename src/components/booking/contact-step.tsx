@@ -11,7 +11,7 @@ import {
   getDepositPolicy,
   getSizeLabel,
 } from "@/lib/booking/format";
-import { formatPhoneAsYouType } from "@/lib/booking/phone";
+import { formatPhoneAsYouType, PHONE_INPUT_MAX_LENGTH } from "@/lib/booking/phone";
 import {
   bookingSteps,
   requiresGarage,
@@ -93,7 +93,7 @@ export function ContactStep({ draft, errors, update, onEdit }: ContactStepProps)
             autoComplete="tel-national"
             inputMode="tel"
             placeholder={`${siteConfig.phone.slice(0, 6)}555-0123`}
-            maxLength={16}
+            maxLength={PHONE_INPUT_MAX_LENGTH}
           />
           <TextAreaField
             className="sm:col-span-2"

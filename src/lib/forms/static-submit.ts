@@ -39,11 +39,43 @@ export async function postToFormEndpoint(submission: EndpointSubmission): Promis
   }
 }
 
-/** Build a mailto: link. Bodies are kept short because some mail clients cap URL length. */
-export function buildMailto(to: string, subject: string, body: string) {
+/**
+ * Longest mailto: link we hand to the browser. Some mail handlers (Outlook and
+ * older Windows handlers) fail or truncate past roughly 2,000 characters.
+ */
+export const MAX_MAILTO_LENGTH = 1800;
+
+const TRUNCATION_NOTE =
+  "\n\n[Message shortened to fit your mail app. Add anything missing before you send.]";
+
+function encodeMailto(to: string, subject: string, body: string) {
   const params = new URLSearchParams({ subject, body });
   // URLSearchParams encodes spaces as "+", which mail clients render literally.
   return `mailto:${to}?${params.toString().replace(/\+/g, "%20")}`;
+}
+
+/**
+ * Build a mailto: link no longer than `maxLength`. When the body is too long it is
+ * cut from the end (the free-text notes come last) and a short note is appended.
+ */
+export function buildMailto(
+  to: string,
+  subject: string,
+  body: string,
+  maxLength = MAX_MAILTO_LENGTH,
+) {
+  const full = encodeMailto(to, subject, body);
+  if (full.length <= maxLength) return full;
+  // Binary search for the longest prefix of the body that fits with the note.
+  let low = 0;
+  let high = body.length;
+  while (low < high) {
+    const mid = Math.ceil((low + high) / 2);
+    const candidate = encodeMailto(to, subject, body.slice(0, mid).trimEnd() + TRUNCATION_NOTE);
+    if (candidate.length <= maxLength) low = mid;
+    else high = mid - 1;
+  }
+  return encodeMailto(to, subject, body.slice(0, low).trimEnd() + TRUNCATION_NOTE);
 }
 
 /** Open the mail app. Returns false when no window is available (tests, SSR). */

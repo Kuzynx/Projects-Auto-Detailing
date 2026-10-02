@@ -25,6 +25,7 @@ import {
   type Service,
 } from "@/data/services";
 import { JsonLd } from "@/lib/seo/json-ld";
+import { buildMetadata } from "@/lib/seo/metadata";
 import { formatPrice } from "@/lib/utils";
 
 export const dynamicParams = false;
@@ -42,20 +43,15 @@ export async function generateMetadata({
 
   const { min } = priceRange(service);
   const description = `${service.tagline} From ${formatPrice(min)}${service.priceSuffix ? ` ${service.priceSuffix}` : ""} in ${siteConfig.address.city}, ${siteConfig.address.state}. ${service.location === "garage" ? "Mobile, done in your garage" : "Mobile service"} across the ${siteConfig.region}, owner-operated.`;
-  const path = `/services/${service.slug}`;
+  const path = `/services/${service.slug}` as const;
 
-  return {
+  return buildMetadata({
     title: service.name,
     description,
-    alternates: { canonical: path },
-    openGraph: {
-      type: "website",
-      title: `${service.name} | ${siteConfig.name}`,
-      description,
-      url: path,
-      images: [{ url: service.image, alt: service.name }],
-    },
-  };
+    path,
+    image: service.image,
+    imageAlt: service.name,
+  });
 }
 
 function SectionTitle({
@@ -113,9 +109,8 @@ export default async function ServiceDetailPage({ params }: PageProps<"/services
         data={[
           serviceJsonLd(service),
           breadcrumbJsonLd([
-            { name: "Home", path: "/" },
-            { name: "Services", path: "/services" },
-            { name: service.name, path: `/services/${service.slug}` },
+            { label: "Services", href: "/services" },
+            { label: service.name, href: `/services/${service.slug}` },
           ]),
         ]}
       />

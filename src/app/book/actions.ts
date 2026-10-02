@@ -9,11 +9,8 @@ import {
 import { calculateEstimate } from "@/lib/booking/pricing";
 import { generateBookingReference } from "@/lib/booking/reference";
 import { validateBooking } from "@/lib/booking/schema";
-import {
-  BOOKING_FORM_FIELDS,
-  MIN_FILL_TIME_MS,
-  type BookingActionState,
-} from "@/lib/booking/types";
+import { isLikelyAutomated } from "@/lib/booking/spam";
+import { BOOKING_FORM_FIELDS, type BookingActionState } from "@/lib/booking/types";
 
 const MAX_PAYLOAD_BYTES = 16_000;
 
@@ -63,17 +60,10 @@ export async function submitBooking(
   });
   const reference = generateBookingReference();
 
-  // Spam checks: a filled honeypot or an impossibly fast submission. Bots get a
-  // convincing success response and nothing is sent, so they learn nothing.
-  const honeypot = formData.get(BOOKING_FORM_FIELDS.honeypot);
-  const startedAt = Number(formData.get(BOOKING_FORM_FIELDS.startedAt));
-  const elapsed = now.getTime() - startedAt;
-  const looksAutomated =
-    (typeof honeypot === "string" && honeypot.trim() !== "") ||
-    !Number.isFinite(startedAt) ||
-    elapsed < MIN_FILL_TIME_MS;
-  if (looksAutomated) {
-    console.warn("[booking] dropped a likely automated submission", { reference, elapsed });
+  // Spam checks (honeypot + fill time, see isLikelyAutomated). Bots get a convincing
+  // success response and nothing is sent, so they learn nothing.
+  if (isLikelyAutomated(formData, now.getTime())) {
+    console.warn("[booking] dropped a likely automated submission", { reference });
     return { ok: true, reference, estimate, booking };
   }
 

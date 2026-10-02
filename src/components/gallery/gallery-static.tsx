@@ -1,11 +1,6 @@
 import type { GalleryItem } from "@/data/gallery";
 import { cn } from "@/lib/utils";
-import {
-  GalleryTileContent,
-  availableCategories,
-  gridClasses,
-  tileSpanClasses,
-} from "./gallery-tile";
+import { GalleryTileContent, availableCategories, gridLayout } from "./gallery-tile";
 
 /**
  * Server-rendered grid shown in the initial HTML (and to crawlers) until the
@@ -13,6 +8,7 @@ import {
  */
 export function GalleryStatic({ items }: { items: GalleryItem[] }) {
   const { categories, showFilters } = availableCategories(items);
+  const grid = gridLayout(items);
   return (
     <div>
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -41,13 +37,13 @@ export function GalleryStatic({ items }: { items: GalleryItem[] }) {
           projects
         </p>
       </div>
-      <ul className={gridClasses}>
+      <ul className={grid.className}>
         {items.map((item) => (
           <li
             key={item.id}
             className={cn(
               "group relative overflow-hidden rounded-lg border border-border bg-surface",
-              tileSpanClasses(item),
+              grid.span(item),
             )}
           >
             <GalleryTileContent item={item} />

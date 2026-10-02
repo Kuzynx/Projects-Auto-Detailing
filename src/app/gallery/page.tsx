@@ -8,9 +8,8 @@ import { GalleryStatic } from "@/components/gallery/gallery-static";
 import { orderGalleryItems } from "@/components/gallery/gallery-tile";
 import { CompareSlider } from "@/components/gallery/compare-slider";
 import { InstagramStrip } from "@/components/gallery/instagram-strip";
-import { JsonLd } from "@/lib/seo/json-ld";
+import { JsonLd, breadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { absoluteUrl } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { clientGalleryItems, compareShowcase } from "@/data/gallery";
 
@@ -31,16 +30,7 @@ const items = orderGalleryItems(clientGalleryItems);
 export default function GalleryPage() {
   return (
     <>
-      <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
-            { "@type": "ListItem", position: 2, name: "Gallery", item: absoluteUrl("/gallery") },
-          ],
-        }}
-      />
+      <JsonLd data={breadcrumbJsonLd([{ label: "Gallery", href: "/gallery" }])} />
 
       <PageHero
         eyebrow="Gallery"

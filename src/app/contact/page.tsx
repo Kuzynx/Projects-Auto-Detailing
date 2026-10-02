@@ -6,13 +6,13 @@ import { Card, Container, Section } from "@/components/ui";
 import { ContactForm } from "@/components/contact/contact-form";
 import { ContactInfo, ContactQuickCards } from "@/components/contact/contact-details";
 import { ServiceAreaCard } from "@/components/contact/service-area-card";
-import { JsonLd } from "@/lib/seo/json-ld";
+import { JsonLd, breadcrumbJsonLd, jsonLdIds } from "@/lib/seo/json-ld";
+import { siteUrl } from "@/lib/seo/url";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { absoluteUrl } from "@/lib/utils";
 import { bookingHref, siteConfig } from "@/config/site";
 
 const title = "Contact";
-const description = `Call, text or message ${siteConfig.name} in ${siteConfig.address.city}, ${siteConfig.address.state}. Quotes, fleet accounts and questions answered by a detailer, typically within 1 business hour.`;
+const description = `Call, text or message ${siteConfig.name} in ${siteConfig.address.city}, ${siteConfig.address.state}. Quotes, work trucks, fleets and questions answered fast, usually the same day.`;
 
 export const metadata: Metadata = buildMetadata({
   title,
@@ -25,39 +25,11 @@ const contactJsonLd = [
     "@context": "https://schema.org",
     "@type": "ContactPage",
     name: `Contact ${siteConfig.name}`,
-    url: absoluteUrl("/contact"),
+    url: siteUrl("/contact"),
     description,
-    mainEntity: {
-      "@type": "AutoWash",
-      name: siteConfig.name,
-      url: absoluteUrl("/"),
-      telephone: siteConfig.phone,
-      email: siteConfig.email,
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: siteConfig.address.city,
-        addressRegion: siteConfig.address.state,
-        addressCountry: siteConfig.address.country,
-      },
-      areaServed: siteConfig.serviceArea.map((name) => ({ "@type": "City", name })),
-      contactPoint: {
-        "@type": "ContactPoint",
-        contactType: "customer service",
-        telephone: siteConfig.phone,
-        email: siteConfig.email,
-        areaServed: "US",
-        availableLanguage: ["English"],
-      },
-    },
+    mainEntity: { "@id": jsonLdIds.business },
   },
-  {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
-      { "@type": "ListItem", position: 2, name: "Contact", item: absoluteUrl("/contact") },
-    ],
-  },
+  breadcrumbJsonLd([{ label: "Contact", href: "/contact" }]),
 ];
 
 export default function ContactPage() {
@@ -68,7 +40,7 @@ export default function ContactPage() {
       <PageHero
         eyebrow="Contact"
         title="Talk to a detailer"
-        description="Real people, not a call center. Ask about a quote, a work truck or a fleet, or which package fits your car. Typical reply within 1 business hour."
+        description="Real people, not a call center. Ask about a quote, a work truck or a fleet, or which package fits your car. We reply fast, usually the same day."
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Contact" }]}
       />
 

@@ -116,8 +116,8 @@ export const services: Service[] = [
     priceNote: { exotic: "from" },
     duration: {
       car: "~1 hr",
-      suv: "~1 hr",
-      truck: "~1 hr",
+      suv: "~1–1.25 hrs",
+      truck: "~1–1.25 hrs",
       sports: "~1 hr",
       exotic: "~1 hr",
       motorcycle: "~45 min",
@@ -174,8 +174,8 @@ export const services: Service[] = [
     priceNote: { exotic: "plus" },
     duration: {
       car: "~1.5–2 hrs",
-      suv: "~1.5–2 hrs",
-      truck: "~1.5–2 hrs",
+      suv: "~2–2.5 hrs",
+      truck: "~2–2.5 hrs",
       sports: "~1.5–2 hrs",
       exotic: "~1.5–2 hrs",
       motorcycle: "~1–1.5 hrs",
@@ -244,8 +244,8 @@ export const services: Service[] = [
     priceNote: { exotic: "plus" },
     duration: {
       car: "~2.5–3.5 hrs",
-      suv: "~2.5–3.5 hrs",
-      truck: "~2.5–3.5 hrs",
+      suv: "~3–4 hrs",
+      truck: "~3–4 hrs",
       sports: "~2.5–3.5 hrs",
       exotic: "~2.5–3.5 hrs",
       motorcycle: "~1.5–2 hrs",
@@ -263,7 +263,7 @@ export const services: Service[] = [
     image: "/images/services/full-deluxe.jpg",
     featured: true,
     badge: "Best value",
-    pairsWith: ["premium-detail", "working-truck"],
+    pairsWith: ["premium-detail"],
     highlights: [
       "Everything in Premium, outside",
       "Full interior vacuum, seats and mats",
@@ -511,6 +511,14 @@ export const comparisonFeatures: ComparisonFeature[] = [
     label: "Exterior wipe-down",
     values: { "basic-wash": true, "premium-detail": true, "full-deluxe": true },
   },
+  {
+    label: "Drying",
+    values: {
+      "basic-wash": "Dry",
+      "premium-detail": "More detailed drying",
+      "full-deluxe": "More detailed drying",
+    },
+  },
   { label: "Deep wheel cleaning", values: premiumAndUp },
   { label: "Wheel wells", values: { ...premiumAndUp, "working-truck": true } },
   { label: "Door jambs", values: { ...premiumAndUp, "working-truck": true } },
@@ -551,13 +559,15 @@ export const priceFactors: PriceFactor[] = [
   },
 ];
 
-/** Range applied for heavy soil and pet hair, as a percentage of the base price. */
-export const priceFactorRange = { min: 15, max: 30 } as const;
-
 /** Parse an add-on duration such as "+45 min" into minutes. */
 export function addOnMinutes(addOn: Pick<AddOn, "duration">) {
-  const match = addOn.duration.match(/(\d+)/);
-  return match ? Number(match[1]) : 0;
+  const match = addOn.duration.match(
+    /(\d+(?:\.\d+)?)\s*(h|hr|hrs|hour|hours|m|min|mins|minutes)?\b/i,
+  );
+  if (!match) return 0;
+  const value = Number(match[1]);
+  const isHours = match[2] ? match[2].toLowerCase().startsWith("h") : false;
+  return Math.round(isHours ? value * 60 : value);
 }
 
 /** Lowest and highest starting price for a service across all vehicle sizes (motorcycle to exotic). */

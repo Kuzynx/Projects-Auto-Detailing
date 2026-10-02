@@ -5,7 +5,8 @@
  */
 import { siteConfig } from "@/config/site";
 import { getService } from "@/data/services";
-import { absoluteUrl, formatPrice } from "@/lib/utils";
+import { siteUrl } from "@/lib/seo/url";
+import { formatPrice } from "@/lib/utils";
 import {
   UTILITIES_CONFIRMED_LABEL,
   bookingContactName,
@@ -21,7 +22,7 @@ import {
   getSizeLabel,
 } from "./format";
 import { toE164 } from "./phone";
-import type { Estimate } from "./pricing";
+import { formatEstimateTotal, type Estimate } from "./pricing";
 import { requiresGarage, type BookingData } from "./schema";
 
 export interface BookingEmailInput {
@@ -44,7 +45,7 @@ const color = {
   border: "#26262b",
   ink: "#f2f2f3",
   muted: "#b8b7ba",
-  subtle: "#77767a",
+  subtle: "#838286",
   brand: "#c796f0",
   brandDeep: "#7f4db3",
 };
@@ -124,7 +125,8 @@ function bookingRows(input: BookingEmailInput, { internal }: { internal: boolean
 /* ------------------------------------------------------------------ */
 
 function layout({ preheader, body }: { preheader: string; body: string }): string {
-  const logo = absoluteUrl(siteConfig.logo);
+  // siteUrl() uses the canonical domain, never localhost, so customers always see the logo.
+  const logo = siteUrl(siteConfig.logo);
   const address = serviceAreaLine();
   return `<!doctype html>
 <html lang="en">
@@ -192,11 +194,16 @@ function detailsTable(rows: Row[]): string {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px 0;">${body}</table>`;
 }
 
+/** "$50", "from $100" or "$150+", matching the price shown on the site. */
+function totalLabel(estimate: Estimate): string {
+  return formatEstimateTotal(estimate) ?? formatPrice(estimate.total);
+}
+
 function totalBlock(estimate: Estimate, note: string): string {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px 0;">
 <tr>
 <td style="font-size:14px;color:${color.muted};">Estimated total</td>
-<td align="right" style="font-size:24px;font-weight:700;color:${color.ink};">${escapeHtml(formatPrice(estimate.total))}</td>
+<td align="right" style="font-size:24px;font-weight:700;color:${color.ink};">${escapeHtml(totalLabel(estimate))}</td>
 </tr>
 <tr><td colspan="2" style="padding-top:4px;font-size:12px;line-height:18px;color:${color.subtle};">${escapeHtml(note)}</td></tr>
 </table>`;
@@ -285,7 +292,7 @@ ${button(siteConfig.phoneHref, `Call ${siteConfig.phone}`)}`;
     "",
     ...rows.map(([label, value]) => `${label}: ${value}`),
     "",
-    `Estimated total: ${formatPrice(estimate.total)}`,
+    `Estimated total: ${totalLabel(estimate)}`,
     getEstimateNote(booking.service, booking.size),
     "",
     "WHAT HAPPENS NEXT",
@@ -341,12 +348,12 @@ ${button(`tel:${toE164(booking.phone) ?? booking.phone}`, `Call ${firstName(book
     "",
     ...rows.map(([label, value]) => `${label}: ${value}`),
     "",
-    `Estimated total: ${formatPrice(estimate.total)} (starting price)`,
+    `Estimated total: ${totalLabel(estimate)} (starting price)`,
   ].join("\n");
 
   return {
     subject,
-    html: layout({ preheader: `${when} · ${formatPrice(estimate.total)}`, body }),
+    html: layout({ preheader: `${when} · ${totalLabel(estimate)}`, body }),
     text,
   };
 }

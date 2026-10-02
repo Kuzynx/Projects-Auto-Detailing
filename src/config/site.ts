@@ -5,11 +5,11 @@
 export const siteConfig = {
   name: "Project's Auto Detailing",
   shortName: "Project's",
-  legalName: "Project's Auto Detailing LLC",
+  legalName: "Project's Auto Detailing",
   tagline: "Showroom finish. Delivered to your driveway.",
   description:
     "Mobile auto detailing in Victorville and the High Desert. Hand washes, exterior details and full inside-and-out packages for cars, SUVs, trucks, sports cars, exotics and motorcycles, done at your home or office.",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://projectsautodetailing.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://projectsautodetailing.com",
   phone: "(840) 204-4176",
   phoneHref: "tel:+18402044176",
   email: "hello@projectsautodetailing.com",

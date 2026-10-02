@@ -218,13 +218,17 @@ export interface ParsedDuration {
 }
 
 /**
- * Reads the first number in a duration label: "4–5 hrs" -> 240 minutes,
+ * Reads the upper bound of a duration label: "4–5 hrs" -> 300 minutes,
  * "1.5 hrs" -> 90, "+45 min" -> 45, "2–3 days" -> day-based.
  */
-export function parseDuration(label: string): ParsedDuration {
-  const match = /(\d+(?:\.\d+)?)/.exec(label);
-  if (!match) return { minutes: 0, dayBased: false };
-  const value = Number(match[1]);
+export function parseDuration(label: string | undefined): ParsedDuration {
+  // Unvalidated drafts can carry an unknown vehicle type, which has no duration label.
+  if (typeof label !== "string") return { minutes: 0, dayBased: false };
+  // Use the UPPER bound of a range ("~2.5–3.5 hrs" -> 3.5) so no offered start can run past
+  // closing; a single number ("1.5 hrs") is its own upper bound.
+  const numbers = [...label.matchAll(/\d+(?:\.\d+)?/g)].map((m) => Number(m[0]));
+  if (numbers.length === 0) return { minutes: 0, dayBased: false };
+  const value = Math.max(...numbers);
   if (/day/i.test(label)) return { minutes: 0, dayBased: true };
   if (/min/i.test(label)) return { minutes: Math.round(value), dayBased: false };
   return { minutes: Math.round(value * 60), dayBased: false };

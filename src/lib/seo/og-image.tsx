@@ -26,7 +26,7 @@ export const ogColors = {
   surface: "#141417",
   ink: "#f2f2f3",
   inkMuted: "#b8b7ba",
-  inkSubtle: "#77767a",
+  inkSubtle: "#838286",
   brand300: "#e4c0fc",
   brand400: "#d6a8f8",
   brand500: "#c796f0",

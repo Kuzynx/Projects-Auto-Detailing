@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { MobileCtaBar } from "@/components/layout/mobile-cta-bar";
 import { Analytics } from "@/components/analytics";
+import { SiteJsonLd } from "@/components/seo/site-json-ld";
 import "./globals.css";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap" });
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${inter.variable} ${spaceGrotesk.variable} h-full scroll-pt-20 lg:scroll-pt-24`}
     >
       <body className="flex min-h-full flex-col">
@@ -57,6 +59,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </main>
         <Footer />
         <MobileCtaBar />
+        <SiteJsonLd />
         <Analytics />
       </body>
     </html>

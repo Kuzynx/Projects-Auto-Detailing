@@ -21,7 +21,7 @@ export function Header() {
           aria-label={`${siteConfig.name}, home`}
           className="-my-1 shrink-0 rounded-md transition-opacity hover:opacity-90"
         >
-          <Logo size="md" priority />
+          <Logo size="md" eager />
         </Link>
 
         <DesktopNav className="hidden flex-1 justify-center lg:flex" />

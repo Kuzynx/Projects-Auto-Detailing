@@ -16,23 +16,20 @@ import { siteConfig } from "@/config/site";
 import { addOns, getService, priceRange, services } from "@/data/services";
 import { testimonials } from "@/data/testimonials";
 import { JsonLd } from "@/lib/seo/json-ld";
+import { buildMetadata } from "@/lib/seo/metadata";
 import { formatPrice } from "@/lib/utils";
 
 const title = "Detailing Services";
 const description = `Mobile hand washes, exterior details, inside-and-out packages and work truck washes across ${siteConfig.address.city} and the ${siteConfig.region}. Published prices for cars, SUVs, trucks, sports cars, exotics and motorcycles.`;
 const ogImage = "/images/detail-foam-porsche.jpg";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title,
   description,
-  alternates: { canonical: "/services" },
-  openGraph: {
-    title: `${title} | ${siteConfig.name}`,
-    description,
-    url: "/services",
-    images: [{ url: ogImage, alt: "Black Porsche covered in foam during a hand wash" }],
-  },
-};
+  path: "/services",
+  image: ogImage,
+  imageAlt: "Black Porsche covered in foam during a hand wash",
+});
 
 const pullQuote = testimonials.find((t) => t.id === "t6") ?? testimonials.at(0);
 
@@ -44,10 +41,7 @@ export default function ServicesPage() {
     <>
       <JsonLd
         data={[
-          breadcrumbJsonLd([
-            { name: "Home", path: "/" },
-            { name: "Services", path: "/services" },
-          ]),
+          breadcrumbJsonLd([{ label: "Services", href: "/services" }]),
           {
             "@context": "https://schema.org",
             "@type": "ItemList",
@@ -86,7 +80,7 @@ export default function ServicesPage() {
         </Container>
       </Section>
 
-      <Section tone="elevated" aria-labelledby="decision-helper" className="overflow-hidden">
+      <Section tone="elevated" aria-labelledby="decision-helper" className="overflow-clip">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_at_top_left,black,transparent_70%)]"

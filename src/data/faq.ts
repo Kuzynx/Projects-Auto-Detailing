@@ -72,7 +72,7 @@ export const faqs: FaqItem[] = [
     category: "mobile",
     question: "Do I need to be home during the appointment?",
     answer:
-      "Only at the start and end. We do a quick walkaround with you on arrival and a final look when we finish. In between, you can work, run errands or head inside. For the Full Deluxe Package, leave the car unlocked or the keys with us and we will text you when we are done.",
+      "Only at the start and end. We do a quick walkaround with you on arrival and a final look when we finish. In between, you can work, run errands or head inside. For the Full Deluxe Package, leave the car unlocked or the keys with us for the interior, and we will text you a few minutes before we finish so you can do the final walkthrough with us.",
   },
   {
     category: "mobile",

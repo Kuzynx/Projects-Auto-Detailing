@@ -7,7 +7,8 @@ import { animate, inView, type AnimationPlaybackControls } from "motion/react";
  * (so hydration and the motion chunk definitely worked) do we hide elements that are
  * still below the fold, then animate them in the first time they scroll into view.
  * Anything already on screen or scrolled past is left alone. If a client chunk ever
- * fails to load, nothing is hidden and the page simply renders without motion.
+ * fails to load, nothing is hidden and the page simply renders without motion. Anything
+ * still hidden is revealed on `beforeprint`, so printed pages are never blank.
  */
 
 export const EASE = [0.22, 1, 0.36, 1] as const;
@@ -61,10 +62,17 @@ export function revealOnScroll(root: HTMLElement, spec: RevealSpec) {
     { margin: VIEW_MARGIN },
   );
 
-  return () => {
+  // Printing (or "Save as PDF") before scrolling would otherwise print hidden blocks blank.
+  const revealAll = () => {
     stop();
     controls.forEach((c) => c.stop());
     targets.forEach(reset);
+  };
+  window.addEventListener("beforeprint", revealAll);
+
+  return () => {
+    window.removeEventListener("beforeprint", revealAll);
+    revealAll();
   };
 }
 

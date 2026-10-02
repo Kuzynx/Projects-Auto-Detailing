@@ -38,11 +38,25 @@ export function Lightbox({ items, index, onIndexChange, onClose }: LightboxProps
     [count, index, onIndexChange],
   );
 
-  // Focus management: move focus in on open, restore it on close.
+  // Focus and background management, in one effect so the order is guaranteed:
+  // remember the trigger, make the rest of the page (header, main, footer, mobile CTA bar,
+  // skip link) inert, then focus the close button. On close, lift inert before restoring focus.
   useEffect(() => {
     const previouslyFocused = document.activeElement as HTMLElement | null;
+    const dialog = dialogRef.current;
+    const background = Array.from(document.body.children).filter(
+      (el): el is HTMLElement =>
+        el instanceof HTMLElement &&
+        el !== dialog &&
+        !el.inert &&
+        !["SCRIPT", "STYLE", "LINK", "NEXT-ROUTE-ANNOUNCER"].includes(el.tagName),
+    );
+    background.forEach((el) => (el.inert = true));
     closeRef.current?.focus();
-    return () => previouslyFocused?.focus?.();
+    return () => {
+      background.forEach((el) => (el.inert = false));
+      previouslyFocused?.focus?.();
+    };
   }, []);
 
   // Body scroll lock with scrollbar compensation so the page does not jump.

@@ -10,11 +10,11 @@ const LAST_UPDATED = "2026-10-02";
 
 /**
  * Policy figures quoted in these terms. They mirror the FAQ (`src/data/faq.ts`) and the
- * work-vehicle note in `src/data/services.ts`; change them together. No service takes a deposit.
+ * work-vehicle note in `src/data/services.ts`; change them together. No service takes a deposit
+ * and there is no cancellation fee: none was supplied by the client.
  */
 const policy = {
   cancellationWindowHours: 24,
-  lateCancellationFee: 50,
   /** Surcharge range for extremely dirty construction, farm or work vehicles. */
   workVehicleSurcharge: { min: 15, max: 30 },
   noShowGraceMinutes: 30,
@@ -29,7 +29,6 @@ export const metadata = buildMetadata({
 });
 
 const { name, legalName, email, phone, address } = siteConfig;
-const fee = formatPrice(policy.lateCancellationFee);
 const surcharge = `${formatPrice(policy.workVehicleSurcharge.min)}–${formatPrice(policy.workVehicleSurcharge.max)}`;
 const hours = `${policy.cancellationWindowHours} hours`;
 
@@ -41,9 +40,9 @@ const sections: LegalSection[] = [
       <>
         <p>
           These Terms of Service are an agreement between you and {legalName} (&ldquo;{name},&rdquo;
-          &ldquo;we,&rdquo; &ldquo;us&rdquo;), a California limited liability company. They apply
-          when you use this website, request an estimate or book any service with us, whether
-          online, by phone, by text or in person.
+          &ldquo;we,&rdquo; &ldquo;us&rdquo;), a mobile auto detailing business based in California.
+          They apply when you use this website, request an estimate or book any service with us,
+          whether online, by phone, by text or in person.
         </p>
         <p>
           By booking, you confirm that you are at least 18 years old and that you own the vehicle or
@@ -109,12 +108,14 @@ const sections: LegalSection[] = [
     content: (
       <ul>
         <li>
-          <strong>More than {hours} before your appointment:</strong> reschedule or cancel free of
-          charge.
+          <strong>With at least {hours}&rsquo; notice:</strong> reschedule or cancel free of charge,
+          by text, phone or email.
         </li>
         <li>
-          <strong>Within {hours}:</strong> a {fee} late-cancellation fee applies, credited toward
-          your next booking with us. We do not take deposits for any service.
+          <strong>With less than {hours}&rsquo; notice:</strong> this is a late cancellation. Please
+          still let us know as soon as you can so we can offer the slot to someone else. We do not
+          take deposits for any service. If late cancellations or no-shows happen repeatedly, we may
+          ask you to confirm the day before future appointments or decline to hold a slot.
         </li>
         <li>
           <strong>No-shows:</strong> if the vehicle is not available within{" "}
@@ -328,8 +329,8 @@ export default function TermsPage() {
             <p className="font-display font-semibold">The short version</p>
             <p className="text-ink-muted">
               Website prices are starting prices; we confirm the final price after inspection and
-              never add charges without your OK. Cancel free up to {hours} ahead; later
-              cancellations cost {fee}. No deposits, and payment is due when the work is done.
+              never add charges without your OK. Cancel or reschedule free with {hours}&rsquo;
+              notice. No deposits, and payment is due when the work is done.
             </p>
           </>
         }

@@ -26,8 +26,18 @@ import {
   weeklyHours,
   weekdayOf,
 } from "@/lib/booking/slots";
+import { formatEstimateTotal } from "@/lib/booking/pricing";
 import type { BookingActionSuccess } from "@/lib/booking/types";
 import { formatPrice } from "@/lib/utils";
+
+/** Hostname for the calendar UID; never throws on a malformed configured URL. */
+function safeHostname(url: string) {
+  try {
+    return new URL(url).hostname || "booking.invalid";
+  } catch {
+    return "booking.invalid";
+  }
+}
 
 function firstName(name: string) {
   return name.trim().split(/\s+/)[0] ?? name;
@@ -65,7 +75,7 @@ function useCalendarEvent({ reference, booking }: BookingActionSuccess) {
       `Questions or changes: ${siteConfig.phone}`,
     ].join("\n");
     const location = formatServiceAddress(booking);
-    const host = new URL(siteConfig.url).hostname;
+    const host = safeHostname(siteConfig.url);
 
     const ics = buildIcs({
       uid: `${reference}@${host}`,
@@ -112,11 +122,24 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
 
   const founder = detailerName;
   const contactMethod = booking.smsConsent ? `text ${booking.phone}` : `call ${booking.phone}`;
+  // How the request travelled decides what we can promise. Only the server action
+  // ("email", the default) sends the customer a confirmation email; with "mailto" the
+  // request has not reached us until the visitor presses Send in their mail app.
+  const delivery = result.delivery ?? "email";
+  const awaitingSend = delivery === "mailto";
+  const confirmStep = awaitingSend
+    ? {
+        title: "Send the email",
+        body: `Your request reaches us only after you press Send in your email app. Then ${bookingContactName} will ${contactMethod} within the hour during business hours to confirm.`,
+      }
+    : {
+        title: `${bookingContactName} confirms your time`,
+        body:
+          `${bookingContactName} will ${contactMethod} within the hour during business hours.` +
+          (delivery === "email" ? ` A confirmation email is on its way to ${booking.email}.` : ""),
+      };
   const nextSteps = [
-    {
-      title: `${bookingContactName} confirms your time`,
-      body: `${bookingContactName} will ${contactMethod} within the hour during business hours. A confirmation email is on its way to ${booking.email}.`,
-    },
+    confirmStep,
     {
       title: "Day-before reminder",
       body: requiresGarage(booking.service)
@@ -150,17 +173,31 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
           >
             <Check aria-hidden className="size-8" strokeWidth={2.5} />
           </motion.span>
-          <Eyebrow className="relative mt-6 justify-center">Request received</Eyebrow>
+          <Eyebrow className="relative mt-6 justify-center">
+            {awaitingSend ? "Almost done" : "Request received"}
+          </Eyebrow>
           <h2
             ref={headingRef}
             tabIndex={-1}
             className="relative mt-3 text-3xl font-semibold text-balance outline-none sm:text-4xl"
           >
-            You&apos;re on the schedule, {firstName(booking.name)}.
+            {awaitingSend
+              ? `One more step, ${firstName(booking.name)}: press Send.`
+              : `You're on the schedule, ${firstName(booking.name)}.`}
           </h2>
           <p className="relative mx-auto mt-3 max-w-xl text-pretty text-ink-muted">
-            We&apos;ve held {when ?? "your slot"} for your {service?.name ?? "detail"}.{" "}
-            {bookingContactName} will {contactMethod} within the hour to confirm.
+            {awaitingSend ? (
+              <>
+                Your email app opened with this request filled in. It isn&apos;t sent until you
+                press Send. Once it arrives, {bookingContactName} will {contactMethod} to confirm{" "}
+                {when ?? "your time"} for your {service?.name ?? "detail"}.
+              </>
+            ) : (
+              <>
+                We&apos;ve held {when ?? "your slot"} for your {service?.name ?? "detail"}.{" "}
+                {bookingContactName} will {contactMethod} within the hour to confirm.
+              </>
+            )}
           </p>
 
           <div className="relative mt-8 inline-flex items-center gap-3 rounded-full border border-border-strong bg-bg py-2 pr-2 pl-5">
@@ -233,7 +270,7 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
                 <dt className="w-20 shrink-0 text-ink-subtle">Estimate</dt>
                 <dd className="text-ink">
                   <span className="font-display text-lg font-semibold">
-                    {formatPrice(estimate.total)}
+                    {formatEstimateTotal(estimate) ?? formatPrice(estimate.total)}
                   </span>
                   <span className="block text-xs text-ink-subtle">
                     {getEstimateNote(booking.service, booking.size)}
@@ -252,8 +289,8 @@ export function BookingConfirmation({ result }: { result: BookingActionSuccess }
                 One more step: send the email
               </h3>
               <p className="mt-2 text-sm text-ink-muted">
-                We opened your email app with this request filled in. Press send and we&apos;ll
-                confirm by text. If nothing opened, use the button below.
+                Your request isn&apos;t sent until you press Send in your email app. If nothing
+                opened, use the button below.
               </p>
               <a
                 href={result.mailtoHref}

@@ -47,7 +47,7 @@ describe("buildIcs", () => {
 
   it("escapes commas, semicolons and newlines", () => {
     expect(lines).toContain("SUMMARY:The Full Detail\\, mobile");
-    expect(ics).toContain("DESCRIPTION:Reference: PAD-7F3K2Q\\nQuestions\; call us");
+    expect(ics).toContain("DESCRIPTION:Reference: PAD-7F3K2Q\\nQuestions\\; call us");
   });
 
   it("folds long lines to 75 octets", () => {

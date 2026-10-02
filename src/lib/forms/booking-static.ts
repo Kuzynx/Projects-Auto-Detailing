@@ -4,14 +4,15 @@
  */
 import { siteConfig } from "@/config/site";
 import { getAddOn, getService, vehicleSizes } from "@/data/services";
-import { calculateEstimate } from "@/lib/booking/pricing";
+import { calculateEstimate, formatEstimateTotal } from "@/lib/booking/pricing";
 import { generateBookingReference } from "@/lib/booking/reference";
 import { requiresGarage, validateBooking, type BookingData } from "@/lib/booking/schema";
+import { isLikelyAutomated } from "@/lib/booking/spam";
 import { BOOKING_FORM_FIELDS, type BookingActionState } from "@/lib/booking/types";
 import { formatPrice } from "@/lib/utils";
 import { buildMailto, formEndpoint, openMailto, postToFormEndpoint } from "./static-submit";
 
-function summarize(reference: string, booking: BookingData, total: number) {
+function summarize(reference: string, booking: BookingData, totalLabel: string) {
   const service = getService(booking.service)?.name ?? booking.service;
   const size = vehicleSizes.find((v) => v.id === booking.size)?.label ?? booking.size;
   const addOns = booking.addOns.map((slug) => getAddOn(slug)?.name ?? slug);
@@ -32,7 +33,7 @@ function summarize(reference: string, booking: BookingData, total: number) {
     `Where: ${where}`,
     ...(booking.utilitiesConfirmed ? ["Utilities: water spigot and power outlet confirmed"] : []),
     ...(requiresGarage(booking.service) ? ["Garage or covered space: confirmed"] : []),
-    `Estimate: ${formatPrice(total)} (starting price)`,
+    `Estimate: ${totalLabel} (starting price)`,
     "",
     `Name: ${booking.name}`,
     `Phone: ${booking.phone}`,
@@ -70,9 +71,16 @@ export async function submitBooking(
     addOnSlugs: booking.addOns,
   });
   const reference = generateBookingReference();
-  const { subject, body } = summarize(reference, booking, estimate.total);
+  const totalLabel = formatEstimateTotal(estimate) ?? formatPrice(estimate.total);
+  const { subject, body } = summarize(reference, booking, totalLabel);
 
   if (formEndpoint) {
+    // Same heuristics as the server action. Bots get a convincing success and nothing is
+    // posted, so they don't use up the form provider's quota. (The mailto path below sends
+    // nothing by itself, so it needs no gate.)
+    if (isLikelyAutomated(formData)) {
+      return { ok: true, reference, estimate, booking, delivery: "endpoint" };
+    }
     const sent = await postToFormEndpoint({
       subject,
       replyTo: booking.email,

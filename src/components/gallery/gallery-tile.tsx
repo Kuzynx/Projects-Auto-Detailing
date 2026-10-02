@@ -40,6 +40,33 @@ export function tileSpanClasses(item: GalleryItem) {
   return cn(tall && "row-span-2", wide && "sm:col-span-2");
 }
 
+/** Literal class names so Tailwind can see them. */
+const LG_COLS: Record<2 | 3 | 4, string> = {
+  2: "lg:grid-cols-2",
+  3: "lg:grid-cols-3",
+  4: "lg:grid-cols-4",
+};
+
+/**
+ * Grid for a given set of tiles. Small sets (the real client photos) use uniform rows and
+ * pick the desktop column count that leaves no empty cells; larger sets use the masonry-style
+ * grid where portrait frames span two rows.
+ */
+export function gridLayout(items: GalleryItem[]) {
+  if (items.length > 8) {
+    return { className: gridClasses, span: tileSpanClasses };
+  }
+  const units = items.reduce((sum, item) => sum + (tileLayout(item).wide ? 2 : 1), 0);
+  const lgCols = ([4, 3, 2] as const).find((cols) => units % cols === 0) ?? 3;
+  return {
+    className: cn(
+      "relative grid grid-cols-1 auto-rows-[30rem] gap-3 sm:grid-cols-2 sm:auto-rows-[28rem] sm:gap-4 lg:auto-rows-[26rem]",
+      LG_COLS[lgCols],
+    ),
+    span: (item: GalleryItem) => (tileLayout(item).wide ? "sm:col-span-2" : ""),
+  };
+}
+
 /** Visual content of a gallery tile, shared by the interactive grid and its static fallback. */
 export function GalleryTileContent({ item }: { item: GalleryItem }) {
   const { wide } = tileLayout(item);

@@ -87,11 +87,12 @@ export function FaqExplorer({ items }: { items: FaqItem[] }) {
   const searching = terms.length > 0;
   const allOpen = matches.length > 0 && matches.every(({ index }) => open.has(index));
 
-  function toggle(index: number) {
+  function setItemOpen(index: number, isOpen: boolean) {
     setOpen((prev) => {
+      if (prev.has(index) === isOpen) return prev;
       const next = new Set(prev);
-      if (next.has(index)) next.delete(index);
-      else next.add(index);
+      if (isOpen) next.add(index);
+      else next.delete(index);
       return next;
     });
   }
@@ -138,7 +139,7 @@ export function FaqExplorer({ items }: { items: FaqItem[] }) {
           <div
             role="group"
             aria-label="Filter questions by topic"
-            className="-mx-4 flex [scrollbar-width:none] gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0 sm:pb-0"
+            className="-mx-4 -my-1 flex [scrollbar-width:none] gap-2 overflow-x-auto px-4 py-1 sm:mx-0 sm:my-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:py-0"
           >
             {filters.map((filter) => {
               const isActive = filter.id === category;
@@ -202,8 +203,7 @@ export function FaqExplorer({ items }: { items: FaqItem[] }) {
         <div className="mt-8 rounded-lg border border-dashed border-border-strong px-6 py-12 text-center">
           <p className="font-display text-lg font-semibold">No answers match that yet.</p>
           <p className="mt-2 text-ink-muted">
-            Try a different word, or ask us directly. A detailer typically replies within 1 business
-            hour.
+            Try a different word, or ask us directly. We reply fast, usually the same day.
           </p>
           <button
             type="button"
@@ -229,50 +229,35 @@ export function FaqExplorer({ items }: { items: FaqItem[] }) {
               <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
                 {group.entries.map(({ item, index }) => {
                   const isOpen = open.has(index);
-                  const buttonId = `${uid}-q-${index}`;
-                  const panelId = `${uid}-a-${index}`;
                   return (
                     <li key={item.question}>
-                      <h3>
-                        <button
-                          id={buttonId}
-                          type="button"
-                          aria-expanded={isOpen}
-                          aria-controls={panelId}
-                          onClick={() => toggle(index)}
-                          className="group flex w-full cursor-pointer items-start justify-between gap-6 px-5 py-5 text-left transition-colors hover:bg-surface-hover sm:px-6"
-                        >
-                          <span className="font-display text-base font-semibold text-ink sm:text-lg">
+                      {/*
+                        Native <details>: readable without JS, and find-in-page opens a
+                        collapsed answer when it matches. `open` mirrors state; onToggle
+                        syncs it when the visitor (or the browser) toggles it.
+                      */}
+                      <details
+                        open={isOpen}
+                        onToggle={(event) => setItemOpen(index, event.currentTarget.open)}
+                        className="group"
+                      >
+                        <summary className="flex w-full cursor-pointer list-none items-start justify-between gap-6 px-5 py-5 text-left transition-colors hover:bg-surface-hover sm:px-6 [&::-webkit-details-marker]:hidden">
+                          <h3 className="font-display text-base font-semibold text-ink sm:text-lg">
                             <Highlight text={item.question} terms={terms} />
-                          </span>
+                          </h3>
                           <span
                             aria-hidden
-                            className={cn(
-                              "mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-border-strong text-ink-muted transition-all duration-300",
-                              isOpen &&
-                                "rotate-180 border-brand-500 bg-brand-500/10 text-brand-300",
-                            )}
+                            className="mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-border-strong text-ink-muted transition-all duration-300 group-open:rotate-180 group-open:border-brand-500 group-open:bg-brand-500/10 group-open:text-brand-300"
                           >
                             <ChevronDown className="size-4" />
                           </span>
-                        </button>
-                      </h3>
-                      <div
-                        id={panelId}
-                        role="region"
-                        aria-labelledby={buttonId}
-                        inert={!isOpen}
-                        className={cn(
-                          "grid transition-[grid-template-rows,opacity] duration-300 ease-out",
-                          isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
-                        )}
-                      >
-                        <div className="overflow-hidden">
+                        </summary>
+                        <div className="animate-[fade-up_0.35s_cubic-bezier(0.22,1,0.36,1)_both]">
                           <p className="max-w-3xl px-5 pb-6 text-pretty text-ink-muted sm:px-6">
                             <Highlight text={item.answer} terms={terms} />
                           </p>
                         </div>
-                      </div>
+                      </details>
                     </li>
                   );
                 })}

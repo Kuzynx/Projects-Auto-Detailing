@@ -1,5 +1,4 @@
-import type { Metadata } from "next";
-import { defaultOgImage } from "@/lib/seo/metadata";
+import { buildMetadata } from "@/lib/seo/metadata";
 import { CtaBanner } from "@/components/layout/cta-banner";
 import { BeforeAfter } from "@/components/home/before-after";
 import { Differentiators } from "@/components/home/differentiators";
@@ -18,21 +17,13 @@ import { siteConfig } from "@/config/site";
 const title = `${siteConfig.name} | Mobile Car Washes & Detailing in ${siteConfig.address.city}, ${siteConfig.address.state}`;
 const description = `${siteConfig.tagline} Owner-operated mobile detailing across ${siteConfig.address.city} and the ${siteConfig.region} since ${siteConfig.founder.since}: hand washes, exterior details and full inside-and-out details at your home or office, plus a package for working trucks. Published prices, before and after photos on every job.`;
 
-export const metadata: Metadata = {
-  title: { absolute: title },
+export const metadata = buildMetadata({
+  title,
   description,
-  alternates: { canonical: "/" },
-  openGraph: {
-    type: "website",
-    url: "/",
-    siteName: siteConfig.name,
-    locale: "en_US",
-    title,
-    description,
-    images: [{ ...defaultOgImage, alt: `${siteConfig.name}: ${siteConfig.tagline}` }],
-  },
-  twitter: { card: "summary_large_image", title, description },
-};
+  path: "/",
+  absoluteTitle: true,
+  imageAlt: `${siteConfig.name}: ${siteConfig.tagline}`,
+});
 
 export default function HomePage() {
   return (

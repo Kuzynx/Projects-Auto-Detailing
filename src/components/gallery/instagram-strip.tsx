@@ -4,11 +4,22 @@ import { Container, Eyebrow, buttonClasses } from "@/components/ui";
 import { InstagramIcon, socialHandle } from "@/components/contact/brand-icons";
 import { siteConfig } from "@/config/site";
 import type { GalleryItem } from "@/data/gallery";
+import { cn } from "@/lib/utils";
+
+/** Literal class names so Tailwind can see them; the desktop row always fills exactly. */
+const LG_COLS = {
+  1: "lg:grid-cols-1",
+  2: "lg:grid-cols-2",
+  3: "lg:grid-cols-3",
+  4: "lg:grid-cols-4",
+  5: "lg:grid-cols-5",
+} as const;
 
 /** Instagram call-to-action with a strip of recent frames. Links out; no embeds or tracking. */
 export function InstagramStrip({ items }: { items: GalleryItem[] }) {
   const handle = socialHandle(siteConfig.social.instagram);
   const frames = items.slice(0, 5);
+  const lgCols = LG_COLS[Math.max(1, frames.length) as keyof typeof LG_COLS];
 
   return (
     <section
@@ -44,7 +55,7 @@ export function InstagramStrip({ items }: { items: GalleryItem[] }) {
           </a>
         </div>
 
-        <ul className="mt-10 grid grid-cols-3 gap-2 sm:gap-3 lg:grid-cols-5">
+        <ul className={cn("mt-10 grid grid-cols-3 gap-2 sm:gap-3", lgCols)}>
           {frames.map((item, i) => (
             <li key={item.id} className={i >= 3 ? "hidden lg:block" : undefined}>
               <a
@@ -57,7 +68,7 @@ export function InstagramStrip({ items }: { items: GalleryItem[] }) {
                   src={item.src}
                   alt={item.alt}
                   fill
-                  sizes="(min-width: 1280px) 240px, (min-width: 1024px) 20vw, 33vw"
+                  sizes="(min-width: 1280px) 300px, (min-width: 1024px) 25vw, 33vw"
                   className="object-cover transition duration-500 group-hover:scale-105 group-hover:opacity-70"
                 />
                 <span

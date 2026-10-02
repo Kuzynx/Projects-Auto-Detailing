@@ -4,6 +4,9 @@ import Script from "next/script";
  * Google Analytics 4. Renders nothing unless NEXT_PUBLIC_GA_ID is set (e.g. "G-ABC123XYZ"),
  * so development, CI and preview builds send no data by default.
  *
+ * Google signals and ad personalization are disabled so the privacy policy's "no advertising,
+ * no cross-site tracking" statements hold.
+ *
  * Render once in the root layout, after <Footer />:  <Analytics />
  * If you enable it, the CSP in next.config.ts adds the Google domains automatically
  * (the env var must be present at build time).
@@ -22,7 +25,7 @@ export function Analytics() {
         strategy="afterInteractive"
       />
       <Script id="ga4-init" strategy="afterInteractive">
-        {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');`}
+        {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}',{allow_google_signals:false,allow_ad_personalization_signals:false});`}
       </Script>
     </>
   );

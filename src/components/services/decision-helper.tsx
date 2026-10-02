@@ -5,8 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, RotateCcw, Sparkles } from "lucide-react";
 import { ButtonLink } from "@/components/ui";
-import { bookingUrl, getService, priceRange } from "@/data/services";
-import { formatPrice } from "@/lib/utils";
+import { bookingUrl, formatServicePrice, getService, type VehicleSize } from "@/data/services";
 import { SegmentedControl, type SegmentedOption } from "./segmented-control";
 
 type Vehicle = "daily" | "work";
@@ -76,6 +75,8 @@ export function DecisionHelper() {
 
   const result = vehicle && outside && inside ? recommend(vehicle, outside, inside) : null;
   const service = result ? getService(result.slug) : undefined;
+  // Work trucks are quoted and booked at the truck size; everyone else sees the car price.
+  const quoteSize: VehicleSize = vehicle === "work" ? "truck" : "car";
   const answered = [vehicle, outside, inside].filter(Boolean).length;
 
   function reset() {
@@ -155,13 +156,13 @@ export function DecisionHelper() {
                 </p>
                 <h3 className="mt-2 text-2xl font-semibold">{service.name}</h3>
                 <p className="mt-1 text-sm text-ink-subtle">
-                  From {formatPrice(priceRange(service).min)}
-                  {service.priceSuffix ? ` ${service.priceSuffix}` : ""} · {service.duration.car}
+                  {quoteSize === "truck" ? "Trucks" : "Cars"} from{" "}
+                  {formatServicePrice(service, quoteSize)} · {service.duration[quoteSize]}
                 </p>
                 <p className="mt-3 text-sm text-pretty text-ink-muted">{result.reason}</p>
                 <div className="mt-5 flex flex-wrap items-center gap-3">
                   <ButtonLink
-                    href={bookingUrl({ service: service.slug })}
+                    href={bookingUrl({ service: service.slug, size: quoteSize })}
                     size="sm"
                     aria-label={`Book ${service.name}`}
                   >

@@ -12,6 +12,7 @@ export default function staticImageLoader({
   quality?: number;
 }) {
   if (/^(https?:)?\/\//.test(src) || src.startsWith("data:")) return src;
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+  // "/repo/" and "/repo" both yield "/repo/images/...", never "/repo//images/...".
+  const basePath = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/+$/, "");
   return `${basePath}${src.startsWith("/") ? src : `/${src}`}`;
 }

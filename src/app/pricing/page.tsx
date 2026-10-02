@@ -18,6 +18,7 @@ import { Container, Section, SectionHeading } from "@/components/ui";
 import { siteConfig } from "@/config/site";
 import { addOns, comparisonFeatures, priceRange, services, vehicleSizes } from "@/data/services";
 import { JsonLd } from "@/lib/seo/json-ld";
+import { buildMetadata } from "@/lib/seo/metadata";
 import { formatPrice } from "@/lib/utils";
 
 const title = "Pricing";
@@ -26,33 +27,24 @@ const description = `Published mobile detailing prices in ${siteConfig.address.c
 )}. Compare the Basic, Premium and Full Deluxe packages and Working Truck service. No surprise upsells.`;
 const ogImage = "/images/hero-garage.jpg";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title,
   description,
-  alternates: { canonical: "/pricing" },
-  openGraph: {
-    title: `${title} | ${siteConfig.name}`,
-    description,
-    url: "/pricing",
-    images: [
-      { url: ogImage, alt: "White Chevrolet Camaro ZL1 under low light in a collector garage" },
-    ],
-  },
-};
+  path: "/pricing",
+  image: ogImage,
+  imageAlt: "White Chevrolet Camaro ZL1 under low light in a collector garage",
+});
 
 export default function PricingPage() {
   const packages = services.filter((s) => s.category !== "work");
   const workTruck = services.find((s) => s.category === "work");
-  const matrixServices = [...services].sort((a, b) => a.price.car - b.price.car);
+  const matrixServices = services;
 
   return (
     <>
       <JsonLd
         data={[
-          breadcrumbJsonLd([
-            { name: "Home", path: "/" },
-            { name: "Pricing", path: "/pricing" },
-          ]),
+          breadcrumbJsonLd([{ label: "Pricing", href: "/pricing" }]),
           {
             "@context": "https://schema.org",
             "@type": "OfferCatalog",

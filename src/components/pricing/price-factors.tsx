@@ -1,5 +1,5 @@
 import { Info } from "lucide-react";
-import { priceFactorRange, priceFactors } from "@/data/services";
+import { priceFactors } from "@/data/services";
 
 /** Honest note on what can change a quote. */
 export function PriceFactors() {
@@ -20,8 +20,8 @@ export function PriceFactors() {
             What can change the price
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-pretty text-ink-muted sm:text-base">
-            Published prices cover a vehicle in normal daily-driver condition. Heavy soil or pet
-            hair can add {priceFactorRange.min} to {priceFactorRange.max}% to the base price.{" "}
+            Published prices cover a vehicle in normal daily-driver condition. Anything extra is
+            quoted on site.{" "}
             <span className="font-semibold text-ink">
               We always quote it before work starts, never after.
             </span>

@@ -50,7 +50,7 @@ function Breadcrumbs({ items }: { items: Crumb[] }) {
 
 /**
  * Cinematic inner-page hero. Slides under the transparent header, takes an
- * optional full-bleed photo (the page's LCP image, so it loads with priority)
+ * optional full-bleed photo (the page's LCP image, so it is preloaded)
  * and falls back to a grid with a purple bloom when there is no photo.
  */
 export function PageHero({
@@ -75,7 +75,7 @@ export function PageHero({
             src={image}
             alt={imageAlt}
             fill
-            priority
+            preload
             sizes="100vw"
             className="-z-30 object-cover"
           />

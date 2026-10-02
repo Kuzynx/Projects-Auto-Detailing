@@ -69,8 +69,14 @@ export function TestimonialCarousel({ testimonials }: TestimonialCarouselProps) 
       aria-roledescription="carousel"
       aria-label="Customer reviews"
       onKeyDown={onKeyDown}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      // Pointer (not mouse) events, ignoring touch: a tap fires mouseenter with no matching
+      // mouseleave, which would pause autoplay for good on touch screens.
+      onPointerEnter={(event) => {
+        if (event.pointerType !== "touch") setHovered(true);
+      }}
+      onPointerLeave={(event) => {
+        if (event.pointerType !== "touch") setHovered(false);
+      }}
       onFocus={() => setFocused(true)}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocused(false);

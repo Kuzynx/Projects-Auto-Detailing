@@ -47,12 +47,13 @@ function workVehicleSurcharge(): string | null {
  */
 export function getEstimateNote(serviceSlug: string, size: VehicleSize): string {
   const service = getService(serviceSlug);
-  if (isExotic(size) || (service && service.priceNote?.[size])) return EXOTIC_ESTIMATE_NOTE;
   const surcharge = workVehicleSurcharge();
+  const surchargeNote = `Starting price; extremely dirty trucks, SUVs and work vehicles may add ${surcharge}, quoted on site.`;
+  // Work vehicles first: Working Truck is a flat price for any vehicle type, exotic included.
+  if (service?.category === "work" && surcharge) return surchargeNote;
+  if (isExotic(size) || (service && service.priceNote?.[size])) return EXOTIC_ESTIMATE_NOTE;
   const heavySoilSize = size === "truck" || size === "suv";
-  if ((service?.category === "work" || heavySoilSize) && surcharge) {
-    return `Starting price; extremely dirty trucks, SUVs and work vehicles may add ${surcharge}, quoted on site.`;
-  }
+  if (heavySoilSize && surcharge) return surchargeNote;
   return DEFAULT_ESTIMATE_NOTE;
 }
 

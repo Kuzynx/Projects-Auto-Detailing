@@ -37,15 +37,21 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      # Generates route types (PageProps, LayoutProps) that tsc needs on a clean checkout.
-      - name: Generate Next.js route types
-        run: pnpm exec next typegen
-
+      # `typecheck` runs `next typegen` first, so route types exist on a clean checkout.
       - name: Typecheck
         run: pnpm typecheck
 
       - name: Unit tests
         run: pnpm test
+
+      # Same settings as deploy-pages.yml, so static-export breakage fails CI, not the deploy.
+      - name: Static export build (GitHub Pages)
+        run: |
+          STATIC_EXPORT=true \
+          NEXT_PUBLIC_BASE_PATH=/Projects-Auto-Detailing \
+          NEXT_PUBLIC_SITE_URL=https://kuzynx.github.io/Projects-Auto-Detailing \
+          pnpm build
+          rm -rf out .next
 
       - name: Build
         run: pnpm build

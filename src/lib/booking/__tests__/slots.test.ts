@@ -124,9 +124,11 @@ describe("booking window", () => {
 });
 
 describe("durations", () => {
-  it("reads the first number of a duration label", () => {
+  it("reads the upper bound of a duration label", () => {
     expect(parseDuration("1.5 hrs")).toEqual({ minutes: 90, dayBased: false });
-    expect(parseDuration("4–5 hrs")).toEqual({ minutes: 240, dayBased: false });
+    expect(parseDuration("4–5 hrs")).toEqual({ minutes: 300, dayBased: false });
+    expect(parseDuration("~2.5–3.5 hrs")).toEqual({ minutes: 210, dayBased: false });
+    expect(parseDuration(undefined)).toEqual({ minutes: 0, dayBased: false });
     expect(parseDuration("+45 min")).toEqual({ minutes: 45, dayBased: false });
     expect(parseDuration("1 day")).toEqual({ minutes: 0, dayBased: true });
     expect(parseDuration("2–3 days")).toEqual({ minutes: 0, dayBased: true });
@@ -154,7 +156,7 @@ describe("durations", () => {
 
   it("reads approximate labels like the live catalog's", () => {
     expect(getJobDuration({ serviceSlug: "fx-work", size: "truck" })).toEqual({
-      minutes: 60,
+      minutes: 90,
       dayBased: false,
     });
   });
@@ -181,13 +183,14 @@ describe("time slots", () => {
   });
 
   it("uses Saturday hours", () => {
+    // "4–5 hrs" fits on the upper bound: 11:00 + 5 h = 4 PM close.
     const slots = getTimeSlots({ date: "2026-10-10", serviceSlug: "fx-full", size: "car" });
-    expect(values(slots)).toEqual(["07:00", "08:00", "09:00", "10:00", "11:00", "12:00"]);
+    expect(values(slots)).toEqual(["07:00", "08:00", "09:00", "10:00", "11:00"]);
   });
 
   it("uses the duration for the chosen vehicle type", () => {
     const slots = getTimeSlots({ date: "2026-10-10", serviceSlug: "fx-full", size: "truck" });
-    expect(values(slots)).toEqual(["07:00", "08:00", "09:00", "10:00"]);
+    expect(values(slots)).toEqual(["07:00", "08:00", "09:00"]);
   });
 
   it("hides starts that would run past close once add-ons are included", () => {
@@ -197,7 +200,7 @@ describe("time slots", () => {
       size: "car",
       addOnSlugs: ["odor-elimination"],
     });
-    expect(values(slots)).toEqual(["07:00", "08:00", "09:00", "10:00", "11:00"]);
+    expect(values(slots)).toEqual(["07:00", "08:00", "09:00", "10:00"]);
   });
 
   it("returns nothing on closed days", () => {

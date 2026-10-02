@@ -26,8 +26,8 @@ const ga = (...sources: string[]) => (gaEnabled ? sources : []);
  *   SRI if the site ever accepts and displays user content.
  * - 'unsafe-eval' is added in development only (React uses eval for debug stack traces).
  * - style-src 'unsafe-inline': Tailwind and `motion` write inline style attributes.
- * - frame-src allows Google Maps embeds (contact page). Vercel's preview toolbar
- *   (vercel.live) is not allowed; add it to script-src/frame-src if you want it on previews.
+ * - frame-src 'none': the site embeds no iframes. If you add one (a map, a video), list
+ *   its origin here. Vercel's preview toolbar (vercel.live) is not allowed either.
  * - upgrade-insecure-requests is omitted so `pnpm start` over http://localhost (e2e) works;
  *   HTTPS is enforced by HSTS and the host instead.
  */
@@ -37,14 +37,14 @@ const csp = {
     "'self'",
     "'unsafe-inline'",
     ...(isDev ? ["'unsafe-eval'"] : []),
-    ...ga("https://www.googletagmanager.com"),
+    ...ga("https://*.googletagmanager.com"),
   ],
   "style-src": ["'self'", "'unsafe-inline'"],
   "img-src": [
     "'self'",
     "data:",
     "blob:",
-    ...ga("https://www.googletagmanager.com", "https://*.google-analytics.com"),
+    ...ga("https://*.googletagmanager.com", "https://*.google-analytics.com"),
   ],
   "font-src": ["'self'", "data:"],
   "connect-src": [
@@ -52,11 +52,11 @@ const csp = {
     ...ga(
       "https://*.google-analytics.com",
       "https://*.analytics.google.com",
-      "https://www.googletagmanager.com",
+      "https://*.googletagmanager.com",
     ),
   ],
   "media-src": ["'self'"],
-  "frame-src": ["'self'", "https://www.google.com", "https://maps.google.com"],
+  "frame-src": ["'none'"],
   "worker-src": ["'self'", "blob:"],
   "manifest-src": ["'self'"],
   "object-src": ["'none'"],
