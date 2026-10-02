@@ -97,7 +97,7 @@ function bookingRows(input: BookingEmailInput, { internal }: { internal: boolean
   if (booking.utilitiesConfirmed) rows.push(["Utilities", UTILITIES_CONFIRMED_LABEL]);
   if (requiresGarage(booking.service))
     rows.push(["Workspace", "Garage or covered space confirmed"]);
-  if (estimate.durationLabel) rows.push(["Time on site", `About ${estimate.durationLabel}`]);
+  if (estimate.durationLabel) rows.push(["Time on site", estimate.durationLabel]);
 
   if (internal) {
     const flags = [booking.petHair && "Pet hair", booking.smoke && "Smoke odor"]

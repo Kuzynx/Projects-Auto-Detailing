@@ -165,6 +165,38 @@ describe("step validation", () => {
   });
 });
 
+describe("line breaks in free text", () => {
+  it("flattens CR/LF in every free-text field so nothing can forge extra lines", () => {
+    const result = validateBooking(
+      {
+        ...validDraft,
+        name: "Jo\r\nBcc: x@evil.test",
+        make: "Toy\nota",
+        model: "Cam\rry",
+        color: "Sil\r\nver",
+        street: "123 Main St\nSubject: hi",
+        notes: "Gate code 1234\r\nPark on the left",
+      },
+      NOW,
+    );
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    for (const value of Object.values(result.data)) {
+      if (typeof value === "string") expect(value).not.toMatch(/[\r\n]/);
+    }
+    expect(result.data.name).toBe("Jo Bcc: x@evil.test");
+    expect(result.data.notes).toBe("Gate code 1234 Park on the left");
+  });
+
+  it("flattens line breaks in an Other city name", () => {
+    const result = validateBooking(
+      { ...validDraft, city: OTHER_CITY, cityOther: "Bar\nstow" },
+      NOW,
+    );
+    expect(result.success && result.data.cityOther).toBe("Bar stow");
+  });
+});
+
 describe("cross-field rules", () => {
   it("requires garage confirmation for garage services", () => {
     expect(requiresGarage("fx-garage")).toBe(true);

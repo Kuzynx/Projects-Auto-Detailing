@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/footer";
 import { MobileCtaBar } from "@/components/layout/mobile-cta-bar";
 import { Analytics } from "@/components/analytics";
 import { SiteJsonLd } from "@/components/seo/site-json-ld";
+import { siteIcons } from "@/lib/seo/metadata";
 import "./globals.css";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap" });
@@ -31,6 +32,7 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image" },
   robots: { index: true, follow: true },
+  icons: siteIcons(),
 };
 
 export const viewport: Viewport = {

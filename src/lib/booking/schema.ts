@@ -13,6 +13,7 @@ import {
   vehicleSizes,
   type VehicleSize,
 } from "@/data/services";
+import { stripLineBreaks } from "@/lib/contact/schema";
 import { isValidUsPhone, formatUsPhone } from "./phone";
 import {
   findTimeSlot,
@@ -174,10 +175,11 @@ const allBookingSteps = [
     id: "vehicle",
     label: "Vehicle",
     fields: [
+      // On-screen order, so focus lands on the first invalid field the visitor sees.
       "size",
-      "year",
       "make",
       "model",
+      "year",
       "color",
       "paintCondition",
       "interiorCondition",
@@ -233,9 +235,15 @@ export function firstStepWithErrors(errors: FieldErrors): number {
 /* Schemas                                                             */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Free text from the visitor. Line breaks are flattened (same rule as the contact
+ * form) so a value like "Jo\r\nBcc: x@evil.test" can't forge extra lines in the
+ * plain-text job sheet, email subjects or the mailto body.
+ */
 const text = (max: number) =>
   z
     .string()
+    .overwrite(stripLineBreaks)
     .trim()
     .max(max, { error: `Keep this under ${max} characters.` });
 const values = <T extends readonly { value: string }[]>(list: T) =>

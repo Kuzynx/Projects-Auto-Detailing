@@ -56,6 +56,7 @@ export function FaqExplorer({ items }: { items: FaqItem[] }) {
         item,
         index,
         haystack: normalize(`${item.question} ${item.answer}`),
+        questionText: normalize(item.question),
       })),
     [items],
   );
@@ -86,6 +87,30 @@ export function FaqExplorer({ items }: { items: FaqItem[] }) {
 
   const searching = terms.length > 0;
   const allOpen = matches.length > 0 && matches.every(({ index }) => open.has(index));
+
+  /**
+   * Update the search and open every item whose match is only in its answer, so the
+   * highlighted text is visible. Items that match in the question stay as they are.
+   */
+  function updateQuery(value: string) {
+    setQuery(value);
+    const nextTerms = normalize(value)
+      .split(/\s+/)
+      .filter((term) => term.length > 1);
+    if (nextTerms.length === 0) return;
+    const answerOnly = indexed
+      .filter(
+        ({ haystack, questionText }) =>
+          nextTerms.every((term) => haystack.includes(term)) &&
+          !nextTerms.every((term) => questionText.includes(term)),
+      )
+      .map(({ index }) => index);
+    if (answerOnly.length === 0) return;
+    setOpen((prev) => {
+      if (answerOnly.every((index) => prev.has(index))) return prev;
+      return new Set([...prev, ...answerOnly]);
+    });
+  }
 
   function setItemOpen(index: number, isOpen: boolean) {
     setOpen((prev) => {
@@ -118,7 +143,7 @@ export function FaqExplorer({ items }: { items: FaqItem[] }) {
             id={`${uid}-search`}
             type="search"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => updateQuery(event.target.value)}
             placeholder="Search: motorcycles, work trucks, payment, weather..."
             autoComplete="off"
             className="h-14 w-full rounded-full border border-border-strong bg-surface pr-12 pl-12 text-base text-ink transition-colors placeholder:text-ink-subtle hover:border-white/25 focus:border-brand-500 [&::-webkit-search-cancel-button]:hidden"

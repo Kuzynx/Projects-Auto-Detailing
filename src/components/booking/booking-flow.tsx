@@ -236,10 +236,10 @@ export function BookingFlow({ initialDraft, initialStep = 0 }: BookingFlowProps)
 
   // Fill time is measured with the monotonic performance clock, not Date.now(), so a
   // device clock that disagrees with the server can't make a real booking look automated.
-  const startedAt = useRef<number | null>(null);
+  const formOpenedAt = useRef<number | null>(null);
   const honeypotRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    startedAt.current = performance.now();
+    formOpenedAt.current = performance.now();
   }, []);
 
   const [result, submitAction, pending] = useActionState<BookingActionState, FormData>(
@@ -305,7 +305,7 @@ export function BookingFlow({ initialDraft, initialStep = 0 }: BookingFlowProps)
 
     const formData = new FormData();
     formData.set(BOOKING_FORM_FIELDS.payload, JSON.stringify(draft));
-    const elapsed = startedAt.current === null ? 0 : performance.now() - startedAt.current;
+    const elapsed = formOpenedAt.current === null ? 0 : performance.now() - formOpenedAt.current;
     formData.set(BOOKING_FORM_FIELDS.elapsedMs, String(Math.round(elapsed)));
     formData.set(BOOKING_FORM_FIELDS.honeypot, honeypotRef.current?.value ?? "");
     startTransition(() => submitAction(formData));

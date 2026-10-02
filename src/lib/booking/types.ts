@@ -31,8 +31,6 @@ export const BOOKING_FORM_FIELDS = {
   payload: "payload",
   /** Milliseconds the visitor spent on the form, measured with performance.now(). */
   elapsedMs: "elapsedMs",
-  /** Legacy absolute timestamp from older clients; see isLikelyAutomated. */
-  startedAt: "startedAt",
   honeypot: "company_website",
 } as const;
 

@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { siteConfig } from "@/config/site";
 import { sendEmail } from "@/lib/email";
 import {
@@ -9,10 +10,20 @@ import {
 import { calculateEstimate } from "@/lib/booking/pricing";
 import { generateBookingReference } from "@/lib/booking/reference";
 import { validateBooking } from "@/lib/booking/schema";
+import { clientIpFrom, takeBookingSlot, UNKNOWN_IP } from "@/lib/booking/rate-limit";
 import { isLikelyAutomated } from "@/lib/booking/spam";
 import { BOOKING_FORM_FIELDS, type BookingActionState } from "@/lib/booking/types";
 
 const MAX_PAYLOAD_BYTES = 16_000;
+
+/** Client IP for rate limiting; a shared "unknown" bucket outside a request (tests, scripts). */
+async function requestIp(): Promise<string> {
+  try {
+    return clientIpFrom(await headers());
+  } catch {
+    return UNKNOWN_IP;
+  }
+}
 
 /**
  * Accepts a booking request. Everything from the client is untrusted: the
@@ -62,9 +73,19 @@ export async function submitBooking(
 
   // Spam checks (honeypot + fill time, see isLikelyAutomated). Bots get a convincing
   // success response and nothing is sent, so they learn nothing.
-  if (isLikelyAutomated(formData, now.getTime())) {
+  if (isLikelyAutomated(formData)) {
     console.warn("[booking] dropped a likely automated submission", { reference });
     return { ok: true, reference, estimate, booking };
+  }
+
+  // Rate limits stop anyone using the form to send branded email to arbitrary addresses:
+  // 5 bookings per IP per 10 minutes and 3 per email address per hour (see rate-limit.ts).
+  if (!takeBookingSlot(await requestIp(), booking.email)) {
+    console.warn("[booking] rate limited", { reference });
+    return {
+      ok: false,
+      message: `We couldn't take your booking online right now. Please call ${siteConfig.phone} and we'll book you over the phone.`,
+    };
   }
 
   const emailInput = { reference, booking, estimate };

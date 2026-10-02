@@ -48,6 +48,7 @@ pnpm dev                     # http://localhost:3000
 | `pnpm test:watch`                   | Vitest in watch mode                                                                                                           |
 | `pnpm test:e2e`                     | Playwright smoke tests against `pnpm start` (run `pnpm build` first)                                                           |
 | `pnpm format` / `pnpm format:check` | Prettier with Tailwind class sorting                                                                                           |
+| `pnpm icons`                        | Regenerate `public/favicon.ico` and the app icon PNGs from the logo                                                            |
 
 ## Environment variables
 
@@ -69,7 +70,7 @@ src/
     sitemap.ts         /sitemap.xml   (static routes + one entry per service)
     robots.ts          /robots.txt    (blocks everything on Vercel preview deployments)
     manifest.ts        /manifest.webmanifest
-    opengraph-image.tsx, twitter-image.tsx, icon.tsx, apple-icon.tsx   Generated at build
+    opengraph-image.tsx, twitter-image.tsx   Social card, generated at build
     privacy/, terms/   Legal pages
   components/
     ui/                Shared primitives: Button, Card, Section, Container, Badge, Logo...
@@ -162,8 +163,10 @@ replace it with the shop's own work:
 4. Update `public/images/CREDITS.md`, which lists the source and license of every image.
 
 The logo is `public/images/logo.png` (square, on black) and `public/images/logo-transparent.png`
-(trimmed, transparent). The social sharing card and app icons are generated from the transparent logo at
-build time by `src/lib/seo/og-image.tsx`, so replacing that file updates them too.
+(trimmed, transparent). The social sharing card is generated from the transparent logo at build time
+by `src/lib/seo/og-image.tsx`. The favicon and app icons (`public/favicon.ico`, `icon.png`,
+`apple-icon.png`, `icon-192.png`, `icon-512.png`) are static files: after replacing the logo, run
+`pnpm icons` (`scripts/generate-icons.mjs`) and commit the regenerated files.
 
 ## SEO and security
 

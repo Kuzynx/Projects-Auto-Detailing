@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useId, useRef, useState } from "react";
+import { startTransition, useActionState, useEffect, useId, useRef, useState } from "react";
 import { z } from "zod";
 import { ArrowRight, ChevronDown, CircleCheck, LoaderCircle, Phone } from "lucide-react";
 import { submitContact } from "@/app/contact/actions";
@@ -16,6 +16,7 @@ import {
   initialContactState,
   readContactFormData,
   type ContactField,
+  type ContactFormState,
 } from "@/lib/contact/schema";
 
 type FieldErrors = Partial<Record<ContactField, string[]>>;
@@ -24,7 +25,22 @@ const inputClasses =
   "block w-full rounded-md border border-border-strong bg-bg px-4 text-base text-ink placeholder:text-ink-subtle transition-colors hover:border-white/25 focus:border-brand-500 aria-[invalid=true]:border-danger/70 sm:text-sm";
 
 export function ContactForm() {
-  const [state, formAction, isPending] = useActionState(submitContact, initialContactState);
+  const [state, formAction, isPending] = useActionState<ContactFormState, FormData>(
+    async (previous, formData) => {
+      try {
+        return await submitContact(previous, formData);
+      } catch {
+        // Offline, flaky mobile data or a redeploy that rotated action IDs: keep the visitor's
+        // message on screen instead of letting the route error boundary replace the page.
+        return {
+          status: "error",
+          message: `We couldn't reach our server. Check your connection and try again, or call ${siteConfig.phone}.`,
+          values: readContactFormData(formData),
+        };
+      }
+    },
+    initialContactState,
+  );
   const [errors, setErrors] = useState<FieldErrors>({});
   const [syncedState, setSyncedState] = useState(state);
   const [dismissedAt, setDismissedAt] = useState<number | undefined>(undefined);
@@ -52,14 +68,19 @@ export function ContactForm() {
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     const result = contactSchema.safeParse(readContactFormData(new FormData(event.currentTarget)));
+    // With JS we always dispatch manually. React's automatic reset after a form action would
+    // clear what the visitor typed (and snap the topic <select> back to its first option) when
+    // the server returns an error. Without JS the `action` attribute still posts natively.
+    event.preventDefault();
     if (!result.success) {
-      event.preventDefault();
       const fieldErrors = z.flattenError(result.error).fieldErrors as FieldErrors;
       setErrors(fieldErrors);
       focusFirstInvalid(event.currentTarget, fieldErrors);
       return;
     }
     setErrors({});
+    const formData = new FormData(event.currentTarget);
+    startTransition(() => formAction(formData));
   }
 
   function clearError(field: ContactField) {
@@ -87,6 +108,8 @@ export function ContactForm() {
     };
   };
 
+  const awaitingSend = state.delivery === "mailto";
+
   if (showSuccess) {
     return (
       <div
@@ -101,22 +124,29 @@ export function ContactForm() {
           tabIndex={-1}
           className="mt-6 text-2xl font-semibold focus:outline-none"
         >
-          Message received. Thank you.
+          {awaitingSend ? "Almost done: press Send" : "Message received. Thank you."}
         </h3>
-        {state.delivery === "mailto" && state.mailtoHref && (
+        {awaitingSend && (
           <p className="mt-3 text-pretty text-ink-muted">
-            We opened your email app with the message filled in. Press send to finish. If nothing
-            opened,{" "}
-            <a
-              href={state.mailtoHref}
-              className="font-semibold text-brand-300 underline-offset-4 hover:underline"
-            >
-              open the email here
-            </a>
-            .
+            Your email app opened with this message filled in. It isn&apos;t sent until you press
+            Send there.
+            {state.mailtoHref && (
+              <>
+                {" "}
+                If nothing opened,{" "}
+                <a
+                  href={state.mailtoHref}
+                  className="font-semibold text-brand-300 underline-offset-4 hover:underline"
+                >
+                  open the email here
+                </a>
+                .
+              </>
+            )}
           </p>
         )}
         <p className="mt-3 text-pretty text-ink-muted">
+          {awaitingSend ? "Once it arrives, " : ""}
           {siteConfig.team[0]
             ? `${siteConfig.team[0].name}, who handles booking and messages, will reply by email, and anything about your car goes straight to ${siteConfig.founder.name}.`
             : `${siteConfig.founder.name} will read it and reply by email.`}{" "}
@@ -220,7 +250,7 @@ export function ContactForm() {
           <div className="relative">
             <select
               {...fieldProps("topic")}
-              defaultValue={(state.status === "error" && state.values?.topic) || "quote"}
+              defaultValue="quote"
               required
               className={cn(inputClasses, "h-12 cursor-pointer appearance-none pr-10")}
             >

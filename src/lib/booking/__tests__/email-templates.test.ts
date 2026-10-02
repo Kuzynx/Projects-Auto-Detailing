@@ -150,6 +150,18 @@ describe("add-ons and price notes", () => {
 });
 
 describe("shop notification email", () => {
+  it("cannot be given forged header-like lines through the name", () => {
+    const email = renderBusinessNotificationEmail(makeInput({ name: "Jo\r\nBcc: x@evil.test" }));
+    expect(email.text.split("\n").some((line) => line.startsWith("Bcc:"))).toBe(false);
+    expect(email.subject).not.toMatch(/[\r\n]/);
+  });
+
+  it("does not double-qualify the time on site", () => {
+    const email = renderBusinessNotificationEmail(makeInput());
+    expect(email.text).not.toContain("About ~");
+    expect(email.text).not.toMatch(/Time on site: About/);
+  });
+
   it("contains the full job sheet", () => {
     const email = renderBusinessNotificationEmail(makeInput());
     expect(email.subject).toMatch(/^New booking PAD-7F3K2Q/);

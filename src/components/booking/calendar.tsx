@@ -48,6 +48,18 @@ function shiftDateByMonths(iso: IsoDate, delta: number): IsoDate {
   return toIsoDate(target.year, target.month, day);
 }
 
+/** First date in [min, max] with no unavailable reason; `min` if none qualifies. */
+function firstAvailable(
+  min: IsoDate,
+  max: IsoDate,
+  getUnavailableReason: (date: IsoDate) => string | null,
+): IsoDate {
+  for (let day = min; day <= max; day = addDays(day, 1)) {
+    if (!getUnavailableReason(day)) return day;
+  }
+  return min;
+}
+
 export interface CalendarProps {
   /** Selected date or "". */
   value: string;
@@ -80,7 +92,10 @@ export function Calendar({
   describedBy,
   invalid,
 }: CalendarProps) {
-  const initialFocus = value && value >= min && value <= max ? value : min;
+  // Roving tab stop starts on the selected date, else the first bookable one, so the grid
+  // never opens with only a disabled day (e.g. a closed Sunday) focusable.
+  const initialFocus =
+    value && value >= min && value <= max ? value : firstAvailable(min, max, getUnavailableReason);
   const [focused, setFocused] = useState<IsoDate>(initialFocus);
   const [visible, setVisible] = useState<Month>(monthOf(initialFocus));
   const gridRef = useRef<HTMLTableElement>(null);

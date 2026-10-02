@@ -3,7 +3,16 @@
  * Aliased in by next.config.ts when STATIC_EXPORT=true; never imported directly.
  */
 import { siteConfig } from "@/config/site";
-import { getAddOn, getService, vehicleSizes } from "@/data/services";
+import { getAddOn, getService } from "@/data/services";
+import {
+  formatAppointment,
+  formatServiceAddress,
+  formatVehicle,
+  getInteriorConditionLabel,
+  getPaintConditionLabel,
+  getSizeLabel,
+  UTILITIES_CONFIRMED_LABEL,
+} from "@/lib/booking/format";
 import { calculateEstimate, formatEstimateTotal } from "@/lib/booking/pricing";
 import { generateBookingReference } from "@/lib/booking/reference";
 import { requiresGarage, validateBooking, type BookingData } from "@/lib/booking/schema";
@@ -14,24 +23,25 @@ import { buildMailto, formEndpoint, openMailto, postToFormEndpoint } from "./sta
 
 function summarize(reference: string, booking: BookingData, totalLabel: string) {
   const service = getService(booking.service)?.name ?? booking.service;
-  const size = vehicleSizes.find((v) => v.id === booking.size)?.label ?? booking.size;
   const addOns = booking.addOns.map((slug) => getAddOn(slug)?.name ?? slug);
-  const vehicle = [booking.year, booking.make, booking.model, booking.color]
-    .filter(Boolean)
-    .join(" ");
-  const city = booking.city === "Other" ? booking.cityOther : booking.city;
-  const where = [booking.street, city, booking.zip].filter(Boolean).join(", ");
+  const paint = getPaintConditionLabel(booking.paintCondition) ?? booking.paintCondition;
+  const interior = getInteriorConditionLabel(booking.interiorCondition);
   const lines = [
     `Booking request ${reference}`,
     "",
-    `Service: ${service} (${size})`,
+    `Service: ${service} (${getSizeLabel(booking.size)})`,
     ...(addOns.length ? [`Add-ons: ${addOns.join(", ")}`] : []),
-    `Vehicle: ${vehicle || "not specified"}`,
-    `Paint: ${booking.paintCondition}; interior: ${booking.interiorCondition}`,
-    `Pet hair: ${booking.petHair ? "yes" : "no"}; smoke: ${booking.smoke ? "yes" : "no"}`,
-    `When: ${booking.date} at ${booking.time}`,
-    `Where: ${where}`,
-    ...(booking.utilitiesConfirmed ? ["Utilities: water spigot and power outlet confirmed"] : []),
+    `Vehicle: ${formatVehicle(booking) ?? "not specified"}`,
+    // Motorcycles have no interior condition, pet hair or smoke answers.
+    `Condition: paint ${paint}${interior ? `; interior ${interior}` : ""}`,
+    ...(booking.petHair || booking.smoke
+      ? [
+          `Flags: ${[booking.petHair && "pet hair", booking.smoke && "smoke odor"].filter(Boolean).join(", ")}`,
+        ]
+      : []),
+    `When: ${formatAppointment(booking) ?? booking.date}`,
+    `Where: ${formatServiceAddress(booking)}`,
+    ...(booking.utilitiesConfirmed ? [`${UTILITIES_CONFIRMED_LABEL}`] : []),
     ...(requiresGarage(booking.service) ? ["Garage or covered space: confirmed"] : []),
     `Estimate: ${totalLabel} (starting price)`,
     "",

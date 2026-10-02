@@ -39,7 +39,8 @@ export async function submitContact(
 
   const { subject, text, html } = buildContactEmail(parsed.data);
   const result = await sendEmail({
-    to: siteConfig.email,
+    // `||` (not `??`) so an empty BOOKING_NOTIFY_EMAIL in the host's env still falls back.
+    to: process.env.BOOKING_NOTIFY_EMAIL || siteConfig.email,
     subject,
     text,
     html,

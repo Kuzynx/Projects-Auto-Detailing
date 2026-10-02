@@ -28,7 +28,7 @@ export function Hero() {
           src="/images/hero-garage.jpg"
           alt=""
           fill
-          priority
+          preload
           sizes="100vw"
           className={`object-cover object-[70%_50%] ${styles.kenburns}`}
         />

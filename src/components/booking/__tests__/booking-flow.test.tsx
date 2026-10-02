@@ -94,6 +94,23 @@ describe("BookingFlow", () => {
     ).toBeInTheDocument();
   });
 
+  // Mirrors e2e/qa-regressions.spec.ts "vehicle step focuses the first invalid field on screen".
+  it("focuses the first invalid field in on-screen order (make before year)", async () => {
+    render(<BookingFlow initialDraft={{ ...blank(), service: "fx-wash" }} initialStep={1} />);
+    fireEvent.change(screen.getByLabelText(/^Year/), { target: { value: "19" } });
+    fireEvent.click(continueButton());
+    expect(await screen.findByText("Enter the make, like Porsche or Toyota.")).toBeInTheDocument();
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText("Make")));
+  });
+
+  // Mirrors e2e/qa-regressions.spec.ts "time on site does not read 'About ~'".
+  it("shows approximate durations without a second qualifier", () => {
+    render(<BookingFlow initialDraft={{ ...blank(), service: "fx-work", size: "suv" }} />);
+    const summary = screen.getByRole("complementary", { name: "Booking summary" });
+    expect(summary).toHaveTextContent("~1–1.5 hrs on site");
+    expect(summary).not.toHaveTextContent("About ~");
+  });
+
   it("drops the interior questions for motorcycles", async () => {
     render(<BookingFlow initialDraft={{ ...blank(), service: "fx-wash" }} initialStep={1} />);
     expect(screen.getByLabelText("Interior")).toBeInTheDocument();

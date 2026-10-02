@@ -100,9 +100,7 @@ export function BookingSummary({ draft, className }: { draft: BookingDraft; clas
         <Row icon={CalendarDays} label="When" muted={!when}>
           {when ?? "Not scheduled yet"}
           {estimate.durationLabel && (
-            <span className="mt-0.5 block text-ink-muted">
-              About {estimate.durationLabel} on site
-            </span>
+            <span className="mt-0.5 block text-ink-muted">{estimate.durationLabel} on site</span>
           )}
         </Row>
         <Row icon={MapPin} label="Where">

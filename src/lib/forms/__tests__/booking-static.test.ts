@@ -44,7 +44,7 @@ describe("static booking delivery", () => {
     vi.unstubAllGlobals();
   });
 
-  // Regression: booking-static.ts never reads the honeypot (company_website) or startedAt
+  // Regression: booking-static.ts never read the honeypot (company_website) or fill time
   // that booking-flow.tsx sends, so on static hosting with NEXT_PUBLIC_FORM_ENDPOINT every
   // bot submission is POSTed to the form provider (and counts against its quota), unlike
   // the server action, which drops them.
@@ -53,7 +53,7 @@ describe("static booking delivery", () => {
     const { submitBooking } = await import("../booking-static");
     const fd = new FormData();
     fd.set("payload", JSON.stringify(payload));
-    fd.set("startedAt", String(NOW.getTime() - 5 * 60_000));
+    fd.set("elapsedMs", String(5 * 60_000));
     fd.set("company_website", "http://spam.example");
     const result = await submitBooking(null, fd);
     expect(result?.ok).toBe(true);

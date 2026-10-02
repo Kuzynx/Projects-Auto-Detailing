@@ -59,14 +59,26 @@ test.describe("crawler files", () => {
     expect(body).toContain("/sitemap.xml");
   });
 
-  test("social image and icons are generated", async ({ request }) => {
-    for (const path of ["/opengraph-image", "/twitter-image", "/icon", "/apple-icon"]) {
+  test("social image, icons and manifest are served", async ({ request }) => {
+    const pngs = [
+      "/opengraph-image",
+      "/twitter-image",
+      "/icon.png",
+      "/apple-icon.png",
+      "/icon-192.png",
+      "/icon-512.png",
+    ];
+    for (const path of pngs) {
       const response = await request.get(path);
       expect(response.status(), path).toBe(200);
       expect(response.headers()["content-type"]).toContain("image/png");
     }
     const manifest = await request.get("/manifest.webmanifest");
     expect(manifest.status()).toBe(200);
+    for (const icon of (await manifest.json()).icons as { src: string }[]) {
+      const response = await request.get(new URL(icon.src, `${manifest.url()}`).pathname);
+      expect(response.status(), icon.src).toBe(200);
+    }
   });
 
   test("security headers are set", async ({ request }) => {
