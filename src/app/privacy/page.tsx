@@ -57,8 +57,8 @@ const sections: LegalSection[] = [
             record of its condition at inspection.
           </li>
           <li>
-            <strong>Payments:</strong> we record the amount, date and method. Card payments are
-            handled by our payment processor; we never see or store your full card number.
+            <strong>Payments:</strong> we record the amount, date and method. Payments through Cash
+            App or Venmo are handled by those apps; we never see or store your bank or card details.
           </li>
         </ul>
         <h3>Information collected automatically</h3>
