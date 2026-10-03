@@ -12,7 +12,7 @@ export const siteConfig = {
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://projectsautodetailing.com",
   phone: "(840) 204-4176",
   phoneHref: "tel:+18402044176",
-  email: "hello@projectsautodetailing.com",
+  email: "ProjectsAutoDetailing@gmail.com",
   /** Mobile-only business: no public street address. `street` stays empty on purpose. */
   address: {
     street: "",
