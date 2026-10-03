@@ -114,7 +114,7 @@ export const faqs: FaqItem[] = [
   {
     category: "booking",
     question: "What payment methods do you accept?",
-    answer: `${paymentsBy}. You can pay by cash, Cash App, Venmo or Apple Pay; the options are confirmed when you book. Payment is due when the job is done.`,
+    answer: `${paymentsBy}. You can pay by cash, Cash App, Venmo or Apple Pay (sent over text); the options are confirmed when you book. Payment is due when the job is done.`,
   },
   {
     category: "booking",

@@ -58,7 +58,8 @@ const sections: LegalSection[] = [
           </li>
           <li>
             <strong>Payments:</strong> we record the amount, date and method. Payments through Cash
-            App or Venmo are handled by those apps; we never see or store your bank or card details.
+            App, Venmo or Apple Pay are handled by those apps; we never see or store your bank or
+            card details.
           </li>
         </ul>
         <h3>Information collected automatically</h3>
